@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에테르노아 : 달빛 소리 온실 (Aeternoia)</title>
+    <link rel="stylesheet" href="style.css?v=16">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-container">
+        <div class="aurora"></div>
+        <div class="stars" id="stars"></div>
+    </div>
+
+    <div id="app">
+        <!-- 전역 상단 바 -->
+        <div id="global-top-bar" class="top-bar-absolute hidden">
+            <div id="active-buffs-container" class="active-buffs-container"></div>
+            <select id="store-selector" class="glass" onchange="changeStage(this.value)">
+                <option value="1">1호점</option>
+            </select>
+            <button id="notif-btn" class="glass" onclick="toggleNotifications()">
+                🔔 <span id="notif-badge" class="hidden">0</span>
+            </button>
+        </div>
+
+        <!-- 1. 시작 화면 -->
+        <section id="screen-start" class="screen active">
+            <div class="title-container">
+                <h1 class="game-title">Aeternoia</h1>
+                <p class="game-subtitle">에테르노아 : 달빛 소리 온실</p>
+                <button class="primary-btn glow-btn" onclick="startGame()" data-i18n="start_button">소리 온실 입장</button>
+                <button class="primary-btn glow-btn" onclick="showTutorial(event)" style="margin-top: 15px; background: rgba(255, 255, 255, 0.1);" data-i18n="tutorial_button">게임 방법</button>
+            </div>
+        </section>
+
+        <!-- 2. 스튜디오 허브 (코너 선택 및 경영) -->
+        <section id="screen-studio" class="screen">
+            <header class="status-bar glass">
+                <div class="user-info">
+                    <span class="rank-tag" data-i18n="rank_tag">온실의 수호자</span>
+                    <h1 id="guardian-name">에테르노아 온실</h1>
+                </div>
+                <div class="stats">
+                    <div class="stat-item" id="stat-essence">
+                        <span class="icon">✨</span>
+                        <span class="value">0</span>
+                    </div>
+                    <div class="stat-item" id="stat-level">
+                        <span class="value">LV.1</span>
+                        <div class="level-xp-container">
+                            <span class="xp-numeric">0 / 100 XP</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="studio-content">
+                <h2 data-i18n="rooms_title">ASMR 코너 (Recording Rooms)</h2>
+                <div class="room-grid" id="room-list">
+                    <!-- 방 목록 동적 생성 -->
+                </div>
+            </div>
+
+            <nav class="action-tabs glass">
+                <button class="tab-btn active" data-tab="manage"><span class="tab-icon">🏢</span><span class="tab-text" data-i18n="tab_manage">경영</span></button>
+                <button class="tab-btn" data-tab="inventory"><span class="tab-icon">🎒</span><span class="tab-text" data-i18n="tab_inventory">보관함</span></button>
+                <button class="tab-btn" data-tab="upgrade"><span class="tab-icon">🛠️</span><span class="tab-text" data-i18n="tab_upgrade">강화</span></button>
+                <button class="tab-btn" data-tab="stream" style="display:none;"><span class="tab-icon">🌌</span><span class="tab-text" data-i18n="tab_stream">방송</span></button>
+                <button class="tab-btn" data-tab="reviews">
+                    <span class="tab-icon">📱</span>
+                    <span class="tab-text" data-i18n="tab_reviews">도감</span>
+                    <span id="reviews-badge" class="badge hidden" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:0.7rem; font-weight:bold;">0</span>
+                </button>
+                <button class="tab-btn" data-tab="settings"><span class="tab-icon">⚙️</span><span class="tab-text" data-i18n="tab_settings">설정</span></button>
+            </nav>
+
+            <!-- 허브 패널 시스템 -->
+            <div class="panel-container">
+                <button class="close-panel-btn" onclick="closePanel()">✕</button>
+                
+                <div id="manage-panel" class="panel active">
+                    <div class="visitor-section">
+                        <h3 data-i18n="visitor_title">대기 중인 지친 정령들</h3>
+                        <p class="desc" data-i18n="visitor_desc">정령을 직접 치유하여 막대한 보상을 획득하세요.</p>
+                        <div id="visitor-list"></div>
+                    </div>
+                </div>
+
+                <div id="inventory-panel" class="panel">
+                    <div class="shop-header">
+                        <h2 data-i18n="inventory_title">아이템 보관함</h2>
+                    </div>
+                    <div class="inventory-bookshelf" id="inventory-list">
+                        <!-- 인벤토리 아이템 동적 생성 -->
+                    </div>
+                </div>
+
+                <div id="upgrade-panel" class="panel">
+                    <div class="shop-header">
+                        <h2 data-i18n="shop_title">영혼 상점 (버프 & 강화)</h2>
+                        <div class="current-balance glass">✨ <span id="shop-essence">0</span></div>
+                    </div>
+                    
+                    <div style="margin-bottom:15px;">
+                        <h3 style="font-size:0.95rem; color:var(--accent-gold); margin-bottom:8px; display:flex; align-items:center; gap:6px;">🔨 영구 시스템 강화</h3>
+                        <div class="upgrade-grid" id="upgrade-items"></div>
+                    </div>
+
+                    <!-- 1시간 주기 비밀 상점 섹션 -->
+                    <div style="border-top: 1px dashed rgba(255,255,255,0.15); padding-top:15px; margin-top:15px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <h3 style="font-size:0.95rem; color:#00ffcc; display:flex; align-items:center; gap:6px;">⏰ 1시간 한정 비밀 보물상점</h3>
+                            <span id="secret-shop-timer" style="font-size:0.8rem; font-family:monospace; color:#ffd700; background:rgba(0,0,0,0.4); padding:4px 10px; border-radius:12px; border:1px solid rgba(255,215,0,0.3);">⏱️ 재고 교체: 계산 중...</span>
+                        </div>
+                        <div class="upgrade-grid" id="secret-shop-items"></div>
+                    </div>
+                </div>
+
+                <div id="stream-panel" class="panel">
+                    <div class="stream-header">
+                        <h2 data-i18n="stream_title">에테르노아 튜브 (힐링 채널)</h2>
+                        <p class="desc" data-i18n="stream_desc">영상을 업로드하여 지속적인 조회수(경험치)와 후원금(정수)을 얻으세요!</p>
+                        <p class="video-limit-text"><span data-i18n="upload_slots">업로드 슬롯:</span> <strong id="video-count">0</strong> / <strong id="video-max">1</strong> <span style="font-size:0.7rem; color:#aaa;" data-i18n="slots_info">(레벨당 1개)</span></p>
+                    </div>
+                    <div class="upload-controls glass">
+                        <label for="stream-topic" data-i18n="select_topic">ASMR 주제 선택:</label>
+                        <select id="stream-topic" class="custom-select">
+                            <!-- 해금된 방 목록 동적 생성 -->
+                        </select>
+                        <button class="primary-btn upload-action-btn" onclick="uploadVideo()" data-i18n="upload_button">새 영상 업로드 🎥</button>
+                    </div>
+                    <div class="video-list-container">
+                        <h3 data-i18n="uploaded_videos">업로드된 영상 목록</h3>
+                            <div id="video-list" class="video-list">
+                            <!-- 비디오 카드 동적 생성 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reviews-panel" class="panel">
+                    <h3 data-i18n="reviews_title">에테르노아 SNS 후기 도감</h3>
+                    <p class="desc" data-i18n="reviews_desc">손님들을 치유하고 남겨진 후기들을 수집하여 특별한 보상을 받아보세요.</p>
+                    <div id="reviews-container">
+                        <!-- 리뷰 도감 목록 동적 생성 -->
+                    </div>
+                </div>
+
+                <!-- 설정 패널 -->
+                <div id="settings-panel" class="panel">
+                    <div class="shop-header"><h2 data-i18n="settings_title">환경 설정</h2></div>
+                    <div class="upgrade-grid">
+                        <div class="upgrade-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                            <label for="bgm-volume-slider"><strong data-i18n="setting_bgm_volume">🎵 배경음악 볼륨</strong></label>
+                            <input type="range" id="bgm-volume-slider" min="0" max="100" value="50" oninput="applySettings()" onchange="applySettings()" style="width:100%;">
+                        </div>
+                        <div class="upgrade-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                            <label for="sfx-volume-slider"><strong data-i18n="setting_sfx_volume">🔊 효과음 (상호작용) 볼륨</strong></label>
+                            <input type="range" id="sfx-volume-slider" min="0" max="100" value="50" oninput="applySettings()" onchange="applySettings()" style="width:100%;">
+                        </div>
+                        <div class="upgrade-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                            <label for="interaction-mode"><strong>🖱️ 상호작용 모드</strong></label>
+                            <select id="interaction-mode" onchange="applySettings()" class="custom-select" style="background:rgba(255,255,255,0.1); border:none; padding:5px; width:100%;">
+                                <option value="direct">직접 상호작용 (클릭/드래그 시 재화 획득)</option>
+                                <option value="auto">자동 재생 (반복 듣기 전용, 재화 획득 불가)</option>
+                            </select>
+                        </div>
+                        <div class="upgrade-card" style="flex-direction:row; align-items:center; justify-content:space-between;">
+                            <label for="autosave-toggle"><strong data-i18n="setting_autosave">💾 자동 저장 기능</strong></label>
+                            <input type="checkbox" id="autosave-toggle" checked onchange="applySettings()" style="transform:scale(1.5);">
+                        </div>
+                        <div class="upgrade-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                            <label for="graphics-select"><strong data-i18n="setting_graphics">✨ 그래픽 (화질)</strong></label>
+                            <select id="graphics-select" onchange="applySettings()" class="custom-select" style="background:rgba(255,255,255,0.1); border:none; padding:5px; width:100%;">
+                                <option value="high" data-i18n="graphics_high">높음 (모든 효과 켜짐)</option>
+                                <option value="low" data-i18n="graphics_low">낮음 (배터리/저사양용)</option>
+                            </select>
+                        </div>
+                        <div class="upgrade-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
+                            <label for="language-select"><strong data-i18n="setting_language">🌐 언어 / Language</strong></label>
+                            <select id="language-select" class="custom-select" onchange="applySettings(); applyLanguage();" style="background:rgba(255,255,255,0.1); border:none; padding:5px; width:100%;">
+                                <option value="ko">한국어 (Korean)</option>
+                                <option value="en">English</option>
+                                <option value="ja">日本語 (Japanese)</option>
+                                <option value="zh">简体中文 (Chinese)</option>
+                                <option value="fr">Français (French)</option>
+                            </select>
+                        </div>
+                        <div class="upgrade-card" style="flex-direction:row; align-items:center; justify-content:space-between; grid-column: 1 / -1; border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.05);">
+                            <label for="devmode-toggle"><strong style="color:#ffd700;">🛠️ 개발자 모드 (Dev Mode)</strong></label>
+                            <input type="checkbox" id="devmode-toggle" onchange="toggleDevMode()" style="transform:scale(1.5);">
+                        </div>
+                        <!-- 개발자 툴킷 패널 -->
+                        <div id="devmode-panel" class="upgrade-card" style="display:none; flex-direction:column; align-items:flex-start; gap:12px; grid-column: 1 / -1; background: rgba(0, 0, 0, 0.4); border: 1px dashed #ffd700; padding:15px; border-radius:10px; margin-top:5px;">
+                            <h3 style="color:#ffd700; font-size:1.05rem; margin:0 0 5px 0; display:flex; align-items:center; gap:6px;">⚡ 개발자 시스템 커스텀 툴킷</h3>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px; width:100%;">
+                                <button class="primary-btn" style="padding:6px 12px; font-size:0.85rem; background:linear-gradient(135deg, #f39c12, #d35400);" onclick="devAddResources()">💰 재화 +100억 에센스 & +1억 XP</button>
+                                <button class="primary-btn" style="padding:6px 12px; font-size:0.85rem; background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="devUnlockAllStages()">🔓 1~6호점 전격 해금</button>
+                                <button class="primary-btn" style="padding:6px 12px; font-size:0.85rem; background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="devMaxAllRooms()">⚡ 현재 호점 모든 코너 만렙</button>
+                                <button class="primary-btn" style="padding:6px 12px; font-size:0.85rem; background:linear-gradient(135deg, #1abc9c, #16a085);" onclick="devSpawnVisitor()">🧑‍🤝‍🧑 손님 즉시 강제 소환</button>
+                                <button class="primary-btn" style="padding:6px 12px; font-size:0.85rem; background:linear-gradient(135deg, #34495e, #2c3e50);" onclick="devResetBgm()">🎵 BGM & AudioContext 재시작</button>
+                                <button class="primary-btn" style="padding:6px 12px; font-size:0.85rem; background:linear-gradient(135deg, #c0392b, #7f8c8d); border:1px solid #ff4444;" onclick="devResetAllData()">🧹 개발자 테스트 데이터 제거 (원래 상태로 복원)</button>
+                            </div>
+                            <!-- 실시간 시스템 진단 로그 박스 -->
+                            <div style="width:100%; margin-top:8px; background:rgba(0,0,0,0.6); padding:10px; border-radius:6px; font-family:monospace; font-size:0.8rem; color:#00ffcc; max-height:140px; overflow-y:auto; border:1px solid rgba(0,255,204,0.3);">
+                                <div style="font-weight:bold; color:#fff; margin-bottom:4px; border-bottom:1px solid #444; padding-bottom:3px; display:flex; justify-content:space-between;">
+                                    <span>🔍 시스템 실시간 진단 상태</span>
+                                    <span style="color:#aaa; font-weight:normal; font-size:0.75rem;">자동 갱신 중...</span>
+                                </div>
+                                <div id="dev-diag-info">진단 정보 로딩 중...</div>
+                            </div>
+                        </div>
+                        <button class="primary-btn" style="width:100%; margin-top:10px; background:linear-gradient(135deg, #2ecc71, #27ae60);" onclick="manualSave()" data-i18n="save_button">현재 상태 수동 저장</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 녹화 화면 (ASMR 상호작용 및 다이렉트 치유) -->
+        <section id="screen-recording" class="screen">
+            <header class="recording-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button class="back-btn glass" onclick="stopRecording()">
+                        <span class="icon">◀</span> <span data-i18n="back_to_studio">스튜디오로 복귀</span>
+                    </button>
+                    <div class="level-display glass" style="padding: 5px 15px; border-radius: 20px; font-weight: bold; color: var(--accent-gold);">
+                        <span id="recording-level-text">LV.1</span>
+                    </div>
+                    <div id="recording-active-buffs" class="active-buffs-container"></div>
+                </div>
+                <div class="metrics glass">
+                    <div class="metric-item" id="stability-index">
+                        <span class="label" data-i18n="stability_index">안정 지수</span>
+                        <div class="meter-bg"><div class="meter-fill" style="width: 80%;"></div></div>
+                        <span class="value">80%</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="active-healing-overlay" class="healing-overlay hidden">
+                <div class="healing-target-info">
+                    <span id="healing-avatar" class="avatar">🧚</span>
+                    <span id="healing-name" class="name">지친 요정 치유 중...</span>
+                </div>
+                <div class="healing-progress-container glass">
+                    <div id="healing-progress-fill" class="healing-progress-fill"></div>
+                    <span id="healing-percent" class="healing-percent">0%</span>
+                </div>
+                <div class="instruction-text" data-i18n="healing_instruction">ASMR 도구와 상호작용하여 치유를 완료하세요!</div>
+                <button id="auto-heal-btn" class="primary-btn glow-btn" onclick="toggleAutoHeal()" style="margin-top: 10px; background: linear-gradient(135deg, var(--accent-gold), #ffaa00); color: #000; font-weight: bold; border: none;" data-i18n="auto_heal_button">자동 치유 시작 ⚡</button>
+            </div>
+
+            <div class="recording-visual">
+                <div id="db-meter" class="glass">
+                    <div class="db-needle"></div>
+                    <span class="db-text">35 dB</span>
+                    <span class="db-status">OPTIMAL</span>
+                </div>
+                <div id="tool-instruction" class="tool-instruction glass" style="margin-bottom: 10px; padding: 10px; font-size: 0.9rem; text-align: center; color: #fff;">
+                    마우스를 올리거나 클릭, 드래그, 또는 키보드를 눌러보세요.
+                </div>
+                <button id="auto-play-toggle" class="primary-btn glow-btn hidden" onclick="toggleAutoPlay()" style="margin: 0 auto 10px auto; display: none; background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; font-weight: bold; border: none; width: 200px;" data-i18n="auto_play_toggle">🔊 소리 켜기</button>
+                <div id="interaction-sanctuary" class="sanctuary-area">
+                    <div id="active-tool-layer"></div>
+                    <canvas id="interaction-canvas"></canvas>
+                </div>
+                <div class="current-room-text" id="recording-room-name">방 이름</div>
+            </div>
+            
+            <div class="recording-footer">
+                <div class="xp-bar-container glass">
+                    <div class="xp-bar-fill"></div>
+                    <span class="xp-text" data-i18n="growth_gauge">성장 게이지</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 알림 센터 패널 -->
+        <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content glass" style="max-width: 520px; text-align: center; position: relative; border-radius: 30px; padding: 25px; border: 1.5px solid var(--accent-gold);">
+            <h2 style="margin-bottom: 15px; color: var(--accent-gold); font-size: 1.3rem;">📖 게임 방법 (스튜디오 가이드)</h2>
+            
+            <div id="tutorial-slide-1" class="tutorial-slide">
+                <img src="image/tutorial_step1.png" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);" alt="Step 1">
+                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;"><b>1. 손님 맞이</b><br>지친 손님이 찾아오면 클릭하여 원하는 치유 코너로 안내하세요. 붉은 바는 손님의 스트레스를 의미합니다.</p>
+            </div>
+            
+            <div id="tutorial-slide-2" class="tutorial-slide hidden">
+                <img src="image/tutorial_step2.png" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);" alt="Step 2">
+                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;"><b>2. ASMR 상호작용</b><br>코너 안의 요소를 클릭하거나 문지르면 <b>안정지수</b>가 오르고 치유 속도가 2배 빨라집니다!</p>
+            </div>
+            
+            <div id="tutorial-slide-3" class="tutorial-slide hidden">
+                <img src="image/tutorial_step3.png" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);" alt="Step 3">
+                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;"><b>3. 성장과 확장</b><br>치유가 끝나면 에센스(✨)와 경험치를 받습니다. 돈을 모아 장비를 업그레이드하고 호점을 오픈하세요!</p>
+                <button class="primary-btn glow-btn" onclick="startFromTutorial(event)" style="margin-top: 15px; width: 100%; padding: 12px 20px; font-size: 1rem;">✨ 지금 바로 스튜디오 입장하기</button>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <button class="secondary-btn" id="tutorial-prev" onclick="changeTutorialSlide(-1)" style="visibility: hidden; padding: 8px 18px;">◀ 이전</button>
+                <div id="tutorial-dots" style="display: flex; gap: 8px;">
+                    <span class="dot active" style="width: 10px; height: 10px; border-radius: 50%; background-color: var(--accent-gold);"></span>
+                    <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255,255,255,0.3);"></span>
+                    <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255,255,255,0.3);"></span>
+                </div>
+                <button class="primary-btn glow-btn" id="tutorial-next" onclick="changeTutorialSlide(1)" style="padding: 8px 18px;">다음 ▶</button>
+            </div>
+            <button onclick="hideTutorial(event)" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+    </div>
+
+    <!-- Background Audio -->
+    <audio id="bgm-player" loop></audio>
+
+    <!-- Room Select Modal -->
+    <div id="room-select-modal" class="modal-overlay hidden">
+        <div class="modal-content glass" style="max-width: 500px;">
+            <h3 style="color:var(--accent-gold); margin-bottom:15px; text-align:center;">치유를 진행할 코너 선택</h3>
+            <div id="modal-room-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; max-height: 50vh; overflow-y: auto;">
+                <!-- 방 리스트 동적 생성 -->
+            </div>
+            <div class="modal-actions" style="margin-top: 15px;">
+                <button class="secondary-btn" onclick="closeRoomSelectModal()">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Up Overlay -->
+    <div id="levelup-overlay" class="hidden">
+        <div class="levelup-content">
+            <div class="levelup-icon">🌟</div>
+            <div class="levelup-text">레벨 업!</div>
+            <div id="levelup-level" class="levelup-level">LV.2</div>
+            <button onclick="document.getElementById('levelup-overlay').classList.add('hidden')" style="margin-top: 20px; display: block; width: 100%; background: transparent; border: none; color: #aaa; cursor: pointer; text-decoration: underline; font-size: 0.9rem;">화면 건너뛰기</button>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-center" class="notif-panel">
+            <div class="notif-header">
+                <h3 data-i18n="notif_center_title">알림 센터</h3>
+                <button class="close-notif-btn glass" onclick="toggleNotifications()">✕</button>
+            </div>
+            <div id="notif-list" class="notif-list">
+                <!-- 알림 내역 동적 생성 -->
+            </div>
+            <button class="clear-notif-btn" onclick="clearNotifications()" data-i18n="clear_notifs_button">알림 모두 지우기</button>
+        </div>
+    </div>
+
+    <div id="item-modal" class="modal-overlay hidden">
+        <div class="modal-content glass">
+            <h3 data-i18n="item_use_confirm">정말로 이 아이템을 사용하시겠습니까?</h3>
+            <div id="modal-item-info" class="modal-item-info"></div>
+            <div class="modal-actions">
+                <button class="primary-btn" id="btn-use-item" data-i18n="btn_use">사용하기</button>
+                <button class="secondary-btn" onclick="closeItemModal()" data-i18n="btn_later">나중에</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+    <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
+    <script src="audio_base64.js"></script>
+    <script src="procedural_bgm.js?v=15"></script>
+    <script src="app.js?v=15"></script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindForge - 나만의 전문 AI 제작 플랫폼</title>
+    <!-- 구글 폰트: Outfit & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 스타일시트 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 배경 특수 효과 -->
+    <div class="bg-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- 앱 전체 컨테이너 -->
+    <div id="app">
+        <!-- 상단 네비게이션 바 -->
+        <header class="navbar glass">
+            <div class="logo" onclick="navigateTo('dashboard')">
+                <i class="fa-solid fa-brain-circuit brain-logo"></i>
+                <span class="logo-text">Mind<span>Forge</span></span>
+            </div>
+            <div class="nav-right">
+                <div class="api-status-badge local" id="api-status" onclick="openApiModal()">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span id="api-status-text">로컬 엔진 모드</span>
+                </div>
+                <button class="icon-btn" onclick="openApiModal()" title="API 설정">
+                    <i class="fa-solid fa-key"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="content-container">
+            
+            <!-- 1. 메인 대시보드 화면 -->
+            <section id="screen-dashboard" class="screen active">
+                <!-- 완전 중앙 정렬된 메인 히어로 섹션 -->
+                <div class="dashboard-hero centered glass">
+                    <div class="hero-content">
+                        <div class="hero-badge"><i class="fa-solid fa-sparkles"></i> 코딩 없는 커스텀 RAG 스튜디오</div>
+                        <h1>상상력을 현실로, <br><span>나만의 전문 AI</span> 제작소</h1>
+                        <p>대중적인 인공지능이 모르는 나만의 판타지 소설 설정, 보드게임 룰북, 나만의 메뉴얼을 주입하세요. <br>할루시네이션(환각)을 최소화하고 디테일까지 정확히 맞추는 팩트 가드 AI가 만들어집니다.</p>
+                        
+                        <div class="hero-actions">
+                            <button class="primary-btn glow-btn large" onclick="navigateTo('creator')">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 나만의 전문 AI 만들기
+                            </button>
+                            <a href="#ai-list-section" class="sec-btn large">
+                                <i class="fa-solid fa-circle-play"></i> 준비된 AI 체험하기
+                            </a>
+                        </div>
+
+                        <div class="hero-stats-row">
+                            <div class="hero-stat-item">
+                                <span class="h-stat-num" id="stat-ai-count">0</span>
+                                <span class="h-stat-label">등록된 전문 AI</span>
+                            </div>
+                            <div class="hero-stat-divider"></div>
+                            <div class="hero-stat-item">
+                                <span class="h-stat-num" id="stat-kb-size">0k</span>
+                                <span class="h-stat-label">학습 지식 총량 (자)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 서비스 핵심 워크플로우 비주얼 가이드 -->
+                <div class="workflow-section">
+                    <div class="wf-title">MindForge 작동 프로세스</div>
+                    <div class="workflow-grid">
+                        <div class="wf-card glass">
+                            <div class="wf-icon"><i class="fa-solid fa-database"></i></div>
+                            <h4>1. 지식 데이터 주입</h4>
+                            <p>나만의 설정집, 텍스트 파일, 웹사이트 주소를 적어줍니다.</p>
+                        </div>
+                        <div class="wf-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        <div class="wf-card glass">
+                            <div class="wf-icon"><i class="fa-solid fa-brain-circuit"></i></div>
+                            <h4>2. 시냅스 학습 & 컴파일</h4>
+                            <p>글래스모피즘 애니메이션과 함께 문장을 쪼개고 색인합니다.</p>
+                        </div>
+                        <div class="wf-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        <div class="wf-card glass">
+                            <div class="wf-icon"><i class="fa-solid fa-chart-columns"></i></div>
+                            <h4>3. 팩트 체커 대조 채팅</h4>
+                            <p>일반 AI의 거짓말과 내 AI의 팩트 답변을 더블 뷰로 비교합니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI 리스트 영역 -->
+                <div class="ai-list-section-wrapper" id="ai-list-section">
+                    <div class="section-header centered">
+                        <h2>나의 전문 AI 스튜디오 목록</h2>
+                        <p class="section-subtitle">아래 카드에서 인공지능을 선택해 대화를 나누거나, 새 AI를 생성하세요.</p>
+                    </div>
+
+                    <!-- AI 카드 그리드 -->
+                    <div class="ai-grid" id="ai-list-container">
+                        <!-- 첫 번째 카드는 항상 '새로운 AI 만들기' 카드여야 함 (app.js에서 동적 제어) -->
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 2. AI 크리에이터 생성 마법사 화면 -->
+            <section id="screen-creator" class="screen">
+                <div class="back-link" onclick="navigateTo('dashboard')">
+                    <i class="fa-solid fa-arrow-left"></i> 대시보드로 돌아가기
+                </div>
+
+                <div class="creator-card glass">
+                    <!-- 단계별 인디케이터 -->
+                    <div class="stepper">
+                        <div class="step active" id="step-ind-1">
+                            <span class="step-num">1</span>
+                            <span class="step-title">아이덴티티 설정</span>
+                        </div>
+                        <div class="step-line" id="step-line-1"></div>
+                        <div class="step" id="step-ind-2">
+                            <span class="step-num">2</span>
+                            <span class="step-title">데이터 주입 (공부)</span>
+                        </div>
+                        <div class="step-line" id="step-line-2"></div>
+                        <div class="step" id="step-ind-3">
+                            <span class="step-num">3</span>
+                            <span class="step-title">시냅스 활성화</span>
+                        </div>
+                    </div>
+
+                    <!-- 단계 1: 아이덴티티 설정 -->
+                    <div class="step-content active" id="step-content-1">
+                        <h3>AI의 정체성 및 말투를 설정합니다.</h3>
+                        <div class="form-group">
+                            <label for="ai-name">AI 이름 <span class="required">*</span></label>
+                            <input type="text" id="ai-name" placeholder="예: 발로리아 수석 역사학자, 마인크래프트 모드 룰러">
+                        </div>
+
+                        <div class="form-group">
+                            <label>AI 프로필 아이콘 선택</label>
+                            <div class="avatar-selector">
+                                <div class="avatar-option active" data-avatar="fa-book-atlas"><i class="fa-solid fa-book-atlas"></i></div>
+                                <div class="avatar-option" data-avatar="fa-dragon"><i class="fa-solid fa-dragon"></i></div>
+                                <div class="avatar-option" data-avatar="fa-gamepad"><i class="fa-solid fa-gamepad"></i></div>
+                                <div class="avatar-option" data-avatar="fa-flask"><i class="fa-solid fa-flask"></i></div>
+                                <div class="avatar-option" data-avatar="fa-wand-magic-sparkles"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <div class="avatar-option" data-avatar="fa-scroll"><i class="fa-solid fa-scroll"></i></div>
+                                <div class="avatar-option" data-avatar="fa-robot"><i class="fa-solid fa-robot"></i></div>
+                                <div class="avatar-option" data-avatar="fa-shield-halved"><i class="fa-solid fa-shield-halved"></i></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ai-desc">한 줄 설명 <span class="required">*</span></label>
+                            <input type="text" id="ai-desc" placeholder="예: 가상의 판타지 대륙 발로리아의 모든 역사와 인물 관계를 기억합니다.">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ai-persona">기본 페르소나 (프롬프트 룰)</label>
+                            <textarea id="ai-persona" rows="3" placeholder="예: 당신은 학구적이며 차분하고, 모르는 것은 절대 지어내지 않고 주입된 기록물에만 기반하여 답합니다."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <div></div> <!-- spacer -->
+                            <button class="primary-btn" onclick="nextStep(2)">
+                                다음 단계로 <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 단계 2: 지식 주입 (공부) -->
+                    <div class="step-content" id="step-content-2">
+                        <div class="step-header-with-actions">
+                            <h3>이 인공지능이 독점적으로 학습할 '나만의 지식'을 주입하세요.</h3>
+                            <div class="template-selector-wrapper">
+                                <span class="label-hint">또는 빠른 테스트용 템플릿 로드:</span>
+                                <button class="sec-btn sm" onclick="loadSampleTemplate('fantasy')">🐉 판타지 설정집</button>
+                                <button class="sec-btn sm" onclick="loadSampleTemplate('game')">🎲 인디보드게임 룰북</button>
+                            </div>
+                        </div>
+
+                        <div class="knowledge-tabs">
+                            <button class="k-tab-btn active" data-tab="kb-text"><i class="fa-solid fa-keyboard"></i> 직접 입력</button>
+                            <button class="k-tab-btn" data-tab="kb-file"><i class="fa-solid fa-file-import"></i> 파일 업로드</button>
+                            <button class="k-tab-btn" data-tab="kb-web"><i class="fa-solid fa-globe"></i> 웹 크롤링 시뮬레이터</button>
+                        </div>
+
+                        <!-- 탭: 직접 입력 -->
+                        <div class="k-tab-content active" id="kb-text">
+                            <div class="form-group">
+                                <label for="knowledge-text">세부 지식 입력 <span class="required">*</span></label>
+                                <textarea id="knowledge-text" rows="12" placeholder="일반 인공지능이 잘 알 수 없는 구체적인 정보, 설정, 메뉴얼, 인물 세부정보를 적어주세요. 
+(예시: 발로리아의 4대 황제 에드워드 3세는 마법을 다루지 못했으나, 그의 검 '솔라리스'는 빛 속성의 정령과 계약된 유일한 유물이었다. 그는 황비 카트린과의 사이에서 2남 1녀를 두었다...)"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 탭: 파일 업로드 -->
+                        <div class="k-tab-content" id="kb-file">
+                            <div class="file-drop-area" id="file-drop-zone">
+                                <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+                                <p class="drop-text">여기로 텍스트(.txt) 또는 JSON(.json) 파일을 끌어다 놓으세요.</p>
+                                <span class="drop-or">또는</span>
+                                <label for="file-upload" class="file-select-btn">파일 선택</label>
+                                <input type="file" id="file-upload" accept=".txt,.json" style="display: none;">
+                            </div>
+                            <div id="file-info-bar" class="file-info-bar hidden">
+                                <i class="fa-solid fa-file-lines file-icon"></i>
+                                <span id="uploaded-file-name">파일명.txt</span>
+                                <span id="uploaded-file-size">(15 KB)</span>
+                                <button class="remove-file-btn" onclick="clearUploadedFile()"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- 탭: 웹 크롤링 -->
+                        <div class="k-tab-content" id="kb-web">
+                            <div class="web-crawler-container">
+                                <p class="tab-desc">특정 마이너 위키나 정보 제공용 블로그 포스트의 주소를 입력하면 인공지능이 해당 내용을 실시간 스캔합니다.</p>
+                                <div class="url-input-group">
+                                    <input type="url" id="crawl-url" placeholder="https://my-minor-wiki.com/valoria-history">
+                                    <button class="primary-btn" onclick="startMockCrawl()">정보 추출</button>
+                                </div>
+                                <div class="crawler-console glass hidden" id="crawler-console">
+                                    <div class="console-header">
+                                        <span>SYSTEM NETWORK CONSOLE</span>
+                                        <span class="console-dot green"></span>
+                                    </div>
+                                    <div class="console-logs" id="crawl-logs">
+                                        <!-- 로그 출력 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="sec-btn" onclick="prevStep(1)">
+                                <i class="fa-solid fa-arrow-left"></i> 이전 단계로
+                            </button>
+                            <button class="primary-btn glow-btn" onclick="startTrainingProcess()">
+                                지식 학습 시작 (시냅스 빌드) <i class="fa-solid fa-bolt"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 단계 3: 시냅스 빌드 (학습 화면) -->
+                    <div class="step-content" id="step-content-3">
+                        <div class="training-container">
+                            <div class="training-header">
+                                <div class="pulse-ring">
+                                    <i class="fa-solid fa-brain-circuit icon-training"></i>
+                                </div>
+                                <h3 id="training-title">시냅스 연결 및 벡터 데이터 색인 중...</h3>
+                                <p id="training-subtitle">주입된 데이터에서 팩트 코어와 디테일을 세분화하여 보관하고 있습니다.</p>
+                            </div>
+
+                            <div class="training-visualizer glass">
+                                <!-- 지식 노드 네트워크 애니메이션이 그려질 캔버스 -->
+                                <canvas id="network-canvas"></canvas>
+                                <!-- 학습 중 실시간 스캔 텍스트 효과 -->
+                                <div class="scanning-overlay" id="scanning-overlay"></div>
+                            </div>
+
+                            <div class="training-progress-wrapper">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="training-progress-bar" style="width: 0%"></div>
+                                </div>
+                                <div class="progress-info">
+                                    <span id="training-percentage">0%</span>
+                                    <span id="training-status">데이터 문장 쪼개기(Chunking) 진행 중...</span>
+                                </div>
+                            </div>
+
+                            <div class="training-console glass">
+                                <div class="console-header">
+                                    <span>KNOWLEDGE COMPILER LOG</span>
+                                    <span class="status-indicator live">LIVE</span>
+                                </div>
+                                <div class="console-logs" id="training-logs">
+                                    <!-- 실시간 로그 -->
+                                </div>
+                            </div>
+
+                            <div class="form-actions hidden" id="training-done-actions">
+                                <button class="primary-btn glow-btn large" id="btn-complete-ai" onclick="saveCreatedAI()">
+                                    <i class="fa-solid fa-circle-check"></i> 학습 완료! AI 스튜디오 입장
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- 3. 실시간 테스트 및 채팅 룸 (스튜디오) -->
+            <section id="screen-chat" class="screen">
+                <div class="chat-layout">
+                    
+                    <!-- 왼쪽 사이드바 (AI 설정 & 주입된 데이터 목록) -->
+                    <div class="chat-sidebar glass">
+                        <div class="back-link-chat" onclick="navigateTo('dashboard')">
+                            <i class="fa-solid fa-house"></i> 메인으로
+                        </div>
+                        
+                        <div class="sidebar-ai-info" id="chat-sidebar-ai-info">
+                            <!-- AI 프로필 요약 동적 바인딩 -->
+                        </div>
+
+                        <div class="knowledge-status-card">
+                            <div class="card-title">
+                                <span><i class="fa-solid fa-database"></i> 학습된 지식 저장소</span>
+                                <button class="icon-edit-kb" onclick="toggleKnowledgeEditor()" title="지식 보완하기">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button>
+                            </div>
+                            <div class="knowledge-words-count">
+                                <span class="count-num" id="chat-kb-chars">0</span> 자 학습됨
+                            </div>
+                            <div class="extracted-keywords-container">
+                                <div class="kw-header">핵심 키워드</div>
+                                <div class="keywords-list" id="chat-sidebar-keywords">
+                                    <!-- 추출 키워드 뱃지 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 실시간 지식 보완 편집 창 -->
+                        <div class="quick-knowledge-editor hidden" id="quick-kb-editor">
+                            <h4>지식 실시간 보완 & 피드백</h4>
+                            <p class="edit-desc">AI가 잘못 대답하거나 모르는 부분이 있다면 여기에 정보를 추가하고 즉시 재학습할 수 있습니다.</p>
+                            <textarea id="quick-kb-textarea" rows="8" placeholder="추가할 세부 사실을 입력하세요..."></textarea>
+                            <div class="editor-buttons">
+                                <button class="sec-btn sm" onclick="toggleKnowledgeEditor()">취소</button>
+                                <button class="primary-btn sm glow-btn" onclick="saveQuickKnowledge()">
+                                    <i class="fa-solid fa-bolt"></i> 3초 재학습
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="recommended-questions">
+                            <div class="rec-title"><i class="fa-solid fa-lightbulb"></i> 이 지식을 검증할 추천 질문</div>
+                            <div class="rec-list" id="chat-rec-questions">
+                                <!-- 질문 추천 버튼 동적 생성 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 오른쪽 채팅 스페이스 -->
+                    <div class="chat-main">
+                        <div class="chat-header-bar glass">
+                            <div class="chat-ai-title-area">
+                                <span class="active-badge" style="color:var(--success); font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:6px;">
+                                    <i class="fa-solid fa-circle globe-spinning" style="font-size:0.6rem;"></i> 지식 시냅스 활성화됨
+                                </span>
+                            </div>
+                            <button class="clear-chat-btn" onclick="clearChatLogs()">
+                                <i class="fa-solid fa-trash-can"></i> 대화 초기화
+                            </button>
+                        </div>
+
+                        <!-- 단일 전문가 AI 채팅 창 -->
+                        <div class="chat-pane-box specialized" id="pane-specialized" style="flex:1; border-top:3px solid var(--primary);">
+                            <div class="pane-header">
+                                <div class="avatar-specialized" id="chat-ai-avatar"><i class="fa-solid fa-book-atlas"></i></div>
+                                <div class="pane-info">
+                                    <h4 id="chat-ai-name">전문가 AI</h4>
+                                    <p class="badge-spec" id="chat-ai-badge">팩트 탑재 (할루시네이션 가드 활성)</p>
+                                </div>
+                            </div>
+                            <div class="chat-messages-container" id="messages-specialized">
+                                <div class="system-chat-msg">
+                                    데이터를 완벽히 인지한 나만의 전문 AI입니다. 주입한 팩트 정보를 최우선으로 검증하고 검색(RAG)하여 신뢰할 수 있는 정확한 답변만 제공합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 챗 입력 영역 (링크 조사 & 분석기 포함) -->
+                        <div class="chat-input-area glass">
+                            <!-- URL 분석 진행 바 -->
+                            <div class="url-analyzer-bar hidden" id="url-analyzer-bar">
+                                <div class="url-status-info">
+                                    <i class="fa-solid fa-globe globe-spinning"></i>
+                                    <span class="url-status-text" id="url-analyzer-status">URL 분석 대기 중...</span>
+                                </div>
+                                <button type="button" class="cancel-url-btn" onclick="hideUrlAnalyzerBar()"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                            
+                            <form id="chat-form" onsubmit="handleChatSubmit(event)">
+                                <button type="button" class="attach-url-btn" onclick="toggleUrlInputPanel()" title="웹사이트 링크 분석 및 지식 주입">
+                                    <i class="fa-solid fa-link"></i>
+                                </button>
+                                <input type="text" id="chat-input" placeholder="질문을 입력하거나 왼쪽의 링크 아이콘을 눌러 실시간 웹 조사 데이터를 주입하세요..." autocomplete="off">
+                                <button type="submit" class="send-btn" id="btn-send-chat">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+
+                            <!-- URL 입력 팝업 패널 -->
+                            <div class="url-input-panel hidden" id="url-input-panel">
+                                <div class="url-panel-header">
+                                    <span><i class="fa-solid fa-cloud-arrow-down"></i> 실시간 조사할 외부 링크 입력</span>
+                                    <button type="button" class="close-panel-btn-sm" onclick="toggleUrlInputPanel()"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                                <div class="url-panel-body">
+                                    <input type="url" id="live-crawl-url" placeholder="https://example.com/wiki-info" autocomplete="off">
+                                    <button type="button" class="primary-btn sm glow-btn" onclick="triggerLiveUrlInvestigation()">실시간 분석 & AI 주입</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 구글 Gemini API Key 입력 모달 창 -->
+    <div class="modal-backdrop" id="api-modal">
+        <div class="modal-card glass">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key"></i> 구글 Gemini API 설정</h3>
+                <button class="close-modal-btn" onclick="closeApiModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">구글 Gemini API Key를 연동하면, 주입하신 텍스트를 고도화된 프롬프트 컨텍스트로 구성하여 **실제 동작하는 완전한 전문 RAG 챗봇**을 사용할 수 있습니다.</p>
+                
+                <div class="form-group">
+                    <label for="gemini-api-key">Gemini API Key</label>
+                    <input type="password" id="gemini-api-key" placeholder="AIzaSy...">
+                    <span class="help-text">API Key는 브라우저 내부(localStorage)에만 안전하게 저장되며, 어떤 서버로도 전송되지 않고 구글 API로만 직접 통신합니다.</span>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="gemini-model-select">Gemini 인공지능 모델 선택</label>
+                    <select id="gemini-model-select" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; color: var(--text-main); font-size: 0.85rem; outline: none; transition: var(--transition-smooth);">
+                        <option value="gemini-2.0-flash-thinking-exp" selected>gemini-2.0-flash-thinking-exp (Gemini 2.0 Thinking - 깊은 생각 추론 모델)</option>
+                        <option value="gemini-2.0-flash">gemini-2.0-flash (Gemini 2.0 Flash - 빠르고 정확한 모델)</option>
+                        <option value="gemini-1.5-flash">gemini-1.5-flash (Gemini 1.5 Flash - 표준 경량 모델)</option>
+                    </select>
+                    <span class="help-text">Gemini 2.0 Thinking 모델은 답변 도출 전에 내부적인 단계별 추론 과정(Chain of Thought)을 명시적으로 기록하여, 주입된 데이터 기반의 정밀도를 대폭 끌어올립니다.</span>
+                </div>
+
+                <div class="api-guide-box">
+                    <h5>🔑 API Key 발급 방법</h5>
+                    <ol>
+                        <li><a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>에 구글 계정으로 로그인합니다.</li>
+                        <li>좌측 상단의 <strong>"Get API key"</strong>를 클릭합니다.</li>
+                        <li>새로운 키를 생성하여 복사한 후 여기에 붙여넣습니다.</li>
+                    </ol>
+                </div>
+
+                <div class="api-connection-status offline" id="modal-conn-status">
+                    <span class="status-dot"></span>
+                    <span class="status-lbl-text">연동되지 않음 (로컬 엔진 모드로 작동)</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="sec-btn" onclick="clearApiKey()">API 키 삭제</button>
+                <button class="primary-btn glow-btn" onclick="saveApiKey()">API 키 저장 및 연결</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 파일들 -->
+    <script src="app.js"></script>
+</body>
+</html>
