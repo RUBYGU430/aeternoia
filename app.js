@@ -3,10 +3,10 @@
  */
 
 const state = {
-    essence: 1500,
+    essence: 0,
     level: 1,
     xp: 0,
-    nextLevelXp: 100,
+    nextLevelXp: 25,
     stability: 80,
     currentDb: 35,
     spirits: { wind: 0, water: 0 },
@@ -53,59 +53,59 @@ const state = {
 };
 
 const ROOMS = [
-    // Stage 1 (마법 테마)
-    { stage: 1, id: 'crystal', name: '수정 탭핑 방', minLevel: 1, icon: '💎', desc: '초보자를 위한 맑은 공명실', costEssence: 0, costXp: 0, rewardBase: 1 },
-    { stage: 1, id: 'potion', name: '물약 믹싱룸', minLevel: 3, icon: '🧪', desc: '유리와 액체의 조화', costEssence: 500, costXp: 200, rewardBase: 4 },
-    { stage: 1, id: 'waterbowl', name: '수중 꽃열매 믹싱룸', minLevel: 5, icon: '🌸', desc: '찰랑거리는 물과 팅글', costEssence: 1200, costXp: 500, rewardBase: 15 },
-    { stage: 1, id: 'sand', name: '키네틱 샌드', minLevel: 10, icon: '🏜️', desc: '사각사각 모래 자르기', costEssence: 3000, costXp: 1500, rewardBase: 50 },
-    { stage: 1, id: 'chimes', name: '우주 풍경종', minLevel: 15, icon: '🎐', desc: '끝없이 퍼지는 금속 잔향', costEssence: 8000, costXp: 4000, rewardBase: 200 },
-    { stage: 1, id: 'musicbox', name: '태엽 오르골', minLevel: 20, icon: '🎶', desc: '규칙적인 태엽과 맑은 선율', costEssence: 25000, costXp: 12000, rewardBase: 1000 },
-    { stage: 1, id: 'rainwindow', name: '비 내리는 창문', minLevel: 25, icon: '🌧️', desc: '포근한 빗방울 백색소음', costEssence: 100000, costXp: 50000, rewardBase: 5000 },
+    // Stage 1 (1호점: 에테르노아 온실 본점 - 마법)
+    { stage: 1, id: 'crystal', name: '수정 탭핑 방', minLevel: 1, icon: '💎', desc: '초보자를 위한 맑은 공명실', costEssence: 0, costXp: 0, rewardBase: 2 },
+    { stage: 1, id: 'potion', name: '물약 믹싱룸', minLevel: 2, icon: '🧪', desc: '유리와 액체의 조화', costEssence: 25, costXp: 0, rewardBase: 6 },
+    { stage: 1, id: 'waterbowl', name: '수중 꽃열매 믹싱룸', minLevel: 3, icon: '🌸', desc: '찰랑거리는 물과 팅글', costEssence: 160, costXp: 0, rewardBase: 18 },
+    { stage: 1, id: 'sand', name: '키네틱 샌드', minLevel: 5, icon: '🏜️', desc: '사각사각 모래 자르기', costEssence: 1000, costXp: 0, rewardBase: 55 },
+    { stage: 1, id: 'chimes', name: '우주 풍경종', minLevel: 8, icon: '🎐', desc: '끝없이 퍼지는 금속 잔향', costEssence: 7500, costXp: 0, rewardBase: 170 },
+    { stage: 1, id: 'musicbox', name: '태엽 오르골', minLevel: 13, icon: '🎶', desc: '규칙적인 태엽과 맑은 선율', costEssence: 55000, costXp: 0, rewardBase: 520 },
+    { stage: 1, id: 'rainwindow', name: '비 내리는 창문', minLevel: 20, icon: '🌧️', desc: '포근한 빗방울 백색소음', costEssence: 400000, costXp: 0, rewardBase: 1800 },
 
-    // Stage 2 (자연 숲 테마)
-    { stage: 2, id: 'woodblock', name: '나무 블록 탭핑', minLevel: 1, icon: '🪵', desc: '자연의 투박한 울림', costEssence: 0, costXp: 0, rewardBase: 10 },
-    { stage: 2, id: 'leaves', name: '마른 나뭇잎 바스락', minLevel: 8, icon: '🍂', desc: '기분 좋은 바스락거림', costEssence: 25000, costXp: 10000, rewardBase: 50 },
-    { stage: 2, id: 'campfire', name: '모닥불 타닥타닥', minLevel: 15, icon: '🔥', desc: '포근하고 따뜻한 백색소음', costEssence: 150000, costXp: 50000, rewardBase: 300 },
-    { stage: 2, id: 'singingbowl', name: '싱잉보울', minLevel: 22, icon: '🥣', desc: '깊고 긴 치유의 공명', costEssence: 600000, costXp: 200000, rewardBase: 1500 },
-    { stage: 2, id: 'birdsong', name: '새소리 백색소음', minLevel: 28, icon: '🐦', desc: '숲속 아침의 잔잔한 지저귐', costEssence: 2500000, costXp: 800000, rewardBase: 3000 },
-    { stage: 2, id: 'stream', name: '계곡 물소리', minLevel: 35, icon: '🏞️', desc: '빠르게 흐르는 경쾌한 물소리', costEssence: 8000000, costXp: 2500000, rewardBase: 6000 },
-    { stage: 2, id: 'crickets', name: '풀벌레 소리', minLevel: 45, icon: '🦗', desc: '밤의 숲을 연상케 하는 잔잔한 마찰음', costEssence: 25000000, costXp: 8000000, rewardBase: 12000 },
+    // Stage 2 (2호점: 자연 숲 지점)
+    { stage: 2, id: 'woodblock', name: '나무 블록 탭핑', minLevel: 1, icon: '🪵', desc: '자연의 투박한 울림', costEssence: 0, costXp: 0, rewardBase: 30 },
+    { stage: 2, id: 'leaves', name: '마른 나뭇잎 바스락', minLevel: 2, icon: '🍂', desc: '기분 좋은 바스락거림', costEssence: 400, costXp: 0, rewardBase: 90 },
+    { stage: 2, id: 'campfire', name: '모닥불 타닥타닥', minLevel: 3, icon: '🔥', desc: '포근하고 따뜻한 백색소음', costEssence: 2500, costXp: 0, rewardBase: 270 },
+    { stage: 2, id: 'singingbowl', name: '싱잉보울', minLevel: 5, icon: '🥣', desc: '깊고 긴 치유의 공명', costEssence: 18000, costXp: 0, rewardBase: 800 },
+    { stage: 2, id: 'birdsong', name: '새소리 백색소음', minLevel: 8, icon: '🐦', desc: '숲속 아침의 잔잔한 지저귐', costEssence: 130000, costXp: 0, rewardBase: 2500 },
+    { stage: 2, id: 'stream', name: '계곡 물소리', minLevel: 13, icon: '🏞️', desc: '빠르게 흐르는 경쾌한 물소리', costEssence: 950000, costXp: 0, rewardBase: 7800 },
+    { stage: 2, id: 'crickets', name: '풀벌레 소리', minLevel: 20, icon: '🦗', desc: '밤의 숲을 연상케 하는 잔잔한 마찰음', costEssence: 7500000, costXp: 0, rewardBase: 27000 },
 
-    // Stage 3 (심해 테마)
-    { stage: 3, id: 'bubbles', name: '심해 물거품', minLevel: 1, icon: '🫧', desc: '끝없이 올라오는 공기방울', costEssence: 0, costXp: 0, rewardBase: 100 },
-    { stage: 3, id: 'submarine', name: '잠수함 진동', minLevel: 10, icon: '🚢', desc: '낮고 깊은 기계식 백색소음', costEssence: 250000, costXp: 100000, rewardBase: 1000 },
-    { stage: 3, id: 'whale', name: '고래의 메아리', minLevel: 20, icon: '🐋', desc: '아득하게 퍼지는 바다의 노래', costEssence: 1500000, costXp: 500000, rewardBase: 5000 },
-    { stage: 3, id: 'waterflow', name: '심해 해류', minLevel: 30, icon: '🌊', desc: '무겁게 흐르는 깊은 바다 소리', costEssence: 8000000, costXp: 2500000, rewardBase: 12000 },
-    { stage: 3, id: 'coral', name: '산호초 마찰', minLevel: 40, icon: '🪸', desc: '자글자글한 백색소음 긁기', costEssence: 30000000, costXp: 10000000, rewardBase: 30000 },
-    { stage: 3, id: 'oxygentank', name: '잠수부 산소통', minLevel: 50, icon: '🤿', desc: '규칙적인 쉬익- 하는 호흡 소리', costEssence: 80000000, costXp: 25000000, rewardBase: 70000 },
-    { stage: 3, id: 'caveecho', name: '해저 동굴 공명', minLevel: 65, icon: '🕳️', desc: '깊게 울리는 동굴의 반향음', costEssence: 250000000, costXp: 80000000, rewardBase: 150000 },
+    // Stage 3 (3호점: 심해 바다 지점)
+    { stage: 3, id: 'bubbles', name: '심해 물거품', minLevel: 1, icon: '🫧', desc: '끝없이 올라오는 공기방울', costEssence: 0, costXp: 0, rewardBase: 500 },
+    { stage: 3, id: 'submarine', name: '잠수함 진동', minLevel: 2, icon: '🚢', desc: '낮고 깊은 기계식 백색소음', costEssence: 6500, costXp: 0, rewardBase: 1500 },
+    { stage: 3, id: 'whale', name: '고래의 메아리', minLevel: 3, icon: '🐋', desc: '아득하게 퍼지는 바다의 노래', costEssence: 45000, costXp: 0, rewardBase: 4500 },
+    { stage: 3, id: 'waterflow', name: '심해 해류', minLevel: 5, icon: '🌊', desc: '무겁게 흐르는 깊은 바다 소리', costEssence: 320000, costXp: 0, rewardBase: 13500 },
+    { stage: 3, id: 'coral', name: '산호초 마찰', minLevel: 8, icon: '🪸', desc: '자글자글한 백색소음 긁기', costEssence: 2400000, costXp: 0, rewardBase: 42000 },
+    { stage: 3, id: 'oxygentank', name: '잠수부 산소통', minLevel: 13, icon: '🤿', desc: '규칙적인 쉬익- 하는 호흡 소리', costEssence: 18000000, costXp: 0, rewardBase: 130000 },
+    { stage: 3, id: 'caveecho', name: '해저 동굴 공명', minLevel: 20, icon: '🕳️', desc: '깊게 울리는 동굴의 반향음', costEssence: 140000000, costXp: 0, rewardBase: 450000 },
 
-    // Stage 4 (미래/기계 테마)
-    { stage: 4, id: 'keyboard', name: '기계식 키보드', minLevel: 1, icon: '⌨️', desc: '경쾌한 청축 타이핑', costEssence: 0, costXp: 0, rewardBase: 15000 },
-    { stage: 4, id: 'glitch', name: '홀로그램 글리치', minLevel: 12, icon: '🌀', desc: '미래지향적 전자 팅글', costEssence: 5000000, costXp: 1500000, rewardBase: 60000 },
-    { stage: 4, id: 'spaceship', name: '우주선 엔진 룸', minLevel: 25, icon: '🚀', desc: '웅장한 저주파 백색소음', costEssence: 30000000, costXp: 10000000, rewardBase: 250000 },
-    { stage: 4, id: 'serverfan', name: '서버룸 쿨러', minLevel: 40, icon: '🖥️', desc: '부드럽고 묵직한 기계식 쿨러 소리', costEssence: 150000000, costXp: 50000000, rewardBase: 1000000 },
-    { stage: 4, id: 'servomotor', name: '로봇 구동음', minLevel: 55, icon: '🦾', desc: '낮게 징- 울리는 서보 모터', costEssence: 600000000, costXp: 200000000, rewardBase: 3000000 },
-    { stage: 4, id: 'datatransfer', name: '데이터 전송음', minLevel: 70, icon: '💽', desc: '레트로한 모뎀 틱틱거림', costEssence: 2000000000, costXp: 600000000, rewardBase: 8000000 },
-    { stage: 4, id: 'zerogpod', name: '무중력 캡슐', minLevel: 90, icon: '🌌', desc: '공명하는 진공관 사운드', costEssence: 8000000000, costXp: 2500000000, rewardBase: 20000000 },
+    // Stage 4 (4호점: 미래/기계 지점)
+    { stage: 4, id: 'keyboard', name: '기계식 키보드', minLevel: 1, icon: '⌨️', desc: '경쾌한 청축 타이핑', costEssence: 0, costXp: 0, rewardBase: 8000 },
+    { stage: 4, id: 'glitch', name: '홀로그램 글리치', minLevel: 2, icon: '🌀', desc: '미래지향적 전자 팅글', costEssence: 110000, costXp: 0, rewardBase: 24000 },
+    { stage: 4, id: 'spaceship', name: '우주선 엔진 룸', minLevel: 3, icon: '🚀', desc: '웅장한 저주파 백색소음', costEssence: 750000, costXp: 0, rewardBase: 72000 },
+    { stage: 4, id: 'serverfan', name: '서버룸 쿨러', minLevel: 5, icon: '🖥️', desc: '부드럽고 묵직한 기계식 쿨러 소리', costEssence: 5500000, costXp: 0, rewardBase: 220000 },
+    { stage: 4, id: 'servomotor', name: '로봇 구동음', minLevel: 8, icon: '🦾', desc: '낮게 징- 울리는 서보 모터', costEssence: 40000000, costXp: 0, rewardBase: 680000 },
+    { stage: 4, id: 'datatransfer', name: '데이터 전송음', minLevel: 13, icon: '💽', desc: '레트로한 모뎀 틱틱거림', costEssence: 300000000, costXp: 0, rewardBase: 2100000 },
+    { stage: 4, id: 'zerogpod', name: '무중력 캡슐', minLevel: 20, icon: '🌌', desc: '공명하는 진공관 사운드', costEssence: 2500000000, costXp: 0, rewardBase: 7500000 },
 
-    // Stage 5 (에테리아 왕성 테마)
-    { stage: 5, id: 'quill', name: '깃펜 사각사각', minLevel: 1, icon: '🪶', desc: '낡은 양피지 위를 스치는 소리', costEssence: 0, costXp: 0, rewardBase: 5000000 },
-    { stage: 5, id: 'parchment', name: '마법서 페이지', minLevel: 15, icon: '📜', desc: '오래된 종이의 기분 좋은 바스락', costEssence: 800000000, costXp: 200000000, rewardBase: 20000000 },
-    { stage: 5, id: 'teacup', name: '오후의 찻잔', minLevel: 30, icon: '☕', desc: '도자기와 은수저의 맑은 부딪힘', costEssence: 5000000000, costXp: 1500000000, rewardBase: 100000000 },
-    { stage: 5, id: 'royalchimes', name: '황금 샹들리에', minLevel: 50, icon: '✨', desc: '마법의 성 전체를 울리는 웅장한 공명', costEssence: 30000000000, costXp: 8000000000, rewardBase: 500000000 },
-    { stage: 5, id: 'velvet', name: '벨벳 커튼 스치기', minLevel: 70, icon: '🧣', desc: '옷감이 두껍게 스치는 묵직한 소리', costEssence: 150000000000, costXp: 40000000000, rewardBase: 2000000000 },
-    { stage: 5, id: 'chess', name: '체스 말 부딪힘', minLevel: 90, icon: '♟️', desc: '나무와 대리석이 맞닿는 달칵 소리', costEssence: 600000000000, costXp: 150000000000, rewardBase: 8000000000 },
-    { stage: 5, id: 'royalfire', name: '왕실 벽난로', minLevel: 120, icon: '🏰', desc: '장작보다 깊고 풍성한 벽난로 소리', costEssence: 2500000000000, costXp: 600000000000, rewardBase: 30000000000 },
+    // Stage 5 (5호점: 에테르노아 왕성 지점)
+    { stage: 5, id: 'quill', name: '깃펜 사각사각', minLevel: 1, icon: '🪶', desc: '낡은 양피지 위를 스치는 소리', costEssence: 0, costXp: 0, rewardBase: 150000 },
+    { stage: 5, id: 'parchment', name: '마법서 페이지', minLevel: 2, icon: '📜', desc: '오래된 종이의 기분 좋은 바스락', costEssence: 2000000, costXp: 0, rewardBase: 450000 },
+    { stage: 5, id: 'teacup', name: '오후의 찻잔', minLevel: 3, icon: '☕', desc: '도자기와 은수저의 맑은 부딪힘', costEssence: 14000000, costXp: 0, rewardBase: 1350000 },
+    { stage: 5, id: 'royalchimes', name: '황금 샹들리에', minLevel: 5, icon: '✨', desc: '마법의 성 전체를 울리는 웅장한 공명', costEssence: 100000000, costXp: 0, rewardBase: 4200000 },
+    { stage: 5, id: 'velvet', name: '벨벳 커튼 스치기', minLevel: 8, icon: '🧣', desc: '옷감이 두껍게 스치는 묵직한 소리', costEssence: 750000000, costXp: 0, rewardBase: 13000000 },
+    { stage: 5, id: 'chess', name: '체스 말 부딪힘', minLevel: 13, icon: '♟️', desc: '나무와 대리석이 맞닿는 달칵 소리', costEssence: 6000000000, costXp: 0, rewardBase: 40000000 },
+    { stage: 5, id: 'royalfire', name: '왕실 벽난로', minLevel: 20, icon: '🏰', desc: '장작보다 깊고 풍성한 벽난로 소리', costEssence: 48000000000, costXp: 0, rewardBase: 140000000 },
 
-    // Stage 6 (천국 테마)
-    { stage: 6, id: 'harp', name: '천상의 하프', minLevel: 1, icon: '🪕', desc: '영혼을 울리는 맑고 투명한 현악기 소리', costEssence: 0, costXp: 0, rewardBase: 150000000000 },
-    { stage: 6, id: 'clouds', name: '구름 산책', minLevel: 25, icon: '☁️', desc: '푹신푹신하고 부드러운 구름을 밟는 소리', costEssence: 10000000000000, costXp: 2000000000000, rewardBase: 600000000000 },
-    { stage: 6, id: 'halo', name: '천사의 광배', minLevel: 50, icon: '😇', desc: '빛이 공명하며 만들어내는 성스러운 백색소음', costEssence: 50000000000000, costXp: 10000000000000, rewardBase: 2500000000000 },
-    { stage: 6, id: 'gate', name: '천국의 문', minLevel: 80, icon: '🏛️', desc: '거대한 황금 문이 열리며 퍼지는 장엄한 메아리', costEssence: 300000000000000, costXp: 60000000000000, rewardBase: 12000000000000 },
-    { stage: 6, id: 'choir', name: '천상 정령의 합창', minLevel: 110, icon: '👼', desc: '성스러운 정령들이 부르는 은은한 아카펠라', costEssence: 1500000000000000, costXp: 300000000000000, rewardBase: 60000000000000 },
-    { stage: 6, id: 'starlight', name: '별빛 세례', minLevel: 150, icon: '✨', desc: '쏟아지는 별빛들이 부딪히며 내는 영롱한 소리', costEssence: 8000000000000000, costXp: 1500000000000000, rewardBase: 300000000000000 },
-    { stage: 6, id: 'sanctuary', name: '에테리아 성소', minLevel: 200, icon: '💒', desc: '모든 스트레스를 정화하는 궁극의 치유 파동', costEssence: 50000000000000000, costXp: 10000000000000000, rewardBase: 1500000000000000 }
+    // Stage 6 (6호점: 천상 성소 지점)
+    { stage: 6, id: 'harp', name: '천상의 하프', minLevel: 1, icon: '🪕', desc: '영혼을 울리는 맑고 투명한 현악기 소리', costEssence: 0, costXp: 0, rewardBase: 3000000 },
+    { stage: 6, id: 'clouds', name: '구름 산책', minLevel: 2, icon: '☁️', desc: '푹신푹신하고 부드러운 구름을 밟는 소리', costEssence: 40000000, costXp: 0, rewardBase: 9000000 },
+    { stage: 6, id: 'halo', name: '천사의 광배', minLevel: 3, icon: '😇', desc: '빛이 공명하며 만들어내는 성스러운 백색소음', costEssence: 280000000, costXp: 0, rewardBase: 27000000 },
+    { stage: 6, id: 'gate', name: '천국의 문', minLevel: 5, icon: '🏛️', desc: '거대한 황금 문이 열리며 퍼지는 장엄한 메아리', costEssence: 2000000000, costXp: 0, rewardBase: 85000000 },
+    { stage: 6, id: 'choir', name: '천상 정령의 합창', minLevel: 8, icon: '👼', desc: '성스러운 정령들이 부르는 은은한 아카펠라', costEssence: 15000000000, costXp: 0, rewardBase: 260000000 },
+    { stage: 6, id: 'starlight', name: '별빛 세례', minLevel: 13, icon: '✨', desc: '쏟아지는 별빛들이 부딪히며 내는 영롱한 소리', costEssence: 120000000000, costXp: 0, rewardBase: 800000000 },
+    { stage: 6, id: 'sanctuary', name: '에테리아 성소', minLevel: 20, icon: '💒', desc: '모든 스트레스를 정화하는 궁극의 치유 파동', costEssence: 1000000000000, costXp: 0, rewardBase: 2800000000 }
 ];
 
 
@@ -3035,11 +3035,13 @@ function processTemporaryBuffs() {
 function gameLoop() {
     processTemporaryBuffs();
     checkSecretShopRotation();
-    let auto = (state.spirits.wind || 0) * 2;
+    const currentToolObj = ROOMS.find(r => r.id === state.currentTool);
+    const roomReward = currentToolObj ? currentToolObj.rewardBase : (getRoomsForCurrentStage()[0] ? getRoomsForCurrentStage()[0].rewardBase : 2);
+    let auto = (state.spirits.wind || 0) * Math.max(1, Math.floor(roomReward * 0.25)) * state.buffs.essenceMultiplier;
     if (auto > 0) gainEssence(auto);
 
     const now = Date.now();
-    const spawnInterval = 30000 + Math.random() * 15000;
+    const spawnInterval = state.visitors.length === 0 ? 5000 : (30000 + Math.random() * 15000);
     if (state.visitors.length < 3 && (now - state.lastVisitorSpawnTime) > spawnInterval) {
         spawnVisitor();
         state.lastVisitorSpawnTime = now;
@@ -3267,35 +3269,35 @@ function spawnVisitor() {
     const types = [];
     switch (state.stage) {
         case 1:
-            types.push({ nameKey: "visitor_fairy", avatar: "🧚", difficultyKey: "diff_easy", maxStress: 500, rewardEssence: 1000, rewardXp: 500 });
-            types.push({ nameKey: "visitor_squirrel", avatar: "🐿️", difficultyKey: "diff_medium", maxStress: 5000, rewardEssence: 8000, rewardXp: 3000 });
-            types.push({ nameKey: "visitor_bear", avatar: "🧸", difficultyKey: "diff_hard", maxStress: 50000, rewardEssence: 50000, rewardXp: 20000 });
+            types.push({ nameKey: "visitor_fairy", avatar: "🧚", difficultyKey: "diff_easy", maxStress: 60, rewardEssence: 60, rewardXp: 35 });
+            types.push({ nameKey: "visitor_squirrel", avatar: "🐿️", difficultyKey: "diff_medium", maxStress: 400, rewardEssence: 500, rewardXp: 280 });
+            types.push({ nameKey: "visitor_bear", avatar: "🧸", difficultyKey: "diff_hard", maxStress: 3000, rewardEssence: 4500, rewardXp: 2500 });
             break;
         case 2:
-            types.push({ nameKey: "visitor_leaf_fairy", avatar: "🌿", difficultyKey: "diff_easy", maxStress: 50000, rewardEssence: 40000, rewardXp: 20000 });
-            types.push({ nameKey: "visitor_ghost", avatar: "👻", difficultyKey: "diff_medium", maxStress: 250000, rewardEssence: 150000, rewardXp: 75000 });
-            types.push({ nameKey: "visitor_forest_spirit", avatar: "🦌", difficultyKey: "diff_hard", maxStress: 1000000, rewardEssence: 500000, rewardXp: 250000 });
+            types.push({ nameKey: "visitor_leaf_fairy", avatar: "🌿", difficultyKey: "diff_easy", maxStress: 900, rewardEssence: 1000, rewardXp: 600 });
+            types.push({ nameKey: "visitor_ghost", avatar: "👻", difficultyKey: "diff_medium", maxStress: 6000, rewardEssence: 8000, rewardXp: 4500 });
+            types.push({ nameKey: "visitor_forest_spirit", avatar: "🦌", difficultyKey: "diff_hard", maxStress: 45000, rewardEssence: 70000, rewardXp: 38000 });
             break;
         case 3:
-            types.push({ nameKey: "visitor_mermaid", avatar: "🧜‍♀️", difficultyKey: "diff_easy", maxStress: 1000000, rewardEssence: 500000, rewardXp: 250000 });
-            types.push({ nameKey: "visitor_kraken", avatar: "🦑", difficultyKey: "diff_medium", maxStress: 5000000, rewardEssence: 2000000, rewardXp: 1000000 });
-            types.push({ nameKey: "visitor_submarine_spirit", avatar: "⚓", difficultyKey: "diff_hard", maxStress: 20000000, rewardEssence: 8000000, rewardXp: 4000000 });
+            types.push({ nameKey: "visitor_mermaid", avatar: "🧜‍♀️", difficultyKey: "diff_easy", maxStress: 15000, rewardEssence: 16000, rewardXp: 9500 });
+            types.push({ nameKey: "visitor_kraken", avatar: "🦑", difficultyKey: "diff_medium", maxStress: 100000, rewardEssence: 130000, rewardXp: 70000 });
+            types.push({ nameKey: "visitor_submarine_spirit", avatar: "⚓", difficultyKey: "diff_hard", maxStress: 750000, rewardEssence: 1100000, rewardXp: 600000 });
             break;
         case 4:
-            types.push({ nameKey: "visitor_android", avatar: "🤖", difficultyKey: "diff_easy", maxStress: 50000000, rewardEssence: 15000000, rewardXp: 7500000 });
-            types.push({ nameKey: "visitor_bug_ai", avatar: "👾", difficultyKey: "diff_medium", maxStress: 250000000, rewardEssence: 80000000, rewardXp: 40000000 });
-            types.push({ nameKey: "visitor_hologram", avatar: "💫", difficultyKey: "diff_hard", maxStress: 5000000000, rewardEssence: 1500000000, rewardXp: 750000000 });
+            types.push({ nameKey: "visitor_android", avatar: "🤖", difficultyKey: "diff_easy", maxStress: 250000, rewardEssence: 280000, rewardXp: 160000 });
+            types.push({ nameKey: "visitor_bug_ai", avatar: "👾", difficultyKey: "diff_medium", maxStress: 1800000, rewardEssence: 2200000, rewardXp: 1200000 });
+            types.push({ nameKey: "visitor_hologram", avatar: "💫", difficultyKey: "diff_hard", maxStress: 14000000, rewardEssence: 20000000, rewardXp: 10000000 });
             break;
         case 5:
-            types.push({ nameKey: "visitor_knight", avatar: "🛡️", difficultyKey: "diff_easy", maxStress: 5000000000, rewardEssence: 1500000000, rewardXp: 750000000 });
-            types.push({ nameKey: "visitor_queen", avatar: "👑", difficultyKey: "diff_medium", maxStress: 50000000000, rewardEssence: 15000000000, rewardXp: 7500000000 });
-            types.push({ nameKey: "visitor_dragon", avatar: "🐉", difficultyKey: "diff_hard", maxStress: 10000000000000, rewardEssence: 3000000000000, rewardXp: 1500000000000 });
+            types.push({ nameKey: "visitor_knight", avatar: "🛡️", difficultyKey: "diff_easy", maxStress: 4500000, rewardEssence: 5000000, rewardXp: 3000000 });
+            types.push({ nameKey: "visitor_queen", avatar: "👑", difficultyKey: "diff_medium", maxStress: 32000000, rewardEssence: 40000000, rewardXp: 22000000 });
+            types.push({ nameKey: "visitor_dragon", avatar: "🐉", difficultyKey: "diff_hard", maxStress: 250000000, rewardEssence: 350000000, rewardXp: 180000000 });
             break;
         case 6:
         default:
-            types.push({ nameKey: "visitor_angel", avatar: "👼", difficultyKey: "diff_easy", maxStress: 100000000000, rewardEssence: 30000000000, rewardXp: 15000000000 });
-            types.push({ nameKey: "visitor_pegasus", avatar: "🦄", difficultyKey: "diff_medium", maxStress: 5000000000000, rewardEssence: 1500000000000, rewardXp: 750000000000 });
-            types.push({ nameKey: "visitor_god", avatar: "👁️", difficultyKey: "diff_hard", maxStress: 500000000000000, rewardEssence: 150000000000000, rewardXp: 75000000000000 });
+            types.push({ nameKey: "visitor_angel", avatar: "👼", difficultyKey: "diff_easy", maxStress: 90000000, rewardEssence: 100000000, rewardXp: 60000000 });
+            types.push({ nameKey: "visitor_pegasus", avatar: "🦄", difficultyKey: "diff_medium", maxStress: 650000000, rewardEssence: 800000000, rewardXp: 450000000 });
+            types.push({ nameKey: "visitor_god", avatar: "👁️", difficultyKey: "diff_hard", maxStress: 5000000000, rewardEssence: 7000000000, rewardXp: 3800000000 });
             break;
     }
 
@@ -3365,9 +3367,21 @@ function renderVisitors() {
     // 해금 여부를 정확히 판별하기 위해 every 메서드 사용 (모든 현재 스테이지 방이 unlockedRooms에 포함되어 있는지)
     const hasUnlockedAllInStage = currentStageRooms.length > 0 && currentStageRooms.every(r => state.unlockedRooms.includes(r.id));
 
+function getPrestigeRequirements(stage) {
+    const costs = {
+        1: { essence: 1200000, xp: 350000 },
+        2: { essence: 22000000, xp: 6000000 },
+        3: { essence: 450000000, xp: 120000000 },
+        4: { essence: 8000000000, xp: 2200000000 },
+        5: { essence: 160000000000, xp: 45000000000 }
+    };
+    return costs[stage] || { essence: 1000000000000, xp: 300000000000 };
+}
+
     if (hasUnlockedAllInStage && state.stage < 6) {
-        const prestigeCost = 1000000 * Math.pow(5, state.stage - 1);
-        const prestigeXp = 500000 * Math.pow(5, state.stage - 1);
+        const req = getPrestigeRequirements(state.stage);
+        const prestigeCost = req.essence;
+        const prestigeXp = req.xp;
 
         html += `
         <div id="prestige-container">
@@ -3480,7 +3494,7 @@ function doPrestige(costE, costX) {
             state.essence = 0;
             state.level = 1;
             state.xp = 0;
-            state.nextLevelXp = 100;
+            state.nextLevelXp = 25;
             state.inventory = {};
             state.activeTemporaryBuffs = [];
             state.visitors = [];
@@ -3506,6 +3520,8 @@ function doPrestige(costE, costX) {
         } else {
             state.currentTool = null;
         }
+
+        if (state.visitors.length === 0) spawnVisitor();
 
         addNotification(t('save_load_prestige', { stage: state.stage }), 'system');
         playChime(1300);
@@ -3582,7 +3598,7 @@ function changeStage(newStage) {
         state.essence = 0;
         state.xp = 0;
         state.level = 1;
-        state.nextLevelXp = 100;
+        state.nextLevelXp = 25;
         state.videos = [];
         state.visitors = [];
         state.inventory = {};
@@ -3602,6 +3618,8 @@ function changeStage(newStage) {
     } else {
         state.currentTool = null;
     }
+
+    if (state.visitors.length === 0) spawnVisitor();
 
     applyStageVisuals();
     renderRoomList();
@@ -3739,12 +3757,26 @@ function getMaxUpgradeLevel() {
     return Math.floor(20 * Math.pow(3.5, state.stage - 1)); 
 }
 
+function getStageBaseScale(stage = state.stage) {
+    const scales = { 1: 1, 2: 15, 3: 250, 4: 4000, 5: 75000, 6: 1500000 };
+    return scales[stage] || 1;
+}
+
+function getUpgradeBaseCost(id, stage = state.stage) {
+    const scale = getStageBaseScale(stage);
+    if (id === 'wind') return 100 * scale;
+    if (id === 'incense') return 250 * scale;
+    if (id === 'mic') return 500 * scale;
+    if (id === 'book') return 500 * scale;
+    return 200 * scale;
+}
+
 function renderUpgrades() {
     const items = [
-        { id: 'wind', name: t('upgrade_wind_name'), type: 'auto', cost: 500 * (state.spirits.wind + 1), icon: '🍃', desc: t('upgrade_wind_desc') },
-        { id: 'incense', name: t('upgrade_incense_name'), type: 'buff', cost: 1000 * (state.upgradesOwned.incense + 1), icon: '🕯️', desc: t('upgrade_incense_desc') },
-        { id: 'mic', name: t('upgrade_mic_name'), type: 'buff', cost: 2000 * (state.upgradesOwned.mic + 1), icon: '🎤', desc: t('upgrade_mic_desc') },
-        { id: 'book', name: t('upgrade_book_name'), type: 'buff', cost: 2000 * (state.upgradesOwned.book + 1), icon: '📖', desc: t('upgrade_book_desc') }
+        { id: 'wind', name: t('upgrade_wind_name'), type: 'auto', cost: getUpgradeBaseCost('wind') * (state.spirits.wind + 1), icon: '🍃', desc: t('upgrade_wind_desc') },
+        { id: 'incense', name: t('upgrade_incense_name'), type: 'buff', cost: getUpgradeBaseCost('incense') * (state.upgradesOwned.incense + 1), icon: '🕯️', desc: t('upgrade_incense_desc') },
+        { id: 'mic', name: t('upgrade_mic_name'), type: 'buff', cost: getUpgradeBaseCost('mic') * (state.upgradesOwned.mic + 1), icon: '🎤', desc: t('upgrade_mic_desc') },
+        { id: 'book', name: t('upgrade_book_name'), type: 'buff', cost: getUpgradeBaseCost('book') * (state.upgradesOwned.book + 1), icon: '📖', desc: t('upgrade_book_desc') }
     ];
     document.getElementById('upgrade-items').innerHTML = items.map(i => {
         let currentL = i.type === 'auto' ? state.spirits.wind : state.upgradesOwned[i.id];
@@ -3792,21 +3824,8 @@ function buyUpgrade(id, type, cost) {
 }
 
 function buyMaxUpgrade(id, type) {
-    let base = 0;
-    let currentL = 0;
-    if (id === 'wind') {
-        base = 500;
-        currentL = state.spirits.wind;
-    } else if (id === 'incense') {
-        base = 1000;
-        currentL = state.upgradesOwned.incense;
-    } else if (id === 'mic') {
-        base = 2000;
-        currentL = state.upgradesOwned.mic;
-    } else if (id === 'book') {
-        base = 2000;
-        currentL = state.upgradesOwned.book;
-    }
+    let base = getUpgradeBaseCost(id);
+    let currentL = type === 'auto' ? state.spirits.wind : (state.upgradesOwned[id] || 0);
 
     let a = base / 2;
     let b = base * (currentL + 0.5);
@@ -3849,10 +3868,10 @@ function buyMaxUpgrade(id, type) {
 }
 
 function resetState() {
-    state.essence = 1500;
+    state.essence = 0;
     state.level = 1;
     state.xp = 0;
-    state.nextLevelXp = 100;
+    state.nextLevelXp = 25;
     state.stability = 80;
     state.currentDb = 35;
     state.spirits = { wind: 0, water: 0 };
@@ -3996,7 +4015,7 @@ function gainXp(a) {
 let levelUpTimeout = null;
 
 function levelUp() {
-    state.level++; state.xp -= state.nextLevelXp; state.nextLevelXp = Math.floor(state.nextLevelXp * 1.6);
+    state.level++; state.xp -= state.nextLevelXp; state.nextLevelXp = Math.floor(state.nextLevelXp * 1.5);
     playChime(880); addNotification(t('level_up_alert', { level: state.level }), 'system');
 
     const anim = document.getElementById('levelup-overlay');
@@ -4115,6 +4134,13 @@ function loadGame() {
     if (state.settings.bgmVolume === undefined) state.settings.bgmVolume = state.settings.volume !== undefined ? state.settings.volume : 50;
     if (state.settings.sfxVolume === undefined) state.settings.sfxVolume = state.settings.volume !== undefined ? state.settings.volume : 50;
     if (!state.settings.language) state.settings.language = 'ko';
+    if (state.level === 1 && state.nextLevelXp > 25) {
+        state.nextLevelXp = 25;
+    }
+    if (!state.visitors || state.visitors.length === 0) {
+        state.visitors = [];
+        spawnVisitor();
+    }
     masterGain.gain.value = state.settings.sfxVolume / 100;
     state.unreadNotifs = 0;
     updateNotifBadge();
