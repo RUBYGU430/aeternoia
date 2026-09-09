@@ -328,8 +328,8 @@
     </div>
 
     <!-- Level Up Overlay -->
-    <div id="levelup-overlay" class="hidden">
-        <div class="levelup-content">
+    <div id="levelup-overlay" class="hidden" onclick="this.classList.add('hidden')">
+        <div class="levelup-content" onclick="event.stopPropagation(); document.getElementById('levelup-overlay').classList.add('hidden');">
             <div class="levelup-icon">🌟</div>
             <div class="levelup-text">레벨 업!</div>
             <div id="levelup-level" class="levelup-level">LV.2</div>
@@ -363,8 +363,8 @@
 
     <div id="toast-container" class="toast-container"></div>
     <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
-    <script src="audio_base64.js?v=22"></script>
-    <script src="procedural_bgm.js?v=22"></script>
-    <script src="app.js?v=22"></script>
+    <script src="audio_base64.js?v=23"></script>
+    <script src="procedural_bgm.js?v=23"></script>
+    <script src="app.js?v=23"></script>
 </body>
 </html>

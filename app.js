@@ -143,6 +143,21 @@ function getRoomsForCurrentStage() {
     return ROOMS.filter(r => r.stage === state.stage);
 }
 
+function getStageBaseXp(stage) {
+    const s = parseInt(stage) || 1;
+    if (s === 1) return 25; // 1호점: 약 12~13회 탭으로 LV.2 달성 (기존 밸런스 유지)
+    const stageRoom1 = ROOMS.find(r => r.stage === s && r.minLevel === 1);
+    const baseReward = stageRoom1 ? stageRoom1.rewardBase : 2;
+    // 2호점 이후: 첫 코너 약 15회 탭 시 2레벨 달성하여 초반 급발진 레벨업 방지
+    return Math.floor(baseReward * 15);
+}
+
+function calculateNextLevelXp(stage, level) {
+    const baseXp = getStageBaseXp(stage);
+    const lvl = Math.max(1, parseInt(level) || 1);
+    return Math.floor(baseXp * Math.pow(1.5, lvl - 1));
+}
+
 const TRANSLATIONS = {
     ko: {
         start_button: "소리 온실 입장",
@@ -2401,12 +2416,12 @@ function handleInteraction(e, type, key = null) {
     if (type !== 'auto') {
         state.currentDb = 30 + Math.random() * 15;
         state.stability = Math.min(100, state.stability + 1.5);
-        essenceGain = tool.rewardBase * state.buffs.essenceMultiplier;
-        xpGain = tool.rewardBase * state.buffs.xpMultiplier;
+        essenceGain = tool.rewardBase;
+        xpGain = tool.rewardBase;
     } else {
         // Auto mode scaling (reduced efficiency for idling)
-        essenceGain = (tool.rewardBase * 0.5) * state.buffs.essenceMultiplier;
-        xpGain = (tool.rewardBase * 0.5) * state.buffs.xpMultiplier;
+        essenceGain = tool.rewardBase * 0.5;
+        xpGain = tool.rewardBase * 0.5;
     }
 
     switch (state.currentTool) {
@@ -3634,7 +3649,8 @@ function doPrestige(costE, costX) {
             state.essence = saved.essence;
             state.level = saved.level;
             state.xp = saved.xp;
-            state.nextLevelXp = saved.nextLevelXp;
+            const expectedXp = calculateNextLevelXp(state.stage, saved.level || 1);
+            state.nextLevelXp = (saved.nextLevelXp && saved.nextLevelXp >= expectedXp * 0.5) ? saved.nextLevelXp : expectedXp;
             state.inventory = { ...saved.inventory };
             state.videos = [...saved.videos];
             state.visitors = [...saved.visitors];
@@ -3646,7 +3662,7 @@ function doPrestige(costE, costX) {
             state.essence = 0;
             state.level = 1;
             state.xp = 0;
-            state.nextLevelXp = 25;
+            state.nextLevelXp = calculateNextLevelXp(state.stage, 1);
             state.inventory = {};
             state.activeTemporaryBuffs = [];
             state.visitors = [];
@@ -3738,7 +3754,8 @@ function changeStage(newStage) {
         state.essence = saved.essence;
         state.level = saved.level;
         state.xp = saved.xp;
-        state.nextLevelXp = saved.nextLevelXp;
+        const expectedXp = calculateNextLevelXp(state.stage, saved.level || 1);
+        state.nextLevelXp = (saved.nextLevelXp && saved.nextLevelXp >= expectedXp * 0.5) ? saved.nextLevelXp : expectedXp;
         state.inventory = { ...saved.inventory };
         state.videos = [...saved.videos];
         state.visitors = [...saved.visitors];
@@ -3750,7 +3767,7 @@ function changeStage(newStage) {
         state.essence = 0;
         state.xp = 0;
         state.level = 1;
-        state.nextLevelXp = 25;
+        state.nextLevelXp = calculateNextLevelXp(state.stage, 1);
         state.videos = [];
         state.visitors = [];
         state.inventory = {};
@@ -4023,7 +4040,7 @@ function resetState() {
     state.essence = 0;
     state.level = 1;
     state.xp = 0;
-    state.nextLevelXp = 25;
+    state.nextLevelXp = calculateNextLevelXp(1, 1);
     state.stability = 80;
     state.currentDb = 35;
     state.spirits = { wind: 0, water: 0 };
@@ -4167,8 +4184,11 @@ function gainXp(a) {
 let levelUpTimeout = null;
 
 function levelUp() {
-    state.level++; state.xp -= state.nextLevelXp; state.nextLevelXp = Math.floor(state.nextLevelXp * 1.5);
-    playChime(880); addNotification(t('level_up_alert', { level: state.level }), 'system');
+    state.level++;
+    state.xp = Math.max(0, state.xp - state.nextLevelXp);
+    state.nextLevelXp = calculateNextLevelXp(state.stage || 1, state.level);
+    playChime(880);
+    addNotification(t('level_up_alert', { level: state.level }), 'system');
 
     const anim = document.getElementById('levelup-overlay');
     const levelText = document.getElementById('levelup-level');
@@ -4176,10 +4196,11 @@ function levelUp() {
         levelText.textContent = `LV.${state.level}`;
         anim.classList.remove('hidden');
         if (levelUpTimeout) clearTimeout(levelUpTimeout);
-        levelUpTimeout = setTimeout(() => anim.classList.add('hidden'), 3000);
+        levelUpTimeout = setTimeout(() => anim.classList.add('hidden'), 2000);
     }
 
-    renderRoomList(); saveGame();
+    renderRoomList();
+    saveGame();
 }
 
 function createParticle(x, y, t) { const p = document.createElement('div'); p.className = 'particle-text'; p.textContent = t; p.style.left = `${x}px`; p.style.top = `${y}px`; document.body.appendChild(p); setTimeout(() => p.remove(), 1000); }
@@ -4285,9 +4306,18 @@ function loadGame() {
     if (!state.settings) state.settings = { bgmVolume: 50, sfxVolume: 50, volume: 50, autoSave: false, graphics: 'high', language: 'ko' };
     if (state.settings.bgmVolume === undefined) state.settings.bgmVolume = state.settings.volume !== undefined ? state.settings.volume : 50;
     if (state.settings.sfxVolume === undefined) state.settings.sfxVolume = state.settings.volume !== undefined ? state.settings.volume : 50;
-    if (!state.settings.language) state.settings.language = 'ko';
-    if (state.level === 1 && state.nextLevelXp > 25) {
-        state.nextLevelXp = 25;
+    const expectedXp = calculateNextLevelXp(state.stage || 1, state.level || 1);
+    if (!state.nextLevelXp || state.nextLevelXp < expectedXp * 0.5) {
+        state.nextLevelXp = expectedXp;
+    }
+    if (state.storeSaves) {
+        Object.keys(state.storeSaves).forEach(stg => {
+            const sSave = state.storeSaves[stg];
+            const sExp = calculateNextLevelXp(parseInt(stg), sSave.level || 1);
+            if (!sSave.nextLevelXp || sSave.nextLevelXp < sExp * 0.5) {
+                sSave.nextLevelXp = sExp;
+            }
+        });
     }
     if (!state.visitors || state.visitors.length === 0) {
         state.visitors = [];
