@@ -1176,7 +1176,8 @@ fetch(RAIN_WINDOW_SINGLE_MP3_B64)
     .catch(e => console.warn('Could not load rain window single mp3:', e));
 
 let woodenBlockAudioBuffer = null;
-fetch('game_sound/효과음/wooden_block.mp3')
+const woodenBlockSrc = typeof woodenBlockBase64 !== 'undefined' ? woodenBlockBase64 : 'game_sound/효과음/wooden_block.mp3';
+fetch(woodenBlockSrc)
     .then(res => res.arrayBuffer())
     .then(buf => audioCtx.decodeAudioData(buf))
     .then(data => woodenBlockAudioBuffer = data)
@@ -1292,11 +1293,14 @@ function playRainWindowSingle() {
     if (rainWindowSingleAudioBuffer) {
         const source = audioCtx.createBufferSource();
         source.buffer = rainWindowSingleAudioBuffer;
+        source.playbackRate.value = 0.9 + Math.random() * 0.2;
         const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.2; // Reduced by requested amount
+        gainNode.gain.value = 1.2;
         source.connect(gainNode);
         gainNode.connect(soundInput);
         source.start();
+    } else {
+        playRaindrop();
     }
 }
 let musicboxSourceNode = null;
@@ -1321,6 +1325,23 @@ function stopMusicboxLoop() {
         musicboxSourceNode = null;
     }
 }
+function playMusicbox() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    playWindup();
+    if (musicboxAudioBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = musicboxAudioBuffer;
+        src.playbackRate.value = 0.95 + Math.random() * 0.1;
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 1.5;
+        src.connect(gainNode);
+        gainNode.connect(soundInput);
+        const offset = Math.random() * Math.max(0, musicboxAudioBuffer.duration - 0.8);
+        src.start(0, offset, 0.8);
+    } else {
+        playGlassTingle(1200 + Math.random() * 600);
+    }
+}
 
 function startFlaskShakingLoop() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1329,7 +1350,10 @@ function startFlaskShakingLoop() {
         flaskSourceNode = audioCtx.createBufferSource();
         flaskSourceNode.buffer = flaskAudioBuffer;
         flaskSourceNode.loop = true;
-        flaskSourceNode.connect(soundInput);
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 1.2;
+        flaskSourceNode.connect(gainNode);
+        gainNode.connect(soundInput);
         flaskSourceNode.start();
     }
 }
@@ -1345,9 +1369,62 @@ function playFlaskShaking() {
     if (flaskAudioBuffer) {
         const src = audioCtx.createBufferSource();
         src.buffer = flaskAudioBuffer;
-        src.playbackRate.value = 0.9 + Math.random() * 0.2;
-        src.connect(soundInput);
+        src.playbackRate.value = 0.95 + Math.random() * 0.15;
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 1.5;
+        src.connect(gainNode);
+        gainNode.connect(soundInput);
+        const offset = Math.random() * Math.max(0, flaskAudioBuffer.duration - 0.5);
+        src.start(0, offset, 0.5);
+    } else {
+        playLiquidSlosh();
+    }
+}
+
+function playSandCut() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (sandAudioBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = sandAudioBuffer;
+        src.playbackRate.value = 0.9 + Math.random() * 0.25;
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 2.5;
+        src.connect(gainNode);
+        gainNode.connect(soundInput);
+        const offset = Math.random() * Math.max(0, sandAudioBuffer.duration - 0.35);
+        src.start(0, offset, 0.35);
+    } else {
+        const bufferSize = audioCtx.sampleRate * 0.12;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const src = audioCtx.createBufferSource();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+        filter.type = 'bandpass'; filter.frequency.value = 2200; filter.Q.value = 1.0;
+        src.buffer = buffer;
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+        src.connect(filter); filter.connect(gain); gain.connect(soundInput);
         src.start();
+    }
+}
+
+function playWaterbowlTap() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    playWaterDrop();
+    if (woodsoupAudioBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = woodsoupAudioBuffer;
+        src.playbackRate.value = 0.9 + Math.random() * 0.2;
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 2.0;
+        src.connect(gainNode);
+        gainNode.connect(soundInput);
+        const offset = Math.random() * Math.max(0, woodsoupAudioBuffer.duration - 0.4);
+        src.start(0, offset, 0.4);
+    } else {
+        playLiquidSlosh();
     }
 }
 
@@ -1407,7 +1484,7 @@ function playChime(freq) {
         src.buffer = chimeAudioBuffer;
         src.playbackRate.value = freq / 440;
         const gain = audioCtx.createGain();
-        gain.gain.value = 0.8;
+        gain.gain.value = 1.2;
         src.connect(gain);
         gain.connect(soundInput);
         src.start();
@@ -1415,7 +1492,7 @@ function playChime(freq) {
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.type = 'sine'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.1);
+        gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.1);
         gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 4.0);
         osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 4.0);
     }
@@ -1493,6 +1570,18 @@ function playWoodTap() {
         source.connect(gainNode);
         gainNode.connect(soundInput);
         source.start(); 
+    } else {
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320 + Math.random() * 60, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.05);
+        filter.type = 'lowpass'; filter.frequency.value = 1200;
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+        osc.connect(filter); filter.connect(gain); gain.connect(soundInput);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.08);
     }
 }
 
@@ -1615,11 +1704,25 @@ function playLeavesRustle() {
         const source = audioCtx.createBufferSource();
         source.buffer = dryLeavesAudioBuffer;
         const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.8;
+        gainNode.gain.value = 1.0;
         source.connect(gainNode);
         gainNode.connect(soundInput);
         const startOffset = Math.random() * Math.max(0, dryLeavesAudioBuffer.duration - 0.4);
         source.start(0, startOffset, 0.4);
+    } else {
+        const bufferSize = audioCtx.sampleRate * 0.15;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const src = audioCtx.createBufferSource();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+        filter.type = 'bandpass'; filter.frequency.value = 1800 + Math.random() * 400; filter.Q.value = 0.8;
+        src.buffer = buffer;
+        gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+        src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+        src.start();
     }
 }
 
@@ -2158,28 +2261,48 @@ function handleInteraction(e, type, key = null) {
         // Stage 1
         case 'crystal':
             if (type === 'click' || type === 'auto') { playCrystalTap(880); gainResource(essenceGain, xpGain); createParticle(px, py, "💎"); triggerToolAnimation('anim-pulse'); }
+            else if (type === 'drag' && Math.random() > 0.4) { playCrystalTap(660 + Math.random() * 440); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); }
             break;
         case 'potion':
-            if (type === 'drag' || type === 'auto') { gainResource(essenceGain, xpGain); createParticle(px, py, "🧪"); triggerToolAnimation('anim-bounce'); }
+            playFlaskShaking();
+            if (type === 'click') playGlassTingle(900 + Math.random() * 300);
+            gainResource(essenceGain, xpGain);
+            createParticle(px, py, "🧪");
+            triggerToolAnimation('anim-bounce');
             break;
         case 'waterbowl':
-            if (type === 'drag' || type === 'click' || type === 'auto') { movePetals(rx, ry); gainResource(essenceGain, xpGain); }
+            playWaterbowlTap();
+            movePetals(rx, ry);
+            gainResource(essenceGain, xpGain);
+            createParticle(px, py, "🌸");
             break;
         case 'sand':
-            if (type === 'drag' || type === 'auto') { createSandCut(px, py); gainResource(essenceGain, xpGain); }
-            else if (type === 'click') { createSandCut(px, py); gainResource(essenceGain, xpGain); }
+            playSandCut();
+            createSandCut(px, py);
+            gainResource(essenceGain, xpGain);
+            createParticle(px, py, "🏜️");
             break;
         case 'chimes':
-            if (type === 'drag' && Math.random() > 0.7) { playChime(400 + Math.random() * 800); gainResource(essenceGain, xpGain); }
-            else if (type === 'click' || type === 'auto') { playChime(600); gainResource(essenceGain, xpGain); }
+            if (type === 'drag' && Math.random() > 0.5) { playChime(400 + Math.random() * 800); gainResource(essenceGain, xpGain); createParticle(px, py, "🎐"); }
+            else if (type === 'click' || type === 'auto') { playChime(500 + Math.random() * 400); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); }
             break;
         case 'musicbox':
-            if (type === 'drag' || type === 'auto') { rotateCrank(); gainResource(essenceGain, xpGain); }
-            else if (type === 'click') { gainResource(essenceGain * 2, xpGain * 2); }
+            playMusicbox();
+            rotateCrank();
+            gainResource(type === 'click' ? essenceGain * 1.5 : essenceGain, type === 'click' ? xpGain * 1.5 : xpGain);
+            createParticle(px, py, "🎶");
+            triggerToolAnimation('anim-bounce');
             break;
         case 'rainwindow':
-            if (type === 'drag' || type === 'auto') { createWipe(px, py); gainResource(essenceGain, xpGain); }
-            else if (type === 'click') { playRainWindowSingle(); createRaindrop(px, py); gainResource(essenceGain * 1.5, xpGain * 1.5); }
+            if (type === 'drag' || type === 'auto') {
+                playRaindrop();
+                createWipe(px, py);
+                gainResource(essenceGain, xpGain);
+            } else if (type === 'click') {
+                playRainWindowSingle();
+                createRaindrop(px, py);
+                gainResource(essenceGain * 1.5, xpGain * 1.5);
+            }
 
             if (now - lastAutoRaindropTime > 800) {
                 lastAutoRaindropTime = now;
