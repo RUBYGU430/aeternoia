@@ -1288,59 +1288,176 @@ function stopRainWindowLoop() {
         rainWindowSourceNode = null;
     }
 }
+// --- Active Long Sound Registry (Voice Stealing / Monophonic Enforcement) ---
+const activeLongSounds = {};
+
+function stopLongSound(name, fadeDuration = 0.04) {
+    if (!activeLongSounds[name]) return;
+    const entry = activeLongSounds[name];
+    delete activeLongSounds[name];
+
+    try {
+        if (entry.gainNode && audioCtx.state !== 'closed') {
+            const now = audioCtx.currentTime;
+            entry.gainNode.gain.cancelScheduledValues(now);
+            entry.gainNode.gain.setValueAtTime(entry.gainNode.gain.value, now);
+            entry.gainNode.gain.linearRampToValueAtTime(0.0001, now + fadeDuration);
+        }
+        setTimeout(() => {
+            if (entry.sources) {
+                entry.sources.forEach(s => {
+                    try { s.stop(); s.disconnect(); } catch (e) {}
+                });
+            } else if (entry.source) {
+                try { entry.source.stop(); entry.source.disconnect(); } catch (e) {}
+            }
+        }, (fadeDuration + 0.02) * 1000);
+    } catch (e) {}
+}
+
+function registerLongSound(name, sourceOrSources, gainNode) {
+    stopLongSound(name, 0.04);
+    activeLongSounds[name] = {
+        source: Array.isArray(sourceOrSources) ? null : sourceOrSources,
+        sources: Array.isArray(sourceOrSources) ? sourceOrSources : null,
+        gainNode: gainNode
+    };
+}
+
+function stopAllLongSounds() {
+    Object.keys(activeLongSounds).forEach(name => stopLongSound(name, 0.05));
+    stopMusicboxContinuous(0.1);
+}
+
 function playRainWindowSingle() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     if (rainWindowSingleAudioBuffer) {
         const source = audioCtx.createBufferSource();
         source.buffer = rainWindowSingleAudioBuffer;
-        source.playbackRate.value = 0.9 + Math.random() * 0.2;
+        source.playbackRate.value = 1.0;
         const gainNode = audioCtx.createGain();
         gainNode.gain.value = 1.2;
         source.connect(gainNode);
         gainNode.connect(soundInput);
+        registerLongSound('rainwindow', source, gainNode);
         source.start();
     } else {
         playRaindrop();
     }
 }
-let musicboxSourceNode = null;
-function startMusicboxLoop() {
+
+// --- Music Box Continuous Stream (Original Pitch & Single Voice Flow) ---
+let musicboxStreamSource = null;
+let musicboxStreamGain = null;
+let musicboxFadeTimeout = null;
+let lastMusicboxWindupTime = 0;
+
+function ensureMusicboxStream() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    if (musicboxSourceNode) return;
-    if (musicboxAudioBuffer) {
-        musicboxSourceNode = audioCtx.createBufferSource();
-        musicboxSourceNode.buffer = musicboxAudioBuffer;
-        musicboxSourceNode.loop = true;
-        const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 1.0;
-        musicboxSourceNode.connect(gainNode);
-        gainNode.connect(soundInput);
-        musicboxSourceNode.start();
+    if (!musicboxAudioBuffer) return null;
+
+    if (!musicboxStreamSource) {
+        musicboxStreamSource = audioCtx.createBufferSource();
+        musicboxStreamSource.buffer = musicboxAudioBuffer;
+        musicboxStreamSource.loop = true;
+        musicboxStreamSource.playbackRate.value = 1.0; // 원본 음정(original pitch) 엄격 준수
+
+        musicboxStreamGain = audioCtx.createGain();
+        musicboxStreamGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+
+        musicboxStreamSource.connect(musicboxStreamGain);
+        musicboxStreamGain.connect(soundInput);
+
+        musicboxStreamSource.start();
+        musicboxStreamSource.onended = () => {
+            musicboxStreamSource = null;
+            musicboxStreamGain = null;
+        };
     }
+    return { source: musicboxStreamSource, gain: musicboxStreamGain };
 }
-function stopMusicboxLoop() {
-    if (musicboxSourceNode) {
-        musicboxSourceNode.stop();
-        musicboxSourceNode.disconnect();
-        musicboxSourceNode = null;
-    }
-}
-function playMusicbox() {
+
+function playMusicbox(type = 'click') {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    playWindup();
-    if (musicboxAudioBuffer) {
-        const src = audioCtx.createBufferSource();
-        src.buffer = musicboxAudioBuffer;
-        src.playbackRate.value = 0.95 + Math.random() * 0.1;
-        const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 1.5;
-        src.connect(gainNode);
-        gainNode.connect(soundInput);
-        const offset = Math.random() * Math.max(0, musicboxAudioBuffer.duration - 0.8);
-        src.start(0, offset, 0.8);
+
+    // 기계식 태엽 소리 (과도한 중복 방지: 최소 120ms 간격)
+    const now = Date.now();
+    if (now - lastMusicboxWindupTime > 120) {
+        lastMusicboxWindupTime = now;
+        playWindup();
+    }
+
+    const stream = ensureMusicboxStream();
+    if (!stream) {
+        playGlassTingle(1200);
+        return;
+    }
+
+    if (musicboxFadeTimeout) {
+        clearTimeout(musicboxFadeTimeout);
+        musicboxFadeTimeout = null;
+    }
+
+    const currTime = audioCtx.currentTime;
+    stream.gain.gain.cancelScheduledValues(currTime);
+
+    if (type === 'drag') {
+        // 드래그 중: 원래 음정으로 끊김 없이 계속 음악이 흐름 (볼륨 1.2 유지)
+        stream.gain.gain.setValueAtTime(stream.gain.gain.value, currTime);
+        stream.gain.gain.linearRampToValueAtTime(1.2, currTime + 0.05);
+
+        // 드래그를 멈추거나 마우스 이동이 정지되면 1.2초 후 서서히 페이드아웃 (태엽 감김이 풀리듯 자연스럽게 멈춤)
+        musicboxFadeTimeout = setTimeout(() => {
+            stopMusicboxContinuous(1.0);
+        }, 1200);
     } else {
-        playGlassTingle(1200 + Math.random() * 600);
+        // 단일 클릭: 2.2초 동안 원래 음정으로 연주 후 부드럽게 감속 정지
+        stream.gain.gain.setValueAtTime(stream.gain.gain.value, currTime);
+        stream.gain.gain.linearRampToValueAtTime(1.2, currTime + 0.08);
+        musicboxFadeTimeout = setTimeout(() => {
+            stopMusicboxContinuous(1.0);
+        }, 2200);
     }
+}
+
+function stopMusicboxContinuous(fadeDuration = 0.8) {
+    if (musicboxFadeTimeout) {
+        clearTimeout(musicboxFadeTimeout);
+        musicboxFadeTimeout = null;
+    }
+    if (!musicboxStreamGain || !musicboxStreamSource) return;
+
+    try {
+        const currTime = audioCtx.currentTime;
+        musicboxStreamGain.gain.cancelScheduledValues(currTime);
+        musicboxStreamGain.gain.setValueAtTime(musicboxStreamGain.gain.value, currTime);
+        musicboxStreamGain.gain.linearRampToValueAtTime(0.0001, currTime + fadeDuration);
+
+        const srcToStop = musicboxStreamSource;
+        const gainToClean = musicboxStreamGain;
+        musicboxFadeTimeout = setTimeout(() => {
+            if (musicboxStreamSource === srcToStop) {
+                try {
+                    srcToStop.stop();
+                    srcToStop.disconnect();
+                    gainToClean.disconnect();
+                } catch (e) {}
+                musicboxStreamSource = null;
+                musicboxStreamGain = null;
+            }
+        }, (fadeDuration + 0.05) * 1000);
+    } catch (e) {
+        musicboxStreamSource = null;
+        musicboxStreamGain = null;
+    }
+}
+
+function startMusicboxLoop() {
+    playMusicbox('drag');
+}
+
+function stopMusicboxLoop() {
+    stopMusicboxContinuous(0.8);
 }
 
 function startFlaskShakingLoop() {
@@ -1487,14 +1604,17 @@ function playChime(freq) {
         gain.gain.value = 1.2;
         src.connect(gain);
         gain.connect(soundInput);
+        registerLongSound('chime', src, gain);
         src.start();
     } else {
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.type = 'sine'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
         gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 4.0);
-        osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 4.0);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.0);
+        osc.connect(gain); gain.connect(soundInput);
+        registerLongSound('chime', osc, gain);
+        osc.start(); osc.stop(audioCtx.currentTime + 3.0);
     }
 }
 let campfireSourceNode = null;
@@ -1503,7 +1623,7 @@ function playCampfire() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const volumeMultiplier = 0.5 + ((state.fireLevel - 1) * 0.2);
     const now = Date.now();
-    if (now - lastCampfireTime < 150) return;
+    if (now - lastCampfireTime < 120) return;
     lastCampfireTime = now;
 
     if (campfireAudioBuffer) {
@@ -1513,6 +1633,7 @@ function playCampfire() {
         gainNode.gain.value = 0.7 * volumeMultiplier;
         source.connect(gainNode);
         gainNode.connect(soundInput);
+        registerLongSound('campfire', source, gainNode);
         const startOffset = Math.random() * Math.max(0, campfireAudioBuffer.duration - 0.5);
         source.start(0, startOffset, 0.5);
         return;
@@ -1534,8 +1655,9 @@ function playCampfire() {
     filter.connect(gainNode);
     gainNode.connect(soundInput);
 
+    registerLongSound('campfire', osc, gainNode);
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.3);
+    osc.stop(audioCtx.currentTime + 0.35);
 }
 function playWindup() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1590,11 +1712,11 @@ let activeSingingBowlGain = null;
 let lastSingingBowlTime = 0;
 function playSingingBowl(isDrag) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    const now = Date.now();
 
     if (singingBowlAudioBuffer) {
-        const now = Date.now();
         if (isDrag) {
-            if (now - lastSingingBowlTime < 250) return;
+            if (now - lastSingingBowlTime < 200) return;
             lastSingingBowlTime = now;
             const source = audioCtx.createBufferSource();
             source.buffer = singingBowlAudioBuffer;
@@ -1602,11 +1724,12 @@ function playSingingBowl(isDrag) {
             gainNode.gain.value = 0.7;
             source.connect(gainNode);
             gainNode.connect(soundInput);
+            registerLongSound('singingbowl', source, gainNode);
             const startOffset = Math.random() * Math.max(0, singingBowlAudioBuffer.duration - 0.8);
             source.start(0, startOffset, 0.8);
             return;
         } else {
-            if (now - lastSingingBowlTime < 400) return;
+            if (now - lastSingingBowlTime < 300) return;
             lastSingingBowlTime = now;
             const source = audioCtx.createBufferSource();
             source.buffer = singingBowlAudioBuffer;
@@ -1614,83 +1737,72 @@ function playSingingBowl(isDrag) {
             gainNode.gain.value = 1.0;
             source.connect(gainNode);
             gainNode.connect(soundInput);
+            registerLongSound('singingbowl', source, gainNode);
             source.start();
             return;
         }
     }
 
     if (isDrag) {
-        // Continuous rubbing sound
-        if (activeSingingBowlOsc) return; // Only one active rubbing sound at a time
+        // Continuous rubbing sound - single active voice
+        if (activeLongSounds['singingbowl']) return;
 
         const osc = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-
         osc.type = 'sine';
         osc.frequency.value = 432; // Healing frequency
 
-        gainNode.gain.setValueAtTime(0.0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.5); // Fade in
+        gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.3);
 
         osc.connect(gainNode);
         gainNode.connect(soundInput);
 
+        registerLongSound('singingbowl', osc, gainNode);
         osc.start();
-        activeSingingBowlOsc = osc;
-        activeSingingBowlGain = gainNode;
 
-        // Auto stop if dragging stops
         setTimeout(() => {
-            if (activeSingingBowlGain) {
-                activeSingingBowlGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.0);
-                setTimeout(() => { if (activeSingingBowlOsc) { activeSingingBowlOsc.stop(); activeSingingBowlOsc = null; activeSingingBowlGain = null; } }, 1000);
-            }
+            stopLongSound('singingbowl', 0.8);
         }, 500);
     } else {
-        // Strike sound (8 second fade out)
+        // Strike sound (single instance replaces any previous resonance)
         const baseFreq = 432;
-
-        // Main fundamental
         const osc1 = audioCtx.createOscillator();
         osc1.type = 'sine';
         osc1.frequency.value = baseFreq;
 
-        // Sub-harmonic for depth
         const osc2 = audioCtx.createOscillator();
         osc2.type = 'sine';
         osc2.frequency.value = baseFreq / 2;
 
-        // High harmonic for the strike
         const osc3 = audioCtx.createOscillator();
         osc3.type = 'triangle';
         osc3.frequency.value = baseFreq * 2.5;
 
         const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 6.0);
 
-        // The attack and 8 second decay
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.05); // Strike
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 8.0); // 8 sec fade
-
-        // High harmonic should fade much faster
         const highGain = audioCtx.createGain();
         highGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        highGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
+        highGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
         osc3.connect(highGain);
         highGain.connect(gainNode);
 
         osc1.connect(gainNode);
         osc2.connect(gainNode);
-
         gainNode.connect(soundInput);
+
+        registerLongSound('singingbowl', [osc1, osc2, osc3], gainNode);
 
         osc1.start();
         osc2.start();
         osc3.start();
 
-        osc1.stop(audioCtx.currentTime + 8.5);
-        osc2.stop(audioCtx.currentTime + 8.5);
-        osc3.stop(audioCtx.currentTime + 8.5);
+        osc1.stop(audioCtx.currentTime + 6.2);
+        osc2.stop(audioCtx.currentTime + 6.2);
+        osc3.stop(audioCtx.currentTime + 2.0);
     }
 }
 
@@ -1707,6 +1819,7 @@ function playLeavesRustle() {
         gainNode.gain.value = 1.0;
         source.connect(gainNode);
         gainNode.connect(soundInput);
+        registerLongSound('leaves', source, gainNode);
         const startOffset = Math.random() * Math.max(0, dryLeavesAudioBuffer.duration - 0.4);
         source.start(0, startOffset, 0.4);
     } else {
@@ -1722,6 +1835,7 @@ function playLeavesRustle() {
         gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
         src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+        registerLongSound('leaves', src, gain);
         src.start();
     }
 }
@@ -1747,8 +1861,10 @@ function playSpaceshipDrone() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
     osc.type = 'sine'; osc.frequency.setValueAtTime(50, audioCtx.currentTime); // 매우 낮고 묵직한 우주선 웅웅거림
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-    osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+    osc.connect(gain); gain.connect(soundInput);
+    registerLongSound('spaceship', osc, gain);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
 }
 
 // Stage 4 Sounds
@@ -1765,14 +1881,18 @@ function playSubmarine() {
     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
     osc.type = 'sine'; osc.frequency.setValueAtTime(45, audioCtx.currentTime);
     gain.gain.setValueAtTime(0.08, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 1.0); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
-    osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 1.5);
+    osc.connect(gain); gain.connect(soundInput);
+    registerLongSound('submarine', osc, gain);
+    osc.start(); osc.stop(audioCtx.currentTime + 1.5);
 }
 function playWhaleSong() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
     osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 2.0);
-    gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.5); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.0);
-    osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 3.0);
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.4); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.8);
+    osc.connect(gain); gain.connect(soundInput);
+    registerLongSound('whale', osc, gain);
+    osc.start(); osc.stop(audioCtx.currentTime + 2.8);
 }
 function playDeepWaterFlow() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1781,7 +1901,9 @@ function playDeepWaterFlow() {
     const src = audioCtx.createBufferSource(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
     filter.type = 'lowpass'; filter.frequency.value = 150;
     src.buffer = buffer; gain.gain.setValueAtTime(0.02, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-    src.connect(filter); filter.connect(gain); gain.connect(soundInput); src.start();
+    src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+    registerLongSound('waterflow', src, gain);
+    src.start();
 }
 
 // Stage 5 Sounds
@@ -1812,14 +1934,22 @@ function playTeacup() {
 }
 function playRoyalChimes() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    const oscs = [];
+    const masterGainNode = audioCtx.createGain();
+    masterGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
+    masterGainNode.connect(soundInput);
+
     [880, 1108, 1318, 1760].forEach((freq, idx) => {
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.type = 'sine'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.1 + (idx * 0.05));
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.0 + (idx * 0.5));
-        osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 4.0);
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.08 + (idx * 0.04));
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5 + (idx * 0.4));
+        osc.connect(gain); gain.connect(masterGainNode);
+        osc.start(); osc.stop(audioCtx.currentTime + 3.0);
+        oscs.push(osc);
     });
+    registerLongSound('royalchimes', oscs, masterGainNode);
 }
 
 // --- NEW STAGE 2 SOUNDS ---
@@ -1836,6 +1966,7 @@ function playBirdsong() {
         gainNode.gain.value = 0.9;
         source.connect(gainNode);
         gainNode.connect(soundInput);
+        registerLongSound('birdsong', source, gainNode);
         source.start();
         return;
     }
@@ -1844,7 +1975,9 @@ function playBirdsong() {
     osc.type = 'sine'; osc.frequency.setValueAtTime(3000 + Math.random() * 1000, audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(4000 + Math.random() * 1000, audioCtx.currentTime + 0.1);
     gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.015, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
-    osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    osc.connect(gain); gain.connect(soundInput);
+    registerLongSound('birdsong', osc, gain);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
 }
 
 let lastStreamTime = 0;
@@ -1861,6 +1994,7 @@ function playStream() {
         gainNode.gain.value = 0.5;
         source.connect(gainNode);
         gainNode.connect(soundInput);
+        registerLongSound('stream', source, gainNode);
         const startOffset = Math.random() * Math.max(0, riverFlowAudioBuffer.duration - 0.5);
         source.start(0, startOffset, 0.5);
         return;
@@ -1871,7 +2005,9 @@ function playStream() {
     const src = audioCtx.createBufferSource(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
     filter.type = 'bandpass'; filter.frequency.value = 1000 + Math.random() * 500; filter.Q.value = 0.5;
     src.buffer = buffer; gain.gain.setValueAtTime(0.015, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
-    src.connect(filter); filter.connect(gain); gain.connect(soundInput); src.start();
+    src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+    registerLongSound('stream', src, gain);
+    src.start();
 }
 function playCrickets() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1889,7 +2025,9 @@ function playServerFan() {
     const src = audioCtx.createBufferSource(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
     filter.type = 'lowpass'; filter.frequency.value = 400;
     src.buffer = buffer; gain.gain.setValueAtTime(0.02, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-    src.connect(filter); filter.connect(gain); gain.connect(soundInput); src.start();
+    src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+    registerLongSound('serverfan', src, gain);
+    src.start();
 }
 function playServoMotor() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1909,8 +2047,10 @@ function playZeroGPod() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
     osc.type = 'sine'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 2.0);
-    gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.5); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
-    osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 2.5);
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.3); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
+    osc.connect(gain); gain.connect(soundInput);
+    registerLongSound('zerogpod', osc, gain);
+    osc.start(); osc.stop(audioCtx.currentTime + 2.2);
 }
 
 // --- NEW STAGE 4 SOUNDS ---
@@ -1929,15 +2069,19 @@ function playOxygenTank() {
     for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
     const src = audioCtx.createBufferSource(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
     filter.type = 'bandpass'; filter.frequency.value = 800; filter.Q.value = 0.5;
-    src.buffer = buffer; gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.4); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-    src.connect(filter); filter.connect(gain); gain.connect(soundInput); src.start();
+    src.buffer = buffer; gain.gain.setValueAtTime(0.0001, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.3); gain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+    src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+    registerLongSound('oxygentank', src, gain);
+    src.start();
 }
 function playCaveEcho() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
     osc.type = 'sine'; osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 1.5);
-    gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.2); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
-    osc.connect(gain); gain.connect(soundInput); osc.start(); osc.stop(audioCtx.currentTime + 2.0);
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.2); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
+    osc.connect(gain); gain.connect(soundInput);
+    registerLongSound('caveecho', osc, gain);
+    osc.start(); osc.stop(audioCtx.currentTime + 1.8);
 }
 
 // --- NEW STAGE 5 SOUNDS ---
@@ -1948,7 +2092,9 @@ function playVelvet() {
     const src = audioCtx.createBufferSource(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
     filter.type = 'lowpass'; filter.frequency.value = 300;
     src.buffer = buffer; gain.gain.setValueAtTime(0.02, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
-    src.connect(filter); filter.connect(gain); gain.connect(soundInput); src.start();
+    src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+    registerLongSound('velvet', src, gain);
+    src.start();
 }
 function playChess() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1965,7 +2111,9 @@ function playRoyalFireplace() {
     const src = audioCtx.createBufferSource(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
     filter.type = 'lowpass'; filter.frequency.value = 250 + Math.random() * 200;
     src.buffer = buffer; gain.gain.setValueAtTime(0.02, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
-    src.connect(filter); filter.connect(gain); gain.connect(soundInput); src.start();
+    src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+    registerLongSound('royalfire', src, gain);
+    src.start();
 }
 
 // --- DOM Elements ---
@@ -2025,6 +2173,9 @@ function init() {
 
 function switchScreen(screenId) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (screenId !== 'recording') {
+        stopAllLongSounds();
+    }
     el.screens.forEach(s => s.classList.remove('active'));
     document.getElementById(`screen-${screenId}`).classList.add('active');
 
@@ -2075,6 +2226,7 @@ function unlockRoom(roomId, e) {
 
 function enterRecordingRoom(roomId) {
     if (!state.unlockedRooms.includes(roomId)) return;
+    stopAllLongSounds();
     const room = ROOMS.find(r => r.id === roomId);
     state.currentTool = roomId;
     el.roomName.textContent = t('room_' + room.id + '_name');
@@ -2098,6 +2250,7 @@ function getToolInstruction(roomId) {
 }
 
 function stopRecording() {
+    stopAllLongSounds();
     state.currentTool = null;
     handleInteractionModeChange();
     saveGame();
@@ -2146,7 +2299,6 @@ function setupEventListeners() {
             if (water) water.classList.add('active-slosh');
         }
         if (state.currentTool === 'sand') startSandLoop();
-        if (state.currentTool === 'musicbox') startMusicboxLoop();
         if (state.currentTool === 'rainwindow') startRainWindowLoop();
         handleInteraction(e, 'click');
     });
@@ -2158,7 +2310,7 @@ function setupEventListeners() {
         stopFlaskShakingLoop();
         stopWoodsoupLoop();
         stopSandLoop();
-        stopMusicboxLoop();
+        if (state.currentTool === 'musicbox') stopMusicboxContinuous(0.8);
         stopRainWindowLoop();
         const water = document.querySelector('.wood-water');
         if (water) water.classList.remove('active-slosh');
@@ -2287,7 +2439,7 @@ function handleInteraction(e, type, key = null) {
             else if (type === 'click' || type === 'auto') { playChime(500 + Math.random() * 400); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); }
             break;
         case 'musicbox':
-            playMusicbox();
+            playMusicbox(type);
             rotateCrank();
             gainResource(type === 'click' ? essenceGain * 1.5 : essenceGain, type === 'click' ? xpGain * 1.5 : xpGain);
             createParticle(px, py, "🎶");
