@@ -49,7 +49,11 @@ const state = {
 
     activeHealingTarget: null,
     lastVisitorSpawnTime: Date.now(),
-    stage: 1
+    stage: 1,
+
+    // 가상 시계 및 저녁 러시 시스템
+    gameTimeMinutes: 480, // 기본 08:00 (오전 8시)
+    isEveningRush: false
 };
 
 const ROOMS = [
@@ -2171,7 +2175,17 @@ const el = {
     // 알림 센터 요소
     notifPanel: document.getElementById('notification-center'),
     notifList: document.getElementById('notif-list'),
-    notifBadge: document.getElementById('notif-badge')
+    notifBadge: document.getElementById('notif-badge'),
+
+    // 가상 시계 요소
+    clockIcon: document.getElementById('clock-icon'),
+    clockTime: document.getElementById('clock-time'),
+    clockTag: document.getElementById('clock-tag'),
+    clockBadge: document.getElementById('game-clock-badge'),
+    recordingClockIcon: document.getElementById('recording-clock-icon'),
+    recordingClockTime: document.getElementById('recording-clock-time'),
+    recordingClockTag: document.getElementById('recording-clock-tag'),
+    recordingClockBadge: document.getElementById('recording-game-clock-badge')
 };
 
 function init() {
@@ -2181,6 +2195,7 @@ function init() {
     applyLanguage();
     applyStageVisuals();
     checkSecretShopRotation();
+    updateGameClockDisplay();
     setInterval(gameLoop, 1000);
     updateUI();
     updateReviewBadge();
@@ -2685,10 +2700,14 @@ function processHealing(amount) {
         stopAutoHeal();
         state.visitors = state.visitors.filter(v => v.id !== target.id);
 
-        const totalEssence = target.rewardEssence * state.buffs.essenceMultiplier;
-        const totalXp = target.rewardXp * state.buffs.xpMultiplier;
+        const rushMultiplier = state.isEveningRush ? 1.2 : 1.0;
+        const totalEssence = target.rewardEssence * state.buffs.essenceMultiplier * rushMultiplier;
+        const totalXp = target.rewardXp * state.buffs.xpMultiplier * rushMultiplier;
 
         gainEssence(totalEssence); gainXp(totalXp);
+        if (state.isEveningRush) {
+            showToast('🔥 [저녁 러시 보너스] 에센스 & XP +20% 추가 획득!');
+        }
 
         // SNS Review Collection Logic
         if (state.currentTool && !state.collectedReviews.includes(state.currentTool)) {
@@ -3199,17 +3218,156 @@ function processTemporaryBuffs() {
     renderActiveBuffs();
 }
 
+function updateGameClockDisplay() {
+    const totalMins = Math.floor(state.gameTimeMinutes) % 1440;
+    const hours = Math.floor(totalMins / 60);
+    const mins = Math.floor(totalMins % 60);
+    const timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+
+    // 시간대별 아이콘:
+    // 00:00 ~ 05:59: 🌙 심야
+    // 06:00 ~ 11:59: ☀️ 아침
+    // 12:00 ~ 17:59: ⛅ 낮
+    // 18:00 ~ 20:59: 🌅 저녁 (18:00 ~ 18:15는 피크 러시)
+    // 21:00 ~ 23:59: 🌌 밤
+    let icon = '☀️';
+    if (hours < 6) icon = '🌙';
+    else if (hours < 12) icon = '☀️';
+    else if (hours < 18) icon = '⛅';
+    else if (hours < 21) icon = '🌅';
+    else icon = '🌌';
+
+    if (el.clockTime) el.clockTime.textContent = timeStr;
+    if (el.clockIcon) el.clockIcon.textContent = icon;
+    if (el.recordingClockTime) el.recordingClockTime.textContent = timeStr;
+    if (el.recordingClockIcon) el.recordingClockIcon.textContent = icon;
+
+    if (state.isEveningRush) {
+        if (el.clockTag) el.clockTag.classList.remove('hidden');
+        if (el.clockBadge) el.clockBadge.classList.add('rush-active');
+        if (el.recordingClockTag) el.recordingClockTag.classList.remove('hidden');
+        if (el.recordingClockBadge) el.recordingClockBadge.classList.add('rush-active');
+    } else {
+        if (el.clockTag) el.clockTag.classList.add('hidden');
+        if (el.clockBadge) el.clockBadge.classList.remove('rush-active');
+        if (el.recordingClockTag) el.recordingClockTag.classList.add('hidden');
+        if (el.recordingClockBadge) el.recordingClockBadge.classList.remove('rush-active');
+    }
+}
+
+function advanceGameClock() {
+    if (state.isEveningRush) {
+        // [옵션 A] 저녁 러시 중 (18:00 ~ 18:15):
+        // 15분의 러시가 현실 90초 동안 진행되도록 1초당 1/6분(10초)씩 경과
+        state.gameTimeMinutes += (1 / 6);
+        if (state.gameTimeMinutes >= 1095) {
+            state.gameTimeMinutes = 1095;
+            endEveningRush();
+        }
+    } else {
+        // 일반 시간: 현실 1초 = 가상 1분 경과 (하루 24시간 = 현실 24분)
+        const nextTime = state.gameTimeMinutes + 1;
+        // 저녁 6시 (18:00 = 1080분) 정각 도달 체크
+        if (state.gameTimeMinutes < 1080 && nextTime >= 1080) {
+            state.gameTimeMinutes = 1080;
+            startEveningRush();
+        } else {
+            state.gameTimeMinutes = nextTime >= 1440 ? (nextTime % 1440) : nextTime;
+        }
+    }
+    updateGameClockDisplay();
+}
+
+function startEveningRush() {
+    if (state.isEveningRush) return;
+    state.isEveningRush = true;
+
+    try {
+        playChime(660);
+        setTimeout(() => playChime(880), 180);
+        setTimeout(() => playChime(1100), 360);
+    } catch (e) {
+        console.warn(e);
+    }
+
+    showToast('🌅 [저녁 러시 시작!] 저녁 6시, 정령 손님들이 한꺼번에 찾아옵니다! (15분간 진행 / 치유 보너스 +20%)');
+    addNotification('🌅 [저녁 러시] 저녁 6시 정각 피크타임 시작! 대기열이 6명으로 확장되고 치유 보너스(+20%)가 적용됩니다.', 'event');
+
+    // 18:00 정각 즉시 손님 2명 대기열 추가
+    spawnVisitor();
+    if (state.visitors.length < 6) {
+        spawnVisitor();
+    }
+    updateGameClockDisplay();
+}
+
+function endEveningRush() {
+    if (!state.isEveningRush) return;
+    state.isEveningRush = false;
+
+    try {
+        playChime(520);
+    } catch (e) {
+        console.warn(e);
+    }
+
+    showToast('🌙 [저녁 러시 종료] 오늘의 피크타임이 무사히 마무리되었습니다.');
+    addNotification('🌙 [저녁 러시 종료] 저녁 6시 15분, 오늘의 피크타임이 종료되었습니다. 수고하셨습니다!', 'event');
+
+    updateGameClockDisplay();
+}
+
+function getVisitorSpawnInterval() {
+    if (state.visitors.length === 0) return 5000;
+    if (state.isEveningRush) {
+        // 러시 시간: 4~7초 간격으로 매우 빠르게 몰려옴
+        return 4000 + Math.random() * 3000;
+    }
+
+    const hour = Math.floor(state.gameTimeMinutes / 60) % 24;
+    // 아침 (06:00 ~ 11:59): 상쾌하고 여유로운 시작 (25~35초)
+    if (hour >= 6 && hour < 12) {
+        return 25000 + Math.random() * 10000;
+    }
+    // 낮 (12:00 ~ 17:59): 활발한 방문 (18~28초)
+    else if (hour >= 12 && hour < 18) {
+        return 18000 + Math.random() * 10000;
+    }
+    // 저녁 (18:16 ~ 21:59): 러시 이후 차분한 저녁 손님 (24~34초)
+    else if (hour >= 18 && hour < 22) {
+        return 24000 + Math.random() * 10000;
+    }
+    // 심야 (22:00 ~ 05:59): 드문 손님이지만 깊은 고민 (38~50초)
+    else {
+        return 38000 + Math.random() * 12000;
+    }
+}
+
+// 편의 및 테스트용 시각 설정 함수 (브라우저 콘솔 / 테스트용)
+window.setGameTime = function(hours, mins = 0) {
+    state.gameTimeMinutes = (hours * 60 + mins) % 1440;
+    if (state.gameTimeMinutes >= 1080 && state.gameTimeMinutes < 1095) {
+        if (!state.isEveningRush) startEveningRush();
+    } else {
+        if (state.isEveningRush) endEveningRush();
+    }
+    updateGameClockDisplay();
+};
+
 function gameLoop() {
     processTemporaryBuffs();
     checkSecretShopRotation();
+    advanceGameClock();
+
     const currentToolObj = ROOMS.find(r => r.id === state.currentTool);
     const roomReward = currentToolObj ? currentToolObj.rewardBase : (getRoomsForCurrentStage()[0] ? getRoomsForCurrentStage()[0].rewardBase : 2);
     let auto = (state.spirits.wind || 0) * Math.max(1, Math.floor(roomReward * 0.25)) * state.buffs.essenceMultiplier;
     if (auto > 0) gainEssence(auto);
 
     const now = Date.now();
-    const spawnInterval = state.visitors.length === 0 ? 5000 : (30000 + Math.random() * 15000);
-    if (state.visitors.length < 3 && (now - state.lastVisitorSpawnTime) > spawnInterval) {
+    const maxCapacity = state.isEveningRush ? 6 : 3;
+    const spawnInterval = getVisitorSpawnInterval();
+    if (state.visitors.length < maxCapacity && (now - state.lastVisitorSpawnTime) > spawnInterval) {
         spawnVisitor();
         state.lastVisitorSpawnTime = now;
     }
@@ -3489,6 +3647,11 @@ function spawnVisitor() {
         state.activeTemporaryBuffs.forEach(b => {
             if (b.type === 'severe_chance') severeChanceBoost += 0.30;
         });
+    }
+    const currentHour = Math.floor(state.gameTimeMinutes / 60) % 24;
+    if (currentHour >= 22 || currentHour < 6) {
+        // 심야(22:00 ~ 05:59): 깊은 고민을 안고 찾아오는 정령들 (중증 증상 확률 +25%)
+        severeChanceBoost += 0.25;
     }
 
     const rand = Math.random();
@@ -4323,6 +4486,10 @@ function loadGame() {
         state.visitors = [];
         spawnVisitor();
     }
+    if (state.gameTimeMinutes === undefined || isNaN(state.gameTimeMinutes)) {
+        state.gameTimeMinutes = 480; // 기본 08:00 (오전 8시)
+    }
+    state.isEveningRush = false;
     masterGain.gain.value = state.settings.sfxVolume / 100;
     state.unreadNotifs = 0;
     updateNotifBadge();

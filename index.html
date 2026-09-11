@@ -16,13 +16,22 @@
     <div id="app">
         <!-- 전역 상단 바 -->
         <div id="global-top-bar" class="top-bar-absolute hidden">
-            <div id="active-buffs-container" class="active-buffs-container"></div>
-            <select id="store-selector" class="glass" onchange="changeStage(this.value)">
-                <option value="1">1호점</option>
-            </select>
-            <button id="notif-btn" class="glass" onclick="toggleNotifications()">
-                🔔 <span id="notif-badge" class="hidden">0</span>
-            </button>
+            <div class="top-bar-left">
+                <div id="game-clock-badge" class="game-clock-badge glass" title="치유센터 가상 시각">
+                    <span id="clock-icon" class="clock-icon">☀️</span>
+                    <span id="clock-time" class="clock-time">08:00</span>
+                    <span id="clock-tag" class="rush-tag hidden">🔥 RUSH!</span>
+                </div>
+                <div id="active-buffs-container" class="active-buffs-container"></div>
+            </div>
+            <div class="top-bar-right" style="display: flex; align-items: center; gap: 8px;">
+                <select id="store-selector" class="glass" onchange="changeStage(this.value)">
+                    <option value="1">1호점</option>
+                </select>
+                <button id="notif-btn" class="glass" onclick="toggleNotifications()">
+                    🔔 <span id="notif-badge" class="hidden">0</span>
+                </button>
+            </div>
         </div>
 
         <!-- 1. 시작 화면 -->
@@ -224,6 +233,11 @@
                     <button class="back-btn glass" onclick="stopRecording()">
                         <span class="icon">◀</span> <span data-i18n="back_to_studio">스튜디오로 복귀</span>
                     </button>
+                    <div id="recording-game-clock-badge" class="game-clock-badge glass" title="치유센터 가상 시각">
+                        <span id="recording-clock-icon" class="clock-icon">☀️</span>
+                        <span id="recording-clock-time" class="clock-time">08:00</span>
+                        <span id="recording-clock-tag" class="rush-tag hidden">🔥 RUSH!</span>
+                    </div>
                     <div class="level-display glass" style="padding: 5px 15px; border-radius: 20px; font-weight: bold; color: var(--accent-gold);">
                         <span id="recording-level-text">LV.1</span>
                     </div>
@@ -363,8 +377,8 @@
 
     <div id="toast-container" class="toast-container"></div>
     <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
-    <script src="audio_base64.js?v=23"></script>
-    <script src="procedural_bgm.js?v=23"></script>
-    <script src="app.js?v=23"></script>
+    <script src="audio_base64.js?v=24"></script>
+    <script src="procedural_bgm.js?v=24"></script>
+    <script src="app.js?v=24"></script>
 </body>
 </html>
