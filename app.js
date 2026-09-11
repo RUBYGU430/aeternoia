@@ -114,6 +114,49 @@ const ROOMS = [
 
 
 
+const PRESCRIPTION_GUIDE = {
+    'none': {
+        name: '가벼운 피로 & 일상 스트레스',
+        symptomDesc: '일상적인 피로와 긴장감으로 머리가 묵직한 상태입니다.',
+        rxSoundDesc: '경쾌한 탭핑음과 부드러운 촉각 ASMR (수정, 나무, 모래, 깃펜, 하프 등)',
+        recommendedRooms: ['crystal', 'sand', 'woodblock', 'leaves', 'bubbles', 'coral', 'keyboard', 'datatransfer', 'quill', 'parchment', 'harp', 'clouds'],
+        bonusSpeed: 1.5,
+        bonusReward: 1.3
+    },
+    'normal': {
+        name: '불면증 & 만성 수면부족',
+        symptomDesc: '잡념과 불안으로 며칠째 깊은 잠을 이루지 못하고 있습니다.',
+        rxSoundDesc: '포근한 빗소리, 오르골 선율, 싱잉보울, 풀벌레 백색소음 등',
+        recommendedRooms: ['rainwindow', 'musicbox', 'crickets', 'singingbowl', 'submarine', 'oxygentank', 'spaceship', 'zerogpod', 'royalfire', 'velvet', 'clouds', 'halo'],
+        bonusSpeed: 1.5,
+        bonusReward: 1.3
+    },
+    'mild_dep': {
+        name: '번아웃 & 무기력증',
+        symptomDesc: '열정과 에너지가 방전되어 깊은 무력감에 빠져 있습니다.',
+        rxSoundDesc: '따스한 온기와 활력을 불어넣는 물약, 모닥불, 계곡물, 찻잔 소리 등',
+        recommendedRooms: ['potion', 'waterbowl', 'campfire', 'stream', 'whale', 'waterflow', 'glitch', 'servomotor', 'teacup', 'chess', 'halo', 'starlight'],
+        bonusSpeed: 1.5,
+        bonusReward: 1.3
+    },
+    'severe_dep': {
+        name: '중증 우울증 & 심적 고통',
+        symptomDesc: '마음의 에테르가 상처받아 극심한 슬픔과 고립감을 겪고 있습니다.',
+        rxSoundDesc: '영혼을 맑게 씻어내는 우주 풍경종, 새소리, 샹들리에, 천상 합창 등',
+        recommendedRooms: ['chimes', 'waterbowl', 'birdsong', 'stream', 'whale', 'coral', 'serverfan', 'spaceship', 'royalchimes', 'teacup', 'choir', 'starlight'],
+        bonusSpeed: 1.5,
+        bonusReward: 1.3
+    },
+    'ptsd': {
+        name: '외상 후 스트레스 (PTSD)',
+        symptomDesc: '과거의 트라우마가 덮쳐 극도의 공포와 심장 박동 불안을 호소합니다.',
+        rxSoundDesc: '깊은 진동 이완과 심리적 안식처를 주는 싱잉보울, 수정 정화, 성소 소리 등',
+        recommendedRooms: ['crystal', 'rainwindow', 'singingbowl', 'campfire', 'whale', 'caveecho', 'zerogpod', 'spaceship', 'royalfire', 'royalchimes', 'sanctuary', 'gate'],
+        bonusSpeed: 1.5,
+        bonusReward: 1.3
+    }
+};
+
 const STRESS_EFFECTS = [
     { id: 'none', nameKey: 'stress_none', probability: 0.55, speedMod: 1.0 },
     { id: 'normal', nameKey: 'stress_normal', probability: 0.25, speedMod: 0.9 },
@@ -2675,10 +2718,11 @@ function processHealing(amount) {
     if (!state.activeHealingTarget) return;
     const target = state.activeHealingTarget;
     const speedMod = target.stressEffect ? target.stressEffect.speedMod : 1.0;
+    const rxSpeedMultiplier = target.isOptimalRx ? 1.5 : 1.0;
 
     // 안정지수에 비례하여 치유량이 증폭됨 (0~100 안정지수 -> 1.0x ~ 2.0x 치유량)
     const stabilityMultiplier = 1.0 + (state.stability / 100);
-    const rawHeal = amount * speedMod * stabilityMultiplier;
+    const rawHeal = amount * speedMod * stabilityMultiplier * rxSpeedMultiplier;
 
     // 플레이어가 너무 강력해져서 한 번 클릭에 손님이 바로 치유되는 것을 방지.
     // 아무리 치유량이 높아도 1회 상호작용당 최대 스트레스의 15%까지만 깎이도록 제한 (최소 7번의 상호작용 필요)
@@ -2695,18 +2739,23 @@ function processHealing(amount) {
 
     if (cur <= 0) {
         const target = state.activeHealingTarget;
+        const isOptimal = target.isOptimalRx;
         state.activeHealingTarget = null;
         el.healingOverlay.classList.add('hidden');
         stopAutoHeal();
         state.visitors = state.visitors.filter(v => v.id !== target.id);
 
         const rushMultiplier = state.isEveningRush ? 1.2 : 1.0;
-        const totalEssence = target.rewardEssence * state.buffs.essenceMultiplier * rushMultiplier;
-        const totalXp = target.rewardXp * state.buffs.xpMultiplier * rushMultiplier;
+        const rxMultiplier = isOptimal ? 1.3 : 1.0; // 맞춤 처방 성공 시 에센스 및 경험치 +30% 추가 보너스
+        const totalEssence = target.rewardEssence * state.buffs.essenceMultiplier * rushMultiplier * rxMultiplier;
+        const totalXp = target.rewardXp * state.buffs.xpMultiplier * rushMultiplier * rxMultiplier;
 
         gainEssence(totalEssence); gainXp(totalXp);
         if (state.isEveningRush) {
             showToast('🔥 [저녁 러시 보너스] 에센스 & XP +20% 추가 획득!');
+        }
+        if (isOptimal) {
+            showToast(`💖 [맞춤 처방 완치!] ${getVisitorName(target)}의 증상이 완전히 호전되어 추가 보답(+30%)을 받았습니다!`);
         }
 
         // SNS Review Collection Logic
@@ -2723,7 +2772,11 @@ function processHealing(amount) {
         }
 
         if (target.stressEffect && target.stressEffect.id !== 'none') {
-            const roll = Math.random();
+            let roll = Math.random();
+            if (isOptimal) {
+                // 맞춤 처방 성공 시 고급 아이템 드롭 기회 15% 상승
+                roll = Math.min(0.99, roll + 0.15);
+            }
             let itemId = null;
             if (roll < 0.30) itemId = 'coin_small';            // 30% (흔함 - 작은 동전)
             else if (roll < 0.55) itemId = 'potion_small';     // 25% (보통 - 작은 물약)
@@ -3584,9 +3637,57 @@ function claimReviewReward(stage) {
 
     addNotification(`도감 완성 보상 획득! 에센스 +${essenceReward.toLocaleString()} / 특수 물약 +${potionCount}`, 'system');
     playChime(880);
+    setTimeout(() => playChime(1100), 200);
 
     renderReviewsPanel();
     saveGame();
+
+    // 화면에 도감 보상 획득 연출 팝업 표시
+    showReviewRewardCelebration(stage, essenceReward, potionCount);
+}
+
+let rewardModalTimer = null;
+function showReviewRewardCelebration(stage, essence, potions) {
+    const modal = document.getElementById('reward-celebration-modal');
+    const title = document.getElementById('reward-modal-title');
+    const subtitle = document.getElementById('reward-modal-subtitle');
+    const itemsContainer = document.getElementById('reward-modal-items');
+
+    if (title) title.textContent = `🎉 ${stage}호점 도감 컬렉션 달성!`;
+    if (subtitle) subtitle.textContent = `${t('store_branch', { stage })}의 모든 소리 후기를 성공적으로 수집했습니다.`;
+    if (itemsContainer) {
+        itemsContainer.innerHTML = `
+            <div class="reward-item-pill">
+                <span class="pill-icon">✨</span>
+                <div class="pill-details">
+                    <span class="pill-title">정수 (에센스)</span>
+                    <span class="pill-amount">+${Math.floor(essence).toLocaleString()}</span>
+                </div>
+            </div>
+            <div class="reward-item-pill">
+                <span class="pill-icon">🧪</span>
+                <div class="pill-details">
+                    <span class="pill-title">기적의 에센스 (특수 물약)</span>
+                    <span class="pill-amount">+${potions}개</span>
+                </div>
+            </div>
+        `;
+    }
+
+    if (modal) modal.classList.remove('hidden');
+
+    showToast(`🎁 [${stage}호점 도감 보상] 에센스 +${Math.floor(essence).toLocaleString()} & 특수 물약 +${potions}개 획득!`);
+
+    if (rewardModalTimer) clearTimeout(rewardModalTimer);
+    rewardModalTimer = setTimeout(() => {
+        closeRewardCelebrationModal();
+    }, 4500);
+}
+
+function closeRewardCelebrationModal() {
+    const modal = document.getElementById('reward-celebration-modal');
+    if (modal) modal.classList.add('hidden');
+    if (rewardModalTimer) clearTimeout(rewardModalTimer);
 }
 
 
@@ -3736,8 +3837,30 @@ function startDirectHealing(id) {
         return;
     }
 
+    const effectId = (v.stressEffect && v.stressEffect.id) || 'none';
+    const rx = PRESCRIPTION_GUIDE[effectId] || PRESCRIPTION_GUIDE['none'];
+
     const modal = document.getElementById('room-select-modal');
+    const header = document.getElementById('room-select-modal-header');
     const list = document.getElementById('modal-room-list');
+
+    if (header) {
+        header.innerHTML = `
+            <div class="patient-card glass">
+                <div class="patient-avatar">${v.avatar}</div>
+                <div class="patient-details">
+                    <h3>${getVisitorName(v)} <span class="difficulty-text">(${getVisitorDifficulty(v)})</span></h3>
+                    <div class="diagnosis-badge">🩺 진단 증상: <strong>${rx.name}</strong></div>
+                    <p class="diagnosis-desc">${rx.symptomDesc}</p>
+                    <div class="prescription-hint">💡 <strong>맞춤 처방 권장</strong>: ${rx.rxSoundDesc}</div>
+                </div>
+            </div>
+            <div class="room-select-instruction">
+                <span>치유를 진행할 ASMR 코너를 선택해 주세요.</span>
+                <span class="rx-bonus-tag">✨ 맞춤 처방 코너 선택 시 치유 속도 1.5배 & 완치 보너스!</span>
+            </div>
+        `;
+    }
 
     let html = '';
     const sortedRooms = [...state.unlockedRooms].sort((a, b) => {
@@ -3749,10 +3872,13 @@ function startDirectHealing(id) {
     sortedRooms.forEach(roomId => {
         const room = ROOMS.find(r => r.id === roomId);
         if (room) {
+            const isRxMatch = rx.recommendedRooms.includes(room.id);
             html += `
-                <button class="upgrade-card" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:15px; border:none;" onclick="selectRoomForHealing('${id}', '${room.id}')">
+                <button class="upgrade-card ${isRxMatch ? 'rx-recommended' : ''}" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:15px; border:none;" onclick="selectRoomForHealing('${id}', '${room.id}')">
+                    ${isRxMatch ? `<span class="rx-match-badge">✨ 맞춤 처방</span>` : ''}
                     <span style="font-size:2rem; margin-bottom:5px;">${room.icon}</span>
                     <span style="font-weight:bold; font-size:0.9rem;">${t('room_' + room.id + '_name')}</span>
+                    <span style="font-size:0.7rem; color:${isRxMatch ? '#34d399' : '#888'}; margin-top:3px;">${isRxMatch ? '치유 가속 1.5배' : '일반 치유'}</span>
                 </button>
             `;
         }
@@ -3771,18 +3897,35 @@ window.selectRoomForHealing = function (visitorId, roomId) {
     const v = state.visitors.find(vis => String(vis.id) === String(visitorId));
     if (!v) return;
 
+    const effectId = (v.stressEffect && v.stressEffect.id) || 'none';
+    const rx = PRESCRIPTION_GUIDE[effectId] || PRESCRIPTION_GUIDE['none'];
+    const isOptimalRx = rx.recommendedRooms.includes(roomId);
+
+    v.isOptimalRx = isOptimalRx;
     state.activeHealingTarget = v;
 
     el.healingOverlay.classList.remove('hidden');
     el.healingAvatar.textContent = v.avatar;
     el.healingName.textContent = t('healing_focus_title', { name: getVisitorName(v) });
 
+    const rxBadge = document.getElementById('healing-prescription-badge');
+    if (rxBadge) {
+        if (isOptimalRx) {
+            rxBadge.textContent = '✨ 맞춤 처방 적용 중 (가속 1.5배)';
+            rxBadge.className = 'prescription-pill optimal';
+            showToast(`✨ [맞춤 처방] ${getVisitorName(v)}의 증상에 딱 맞는 코너입니다! (치유 속도 +50%)`);
+        } else {
+            rxBadge.textContent = '일반 처방 진행 중';
+            rxBadge.className = 'prescription-pill standard';
+        }
+    }
+
     const pct = Math.max(0, 100 - (v.currentStress / v.maxStress) * 100);
     el.healingProgressFill.style.width = `${pct}%`;
     el.healingPercent.textContent = `${Math.floor(pct)}%`;
 
     enterRecordingRoom(roomId);
-}
+};
 
 function doPrestige(costE, costX) {
     if (state.essence >= costE && state.xp >= costX) {
@@ -3866,6 +4009,7 @@ function doPrestige(costE, costX) {
         }
 
         updateUI();
+        updateGameClockDisplay();
         saveGame();
     } else {
         addNotification(t('insufficient_resources'), "system");
@@ -3960,6 +4104,7 @@ function changeStage(newStage) {
         renderStreamPanel();
     }
     updateUI();
+    updateGameClockDisplay();
     saveGame(true);
     addNotification(`✨ 에테르노아 ${state.stage}호점으로 이동했습니다. 이전 자원과 버프가 초기화되었습니다.`, 'system');
 }

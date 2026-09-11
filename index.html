@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에테르노아 : 달빛 소리 온실 (Aeternoia)</title>
-    <link rel="stylesheet" href="style.css?v=20">
+    <link rel="stylesheet" href="style.css?v=25">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -255,7 +255,10 @@
             <div id="active-healing-overlay" class="healing-overlay hidden">
                 <div class="healing-target-info">
                     <span id="healing-avatar" class="avatar">🧚</span>
-                    <span id="healing-name" class="name">지친 요정 치유 중...</span>
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <span id="healing-name" class="name">지친 요정 치유 중...</span>
+                        <span id="healing-prescription-badge" class="prescription-pill standard">일반 처방 진행 중</span>
+                    </div>
                 </div>
                 <div class="healing-progress-container glass">
                     <div id="healing-progress-fill" class="healing-progress-fill"></div>
@@ -330,9 +333,11 @@
 
     <!-- Room Select Modal -->
     <div id="room-select-modal" class="modal-overlay hidden">
-        <div class="modal-content glass" style="max-width: 500px;">
-            <h3 style="color:var(--accent-gold); margin-bottom:15px; text-align:center;">치유를 진행할 코너 선택</h3>
-            <div id="modal-room-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; max-height: 50vh; overflow-y: auto;">
+        <div class="modal-content glass" style="max-width: 540px;">
+            <div id="room-select-modal-header">
+                <h3 style="color:var(--accent-gold); margin-bottom:15px; text-align:center;">치유를 진행할 코너 선택</h3>
+            </div>
+            <div id="modal-room-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 50vh; overflow-y: auto;">
                 <!-- 방 리스트 동적 생성 -->
             </div>
             <div class="modal-actions" style="margin-top: 15px;">
@@ -375,10 +380,24 @@
         </div>
     </div>
 
+    <!-- Review Collection Celebration Modal -->
+    <div id="reward-celebration-modal" class="modal-overlay hidden" onclick="closeRewardCelebrationModal()">
+        <div class="reward-celebration-box glass" onclick="event.stopPropagation()">
+            <div class="reward-icon-sparkle">🎉</div>
+            <h2 id="reward-modal-title" class="reward-title">도감 컬렉션 달성 보상!</h2>
+            <p id="reward-modal-subtitle" class="reward-subtitle">1호점 모든 ASMR 후기 수집 완료</p>
+            <div id="reward-modal-items" class="reward-items-showcase">
+                <!-- 동적 보상 아이템 -->
+            </div>
+            <p class="reward-tip">방문객들의 소중한 후기가 온실에 큰 힘이 되었습니다.</p>
+            <button class="primary-btn glow-btn" onclick="closeRewardCelebrationModal()">보상 받기</button>
+        </div>
+    </div>
+
     <div id="toast-container" class="toast-container"></div>
     <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
-    <script src="audio_base64.js?v=24"></script>
-    <script src="procedural_bgm.js?v=24"></script>
-    <script src="app.js?v=24"></script>
+    <script src="audio_base64.js?v=25"></script>
+    <script src="procedural_bgm.js?v=25"></script>
+    <script src="app.js?v=25"></script>
 </body>
 </html>
