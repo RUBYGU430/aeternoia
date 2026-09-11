@@ -2046,28 +2046,42 @@ let lastStreamTime = 0;
 function playStream() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const now = Date.now();
-    if (now - lastStreamTime < 120) return;
+    if (now - lastStreamTime < 180) return;
     lastStreamTime = now;
 
     if (riverFlowAudioBuffer) {
         const source = audioCtx.createBufferSource();
         source.buffer = riverFlowAudioBuffer;
         const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.5;
+        // 계곡 물소리 볼륨을 더욱 풍부하고 시원하게 상향 (기존 0.5 -> 1.5)
+        gainNode.gain.setValueAtTime(1.5, audioCtx.currentTime);
+        const playDuration = 1.3;
+        gainNode.gain.setValueAtTime(1.5, audioCtx.currentTime + playDuration - 0.25);
+        gainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + playDuration);
         source.connect(gainNode);
         gainNode.connect(soundInput);
         registerLongSound('stream', source, gainNode);
-        const startOffset = Math.random() * Math.max(0, riverFlowAudioBuffer.duration - 0.5);
-        source.start(0, startOffset, 0.5);
+        const startOffset = Math.random() * Math.max(0, riverFlowAudioBuffer.duration - playDuration);
+        source.start(0, startOffset, playDuration);
         return;
     }
 
-    const bufferSize = audioCtx.sampleRate * 0.2; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0);
+    const bufferSize = Math.floor(audioCtx.sampleRate * 0.35); 
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); 
+    const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-    const src = audioCtx.createBufferSource(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
-    filter.type = 'bandpass'; filter.frequency.value = 1000 + Math.random() * 500; filter.Q.value = 0.5;
-    src.buffer = buffer; gain.gain.setValueAtTime(0.015, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
-    src.connect(filter); filter.connect(gain); gain.connect(soundInput);
+    const src = audioCtx.createBufferSource(); 
+    const filter = audioCtx.createBiquadFilter(); 
+    const gain = audioCtx.createGain();
+    filter.type = 'bandpass'; 
+    filter.frequency.value = 1100 + Math.random() * 400; 
+    filter.Q.value = 0.6;
+    src.buffer = buffer; 
+    gain.gain.setValueAtTime(0.09, audioCtx.currentTime); 
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+    src.connect(filter); 
+    filter.connect(gain); 
+    gain.connect(soundInput);
     registerLongSound('stream', src, gain);
     src.start();
 }
@@ -2744,6 +2758,9 @@ function processHealing(amount) {
         el.healingOverlay.classList.add('hidden');
         stopAutoHeal();
         state.visitors = state.visitors.filter(v => v.id !== target.id);
+        if (state.visitors.length === 0) {
+            state.lastVisitorSpawnTime = Date.now();
+        }
 
         const rushMultiplier = state.isEveningRush ? 1.2 : 1.0;
         const rxMultiplier = isOptimal ? 1.3 : 1.0; // 맞춤 처방 성공 시 에센스 및 경험치 +30% 추가 보너스
@@ -3346,8 +3363,7 @@ function startEveningRush() {
     showToast('🌅 [저녁 러시 시작!] 저녁 6시, 정령 손님들이 한꺼번에 찾아옵니다! (15분간 진행 / 치유 보너스 +20%)');
     addNotification('🌅 [저녁 러시] 저녁 6시 정각 피크타임 시작! 대기열이 6명으로 확장되고 치유 보너스(+20%)가 적용됩니다.', 'event');
 
-    // 18:00 정각 즉시 손님 2명 대기열 추가
-    spawnVisitor();
+    // 18:00 정각 즉시 손님 1명 대기열 추가 (치유 압박 완화)
     if (state.visitors.length < 6) {
         spawnVisitor();
     }
@@ -3371,28 +3387,31 @@ function endEveningRush() {
 }
 
 function getVisitorSpawnInterval() {
-    if (state.visitors.length === 0) return 5000;
+    // 대기열이 완전히 비었을 때 플레이어가 마음 놓고 여유를 즐길 수 있도록 18~25초 여유 제공
+    if (state.visitors.length === 0) {
+        return 18000 + Math.random() * 7000;
+    }
     if (state.isEveningRush) {
-        // 러시 시간: 4~7초 간격으로 매우 빠르게 몰려옴
-        return 4000 + Math.random() * 3000;
+        // 러시 시간 (18:00~18:15): 기존 4~7초 -> 12~18초로 여유 있게 완화
+        return 12000 + Math.random() * 6000;
     }
 
     const hour = Math.floor(state.gameTimeMinutes / 60) % 24;
-    // 아침 (06:00 ~ 11:59): 상쾌하고 여유로운 시작 (25~35초)
+    // 아침 (06:00 ~ 11:59): 상쾌하고 여유로운 시작 (50~70초)
     if (hour >= 6 && hour < 12) {
-        return 25000 + Math.random() * 10000;
+        return 50000 + Math.random() * 20000;
     }
-    // 낮 (12:00 ~ 17:59): 활발한 방문 (18~28초)
+    // 낮 (12:00 ~ 17:59): 온화하고 평화로운 방문 (40~60초)
     else if (hour >= 12 && hour < 18) {
-        return 18000 + Math.random() * 10000;
+        return 40000 + Math.random() * 20000;
     }
-    // 저녁 (18:16 ~ 21:59): 러시 이후 차분한 저녁 손님 (24~34초)
+    // 저녁 (18:16 ~ 21:59): 차분하고 고요한 저녁 손님 (50~75초)
     else if (hour >= 18 && hour < 22) {
-        return 24000 + Math.random() * 10000;
+        return 50000 + Math.random() * 25000;
     }
-    // 심야 (22:00 ~ 05:59): 드문 손님이지만 깊은 고민 (38~50초)
+    // 심야 (22:00 ~ 05:59): 드문 손님이지만 깊은 고민 (70~100초)
     else {
-        return 38000 + Math.random() * 12000;
+        return 70000 + Math.random() * 30000;
     }
 }
 
