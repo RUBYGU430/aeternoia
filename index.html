@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에테르노아 : 달빛 소리 온실 (Aeternoia)</title>
-    <link rel="stylesheet" href="style.css?v=25">
+    <link rel="stylesheet" href="style.css?v=28">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -394,10 +394,60 @@
         </div>
     </div>
 
+    <!-- Healing Complete Modal (치유 완료 팝업) -->
+    <div id="healing-complete-modal" class="modal-overlay hidden" onclick="closeHealingCompleteModal()">
+        <div class="healing-complete-box glass" onclick="event.stopPropagation()">
+            <div class="healing-complete-avatar" id="healing-complete-avatar">🧚</div>
+            <h2 id="healing-complete-title" class="healing-complete-title">🌸 치유 완료!</h2>
+            <p id="healing-complete-subtitle" class="healing-complete-subtitle">달빛 정령 손님이 평온한 마음을 되찾았습니다.</p>
+
+            <!-- 손님 만족도 카드 -->
+            <div id="healing-satisfaction-card" class="satisfaction-card optimal">
+                <div class="satisfaction-header">
+                    <span class="satisfaction-label">✨ 손님 만족도</span>
+                    <div id="satisfaction-stars" class="satisfaction-stars">⭐⭐⭐⭐⭐</div>
+                    <span id="satisfaction-badge" class="satisfaction-badge optimal">💖 맞춤 처방 대만족!</span>
+                </div>
+                <p id="satisfaction-comment" class="satisfaction-comment">"증상에 꼭 맞는 소리 덕분에 마음이 치유되었습니다!"</p>
+                <div id="satisfaction-bonus-note" class="satisfaction-bonus-note">✨ 완치 보답 +30% 보너스 적용</div>
+            </div>
+
+            <!-- 획득 보상 내역 -->
+            <div class="healing-rewards-showcase">
+                <div class="healing-reward-row">
+                    <span class="reward-icon">✨</span>
+                    <div class="reward-meta">
+                        <span class="reward-name">치유 정수</span>
+                        <span id="healing-essence-subnote" class="reward-subnote"></span>
+                    </div>
+                    <span id="healing-reward-essence" class="reward-val">+0</span>
+                </div>
+                <div class="healing-reward-row">
+                    <span class="reward-icon">🔮</span>
+                    <div class="reward-meta">
+                        <span class="reward-name">연구 경험치</span>
+                        <span id="healing-xp-subnote" class="reward-subnote"></span>
+                    </div>
+                    <span id="healing-reward-xp" class="reward-val">+0</span>
+                </div>
+                <div id="healing-reward-item-row" class="healing-reward-row item-row hidden">
+                    <span id="healing-reward-item-icon" class="reward-icon">🎁</span>
+                    <div class="reward-meta">
+                        <span id="healing-reward-item-name" class="reward-name">특별 답례 선물</span>
+                        <span class="reward-subnote" style="color:#38bdf8;">보답 선물</span>
+                    </div>
+                    <span class="reward-val highlight">+1개</span>
+                </div>
+            </div>
+
+            <button class="primary-btn glow-btn" style="width:100%;" onclick="closeHealingCompleteModal()">소중한 보답 받기</button>
+        </div>
+    </div>
+
     <div id="toast-container" class="toast-container"></div>
     <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
-    <script src="audio_base64.js?v=26"></script>
-    <script src="procedural_bgm.js?v=26"></script>
-    <script src="app.js?v=26"></script>
+    <script src="audio_base64.js?v=28"></script>
+    <script src="procedural_bgm.js?v=28"></script>
+    <script src="app.js?v=28"></script>
 </body>
 </html>

@@ -2788,6 +2788,8 @@ function processHealing(amount) {
             }
         }
 
+        const rx = PRESCRIPTION_GUIDE[(target.stressEffect && target.stressEffect.id) || 'none'] || PRESCRIPTION_GUIDE['none'];
+        let droppedItem = null;
         if (target.stressEffect && target.stressEffect.id !== 'none') {
             let roll = Math.random();
             if (isOptimal) {
@@ -2808,13 +2810,21 @@ function processHealing(amount) {
             if (itemId) {
                 if (!state.inventory[itemId]) state.inventory[itemId] = 0;
                 state.inventory[itemId]++;
-                const itemName = t(INVENTORY_ITEMS[itemId].nameKey);
+                droppedItem = INVENTORY_ITEMS[itemId];
+                const itemName = t(droppedItem.nameKey);
                 addNotification(`🎁 [${itemName}] 획득!`, 'system');
             }
         }
 
         playChime(880);
+        if (isOptimal) {
+            setTimeout(() => playChime(1100), 120);
+            setTimeout(() => playChime(1320), 240);
+        }
         addNotification(t('healing_complete_alert', { essence: Math.floor(totalEssence).toLocaleString(), xp: Math.floor(totalXp).toLocaleString() }), 'system');
+
+        // 치유 완료 팝업 모달 호출 (보상 내역 및 맞춤형 선택에 따른 손님 만족도 표시)
+        showHealingCompleteModal(target, totalEssence, totalXp, droppedItem, isOptimal, rx);
     }
 }
 
@@ -3709,6 +3719,88 @@ function closeRewardCelebrationModal() {
     if (rewardModalTimer) clearTimeout(rewardModalTimer);
 }
 
+// --- 치유 완료 팝업 모달 로직 (만족도 & 보상 내역) ---
+window.showHealingCompleteModal = function(target, totalEssence, totalXp, droppedItem, isOptimal, rx) {
+    const modal = document.getElementById('healing-complete-modal');
+    if (!modal) return;
+
+    const avatarEl = document.getElementById('healing-complete-avatar');
+    const titleEl = document.getElementById('healing-complete-title');
+    const subtitleEl = document.getElementById('healing-complete-subtitle');
+    const cardEl = document.getElementById('healing-satisfaction-card');
+    const starsEl = document.getElementById('satisfaction-stars');
+    const badgeEl = document.getElementById('satisfaction-badge');
+    const commentEl = document.getElementById('satisfaction-comment');
+    const bonusNoteEl = document.getElementById('satisfaction-bonus-note');
+    const essenceEl = document.getElementById('healing-reward-essence');
+    const essenceSubEl = document.getElementById('healing-essence-subnote');
+    const xpEl = document.getElementById('healing-reward-xp');
+    const xpSubEl = document.getElementById('healing-xp-subnote');
+    const itemRow = document.getElementById('healing-reward-item-row');
+    const itemIcon = document.getElementById('healing-reward-item-icon');
+    const itemName = document.getElementById('healing-reward-item-name');
+
+    if (avatarEl) avatarEl.textContent = target.avatar || '🧚';
+    const visitorName = getVisitorName(target);
+    if (subtitleEl) subtitleEl.textContent = `${visitorName} 님이 평온한 마음을 되찾았습니다.`;
+
+    // 만족도 및 코멘트 세팅
+    if (isOptimal) {
+        if (cardEl) cardEl.className = 'satisfaction-card optimal';
+        if (starsEl) starsEl.textContent = '⭐⭐⭐⭐⭐ (5.0)';
+        if (badgeEl) {
+            badgeEl.className = 'satisfaction-badge optimal';
+            badgeEl.textContent = '💖 맞춤 처방 대만족!';
+        }
+
+        const effectId = (target.stressEffect && target.stressEffect.id) || 'none';
+        const optimalComments = {
+            'none': `"딱 원하던 맑고 경쾌한 소리 덕분에 머릿속의 피로와 두통이 씻은 듯이 사라졌어요!"`,
+            'normal': `"포근하고 아늑한 백색소음 덕분에 며칠 만에 마음 편히 푹 쉴 수 있게 되었습니다."`,
+            'mild_dep': `"따스하고 활력 넘치는 소리를 들으니 마음속에 다시 온기와 생기가 솟아나요!"`,
+            'severe_dep': `"영혼을 맑게 감싸주는 성스러운 선율 덕분에 깊었던 슬픔이 치유되었습니다."`,
+            'ptsd': `"불안하게 요동치던 마음이 온전한 평온을 찾았어요. 진정한 영혼의 안식처입니다."`
+        };
+        if (commentEl) commentEl.textContent = optimalComments[effectId] || `"증상에 딱 맞는 ASMR 코너 덕분에 큰 위로를 받았습니다!"`;
+        if (bonusNoteEl) bonusNoteEl.textContent = '✨ 맞춤 처방 효과: 완치 보너스 +30% & 희귀 답례품 기회 적용!';
+    } else {
+        if (cardEl) cardEl.className = 'satisfaction-card standard';
+        if (starsEl) starsEl.textContent = '⭐⭐⭐☆☆ (3.0)';
+        if (badgeEl) {
+            badgeEl.className = 'satisfaction-badge standard';
+            badgeEl.textContent = '🌿 일반 치유 완료';
+        }
+        if (commentEl) commentEl.textContent = `"몸과 마음이 편안해졌습니다. 제 증상(${rx.name})에는 ${rx.rxSoundDesc}가 더 잘 맞았을지도 몰라요!"`;
+        if (bonusNoteEl) bonusNoteEl.textContent = '💡 팁: 증상에 맞는 맞춤 처방 코너를 선택하시면 만족도와 보상이 30% 증가합니다.';
+    }
+
+    // 보상 표시
+    if (essenceEl) essenceEl.textContent = `+${Math.floor(totalEssence).toLocaleString()}`;
+    let bonusTags = [];
+    if (state.isEveningRush) bonusTags.push('🌅 러시 +20%');
+    if (isOptimal) bonusTags.push('💖 맞춤처방 +30%');
+    if (essenceSubEl) essenceSubEl.textContent = bonusTags.length > 0 ? `(${bonusTags.join(' / ')} 포함)` : '기본 치유 정수';
+
+    if (xpEl) xpEl.textContent = `+${Math.floor(totalXp).toLocaleString()}`;
+    if (xpSubEl) xpSubEl.textContent = bonusTags.length > 0 ? `(${bonusTags.join(' / ')} 포함)` : '기본 연구 경험치';
+
+    // 아이템 드롭 표시
+    if (droppedItem && itemRow) {
+        itemRow.classList.remove('hidden');
+        if (itemIcon) itemIcon.textContent = droppedItem.icon || '🎁';
+        if (itemName) itemName.textContent = t(droppedItem.nameKey) || '특별 답례 선물';
+    } else if (itemRow) {
+        itemRow.classList.add('hidden');
+    }
+
+    modal.classList.remove('hidden');
+};
+
+window.closeHealingCompleteModal = function() {
+    const modal = document.getElementById('healing-complete-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
 
 function spawnVisitor() {
     const types = [];
@@ -3828,7 +3920,8 @@ function getPrestigeRequirements(stage) {
     return costs[stage] || { essence: 1000000000000, xp: 300000000000 };
 }
 
-    if (hasUnlockedAllInStage && state.stage < 6) {
+    // 사용자가 이미 다음 호점을 해금한 적이 있다면(state.stage < state.highestStage), 이미 잠금해제된 호점이므로 다시 확장 창을 띄우지 않음
+    if (hasUnlockedAllInStage && state.stage < 6 && state.stage >= (state.highestStage || 1)) {
         const req = getPrestigeRequirements(state.stage);
         const prestigeCost = req.essence;
         const prestigeXp = req.xp;
@@ -3851,7 +3944,15 @@ function startDirectHealing(id) {
     const v = state.visitors.find(vis => vis.id === id);
     if (!v) return;
 
-    if (state.unlockedRooms.length === 0) {
+    // 현재 호점(stage)에 해당하는 해금된 코너들만 필터링 (타 호점 요소 배제하여 혼란 방지)
+    const currentStageRooms = getRoomsForCurrentStage();
+    let availableRooms = currentStageRooms.filter(r => state.unlockedRooms.includes(r.id));
+    if (availableRooms.length === 0 && currentStageRooms.length > 0) {
+        state.unlockedRooms.push(currentStageRooms[0].id);
+        availableRooms = [currentStageRooms[0]];
+    }
+
+    if (availableRooms.length === 0) {
         addNotification(t('insufficient_resources'), 'system');
         return;
     }
@@ -3875,32 +3976,29 @@ function startDirectHealing(id) {
                 </div>
             </div>
             <div class="room-select-instruction">
-                <span>치유를 진행할 ASMR 코너를 선택해 주세요.</span>
+                <span>📍 <strong>${state.stage}호점 (${t('store_branch', { stage: state.stage })})</strong> 치유 코너 중 선택해 주세요.</span>
                 <span class="rx-bonus-tag">✨ 맞춤 처방 코너 선택 시 치유 속도 1.5배 & 완치 보너스!</span>
             </div>
         `;
     }
 
     let html = '';
-    const sortedRooms = [...state.unlockedRooms].sort((a, b) => {
-        const indexA = ROOMS.findIndex(r => r.id === a);
-        const indexB = ROOMS.findIndex(r => r.id === b);
+    const sortedRooms = [...availableRooms].sort((a, b) => {
+        const indexA = ROOMS.findIndex(r => r.id === a.id);
+        const indexB = ROOMS.findIndex(r => r.id === b.id);
         return indexA - indexB;
     });
 
-    sortedRooms.forEach(roomId => {
-        const room = ROOMS.find(r => r.id === roomId);
-        if (room) {
-            const isRxMatch = rx.recommendedRooms.includes(room.id);
-            html += `
-                <button class="upgrade-card ${isRxMatch ? 'rx-recommended' : ''}" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:15px; border:none;" onclick="selectRoomForHealing('${id}', '${room.id}')">
-                    ${isRxMatch ? `<span class="rx-match-badge">✨ 맞춤 처방</span>` : ''}
-                    <span style="font-size:2rem; margin-bottom:5px;">${room.icon}</span>
-                    <span style="font-weight:bold; font-size:0.9rem;">${t('room_' + room.id + '_name')}</span>
-                    <span style="font-size:0.7rem; color:${isRxMatch ? '#34d399' : '#888'}; margin-top:3px;">${isRxMatch ? '치유 가속 1.5배' : '일반 치유'}</span>
-                </button>
-            `;
-        }
+    sortedRooms.forEach(room => {
+        const isRxMatch = rx.recommendedRooms.includes(room.id);
+        html += `
+            <button class="upgrade-card ${isRxMatch ? 'rx-recommended' : ''}" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:15px; border:none;" onclick="selectRoomForHealing('${id}', '${room.id}')">
+                ${isRxMatch ? `<span class="rx-match-badge">✨ 맞춤 처방</span>` : ''}
+                <span style="font-size:2rem; margin-bottom:5px;">${room.icon}</span>
+                <span style="font-weight:bold; font-size:0.9rem;">${t('room_' + room.id + '_name')}</span>
+                <span style="font-size:0.7rem; color:${isRxMatch ? '#34d399' : '#888'}; margin-top:3px;">${isRxMatch ? '치유 가속 1.5배' : '일반 치유'}</span>
+            </button>
+        `;
     });
 
     list.innerHTML = html;
@@ -4639,6 +4737,10 @@ function loadGame() {
     }
     if (state.storeSaves) {
         Object.keys(state.storeSaves).forEach(stg => {
+            const sNum = parseInt(stg);
+            if (!isNaN(sNum)) {
+                state.highestStage = Math.max(state.highestStage || 1, sNum);
+            }
             const sSave = state.storeSaves[stg];
             const sExp = calculateNextLevelXp(parseInt(stg), sSave.level || 1);
             if (!sSave.nextLevelXp || sSave.nextLevelXp < sExp * 0.5) {

@@ -2934,3 +2934,171 @@ body.low-graphics * {
     margin: 0 0 20px 0;
     font-style: italic;
 }
+
+/* 치유 완료 팝업 모달 (Healing Complete Modal) */
+.healing-complete-box {
+    position: relative;
+    max-width: 450px;
+    width: 92%;
+    padding: 28px 22px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(30, 20, 58, 0.97), rgba(14, 10, 32, 0.98));
+    border: 2px solid rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 45px rgba(236, 72, 153, 0.35), 0 0 20px rgba(168, 85, 247, 0.25), inset 0 0 20px rgba(236, 72, 153, 0.12);
+    text-align: center;
+    animation: rewardPopupZoom 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.healing-complete-avatar {
+    font-size: 3.4rem;
+    margin-bottom: 6px;
+    display: inline-block;
+    filter: drop-shadow(0 0 16px rgba(244, 114, 182, 0.6));
+    animation: gentlePulse 2s infinite alternate;
+}
+
+.healing-complete-title {
+    font-size: 1.5rem;
+    color: #f472b6;
+    margin: 0 0 4px 0;
+    font-weight: 800;
+    text-shadow: 0 0 14px rgba(244, 114, 182, 0.5);
+}
+
+.healing-complete-subtitle {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    margin: 0 0 16px 0;
+}
+
+/* 손님 만족도 카드 */
+.satisfaction-card {
+    border-radius: 16px;
+    padding: 13px 16px;
+    margin-bottom: 16px;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.satisfaction-card.optimal {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.08));
+    border: 1.5px solid rgba(52, 211, 153, 0.45);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+.satisfaction-card.standard {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(251, 191, 36, 0.35);
+}
+
+.satisfaction-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.satisfaction-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #cbd5e1;
+}
+
+.satisfaction-stars {
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+}
+
+.satisfaction-badge {
+    font-size: 0.72rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.satisfaction-badge.optimal {
+    background: rgba(16, 185, 129, 0.25);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.satisfaction-badge.standard {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.satisfaction-comment {
+    font-size: 0.84rem;
+    color: #f1f5f9;
+    line-height: 1.45;
+    margin: 0 0 6px 0;
+    font-style: italic;
+}
+
+.satisfaction-bonus-note {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #34d399;
+}
+
+.satisfaction-card.standard .satisfaction-bonus-note {
+    color: #94a3b8;
+    font-weight: normal;
+}
+
+/* 획득 보상 쇼케이스 */
+.healing-rewards-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.healing-reward-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.healing-reward-row .reward-icon {
+    font-size: 1.35rem;
+    margin-right: 10px;
+}
+
+.healing-reward-row .reward-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.healing-reward-row .reward-name {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+}
+
+.healing-reward-row .reward-subnote {
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.healing-reward-row .reward-val {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.healing-reward-row.item-row {
+    border-color: rgba(56, 189, 248, 0.35);
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.healing-reward-row .reward-val.highlight {
+    color: #38bdf8;
+}
