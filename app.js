@@ -116,46 +116,56 @@ const ROOMS = [
 
 const PRESCRIPTION_GUIDE = {
     'none': {
-        name: '가벼운 피로 & 일상 스트레스',
-        symptomDesc: '일상적인 피로와 긴장감으로 머리가 묵직한 상태입니다.',
-        rxSoundDesc: '경쾌한 탭핑음과 부드러운 촉각 ASMR (수정, 나무, 모래, 깃펜, 하프 등)',
+        nameKey: 'symptom_none_name',
+        symptomKey: 'symptom_none_desc',
+        soundKey: 'symptom_none_sound',
         recommendedRooms: ['crystal', 'sand', 'woodblock', 'leaves', 'bubbles', 'coral', 'keyboard', 'datatransfer', 'quill', 'parchment', 'harp', 'clouds'],
         bonusSpeed: 1.5,
         bonusReward: 1.3
     },
     'normal': {
-        name: '불면증 & 만성 수면부족',
-        symptomDesc: '잡념과 불안으로 며칠째 깊은 잠을 이루지 못하고 있습니다.',
-        rxSoundDesc: '포근한 빗소리, 오르골 선율, 싱잉보울, 풀벌레 백색소음 등',
+        nameKey: 'symptom_normal_name',
+        symptomKey: 'symptom_normal_desc',
+        soundKey: 'symptom_normal_sound',
         recommendedRooms: ['rainwindow', 'musicbox', 'crickets', 'singingbowl', 'submarine', 'oxygentank', 'spaceship', 'zerogpod', 'royalfire', 'velvet', 'clouds', 'halo'],
         bonusSpeed: 1.5,
         bonusReward: 1.3
     },
     'mild_dep': {
-        name: '번아웃 & 무기력증',
-        symptomDesc: '열정과 에너지가 방전되어 깊은 무력감에 빠져 있습니다.',
-        rxSoundDesc: '따스한 온기와 활력을 불어넣는 물약, 모닥불, 계곡물, 찻잔 소리 등',
+        nameKey: 'symptom_mild_dep_name',
+        symptomKey: 'symptom_mild_dep_desc',
+        soundKey: 'symptom_mild_dep_sound',
         recommendedRooms: ['potion', 'waterbowl', 'campfire', 'stream', 'whale', 'waterflow', 'glitch', 'servomotor', 'teacup', 'chess', 'halo', 'starlight'],
         bonusSpeed: 1.5,
         bonusReward: 1.3
     },
     'severe_dep': {
-        name: '중증 우울증 & 심적 고통',
-        symptomDesc: '마음의 에테르가 상처받아 극심한 슬픔과 고립감을 겪고 있습니다.',
-        rxSoundDesc: '영혼을 맑게 씻어내는 우주 풍경종, 새소리, 샹들리에, 천상 합창 등',
+        nameKey: 'symptom_severe_dep_name',
+        symptomKey: 'symptom_severe_dep_desc',
+        soundKey: 'symptom_severe_dep_sound',
         recommendedRooms: ['chimes', 'waterbowl', 'birdsong', 'stream', 'whale', 'coral', 'serverfan', 'spaceship', 'royalchimes', 'teacup', 'choir', 'starlight'],
         bonusSpeed: 1.5,
         bonusReward: 1.3
     },
     'ptsd': {
-        name: '외상 후 스트레스 (PTSD)',
-        symptomDesc: '과거의 트라우마가 덮쳐 극도의 공포와 심장 박동 불안을 호소합니다.',
-        rxSoundDesc: '깊은 진동 이완과 심리적 안식처를 주는 싱잉보울, 수정 정화, 성소 소리 등',
+        nameKey: 'symptom_ptsd_name',
+        symptomKey: 'symptom_ptsd_desc',
+        soundKey: 'symptom_ptsd_sound',
         recommendedRooms: ['crystal', 'rainwindow', 'singingbowl', 'campfire', 'whale', 'caveecho', 'zerogpod', 'spaceship', 'royalfire', 'royalchimes', 'sanctuary', 'gate'],
         bonusSpeed: 1.5,
         bonusReward: 1.3
     }
 };
+
+function getRxInfo(effectId) {
+    const raw = PRESCRIPTION_GUIDE[effectId] || PRESCRIPTION_GUIDE['none'];
+    return {
+        ...raw,
+        name: t(raw.nameKey),
+        symptomDesc: t(raw.symptomKey),
+        rxSoundDesc: t(raw.soundKey)
+    };
+}
 
 const STRESS_EFFECTS = [
     { id: 'none', nameKey: 'stress_none', probability: 0.55, speedMod: 1.0 },
@@ -179,11 +189,11 @@ const INVENTORY_ITEMS = {
 
 // --- 1시간 주기 비밀 보물상점 풀 ---
 const SECRET_SHOP_ITEMS_POOL = [
-    { id: 'elixir_essence', name: '별빛 에센스 영약', icon: '🧪', desc: '30분 동안 에센스 획획득량 2배 증가!', costType: 'essence', baseCost: 5000, duration: 1800, effect: { type: 'essenceMultiplier', val: 2.0 } },
-    { id: 'scroll_spirit', name: '정령의 축복 주문서', icon: '🕊️', desc: '30분 동안 치유 진행 속도 2배 가속!', costType: 'essence', baseCost: 10000, duration: 1800, effect: { type: 'healSpeedMultiplier', val: 2.0 } },
-    { id: 'script_tingle', name: '고대 팅글 양피지', icon: '📜', desc: '1시간 동안 경험치(XP) 획득량 3배 증가!', costType: 'xp', baseCost: 3000, duration: 3600, effect: { type: 'xpMultiplier', val: 3.0 } },
-    { id: 'tea_moonlight', name: '달빛 릴랙스 허브티', icon: '🍵', desc: '현재 대기 중인 모든 손님의 스트레스 즉시 -50 완화!', costType: 'essence', baseCost: 3000, duration: 0, effect: { type: 'sootheVisitors', val: 50 } },
-    { id: 'crystal_rainbow', name: '치유의 무지개 결정', icon: '💎', desc: '즉시 대량의 에센스 보따리를 획득합니다!', costType: 'xp', baseCost: 2000, duration: 0, effect: { type: 'instantEssence', val: 50000 } }
+    { id: 'elixir_essence', nameKey: 'secret_shop_elixir_name', icon: '🧪', descKey: 'secret_shop_elixir_desc', costType: 'essence', baseCost: 5000, duration: 1800, effect: { type: 'essenceMultiplier', val: 2.0 } },
+    { id: 'scroll_spirit', nameKey: 'secret_shop_scroll_name', icon: '🕊️', descKey: 'secret_shop_scroll_desc', costType: 'essence', baseCost: 10000, duration: 1800, effect: { type: 'healSpeedMultiplier', val: 2.0 } },
+    { id: 'script_tingle', nameKey: 'secret_shop_script_name', icon: '📜', descKey: 'secret_shop_script_desc', costType: 'xp', baseCost: 3000, duration: 3600, effect: { type: 'xpMultiplier', val: 3.0 } },
+    { id: 'tea_moonlight', nameKey: 'secret_shop_tea_name', icon: '🍵', descKey: 'secret_shop_tea_desc', costType: 'essence', baseCost: 3000, duration: 0, effect: { type: 'sootheVisitors', val: 50 } },
+    { id: 'crystal_rainbow', nameKey: 'secret_shop_crystal_name', icon: '💎', descKey: 'secret_shop_crystal_desc', costType: 'xp', baseCost: 2000, duration: 0, effect: { type: 'instantEssence', val: 50000 } }
 ];
 
 function getRoomsForCurrentStage() {
@@ -220,8 +230,6 @@ const TRANSLATIONS = {
         reviews_unknown: "??? (치료를 완료하여 후기를 수집하세요)",
         claim_reward: "보상 받기",
         reward_claimed: "획득 완료!",
-
-        // Stage 1 Reviews
         review_crystal: "투명한 수정 탭핑 소리에 마음이 편안해졌어요. 정말 맑은 소리네요!",
         review_potion: "유리병이 달그락거리고 액체가 섞이는 소리가 너무 기분 좋아요.",
         review_waterbowl: "물소리와 꽃잎이 찰랑이는 느낌이 정말 환상적입니다.",
@@ -229,8 +237,6 @@ const TRANSLATIONS = {
         review_chimes: "우주 풍경종의 잔향이 머릿속을 맑게 비워주는 기분이에요.",
         review_musicbox: "태엽이 감기고 풀리는 소리에 잠이 솔솔 옵니다.",
         review_rainwindow: "창문을 때리는 빗방울 소리에 푹 잤어요. 백색소음 최고!",
-
-        // Stage 2 Reviews
         review_woodblock: "나무가 부딪히는 투박한 소리가 묘하게 안정을 주네요.",
         review_leaves: "마른 나뭇잎 사이를 걷는 듯한 바스락거림이 참 좋습니다.",
         review_campfire: "따뜻한 모닥불 앞에서 불멍하는 기분이었어요. 타닥타닥 소리 굿!",
@@ -238,8 +244,6 @@ const TRANSLATIONS = {
         review_birdsong: "아침 숲속에 온 것처럼 상쾌한 새소리에 힐링했습니다.",
         review_stream: "빠르게 흐르는 계곡 물소리에 잡념이 다 씻겨 내려갔어요.",
         review_crickets: "밤의 숲을 연상케 하는 잔잔한 풀벌레 소리 덕분에 편안해졌습니다.",
-
-        // Stage 3 Reviews
         review_keyboard: "도각도각거리는 키보드 소리가 일할 때 듣기 딱 좋네요.",
         review_scissors: "사각사각 가위질 소리가 귀를 간지럽히는 느낌이에요.",
         review_makeup: "브러쉬가 스치는 부드러운 소리에 마음이 차분해집니다.",
@@ -247,8 +251,6 @@ const TRANSLATIONS = {
         review_soap: "비누를 깎는 사각거림이 너무 중독성 있어요.",
         review_woodcarving: "나무가 섬세하게 깎이는 소리에 집중력이 확 올라갑니다.",
         review_icetype: "얼음이 부딪히는 청량한 소리가 더위를 싹 가시게 해요.",
-
-        // Stage 4 Reviews
         review_bubble: "물속에서 공기방울이 터지는 뽀글거림이 신기하네요.",
         review_whale: "고래의 신비로운 울음소리가 마치 심해에 있는 듯한 기분을 줘요.",
         review_jellyfish: "해파리가 부드럽게 유영하는 물결 소리에 넋을 잃었어요.",
@@ -256,8 +258,6 @@ const TRANSLATIONS = {
         review_coral: "산호초 사이를 스치는 바스락거리는 소리가 매력적이에요.",
         review_oxygentank: "규칙적인 산소 호흡 소리에 맞춰 저도 모르게 심호흡을 하게 되네요.",
         review_caveecho: "해저 동굴의 깊은 울림이 온몸을 감싸는 듯합니다.",
-
-        // Stage 5 Reviews
         review_quill: "낡은 양피지 위를 스치는 깃펜 소리가 마음을 차분하게 해요.",
         review_parchment: "오래된 마법서를 넘기는 바스락거림이 정말 기분 좋습니다.",
         review_teacup: "도자기 찻잔과 은수저가 부딪히는 맑은 소리에 우아해지는 기분이에요.",
@@ -265,8 +265,6 @@ const TRANSLATIONS = {
         review_velvet: "두꺼운 벨벳 커튼이 스치는 묵직한 소리가 포근합니다.",
         review_chess: "체스 말이 대리석에 부딪히는 달칵 소리가 참 경쾌해요.",
         review_royalfire: "왕실의 거대한 벽난로 소리는 왠지 더 깊고 풍성하게 들립니다.",
-
-        // Stage 6 Reviews
         review_harp: "천상의 하프 소리에 영혼까지 정화되는 느낌을 받았어요.",
         review_clouds: "푹신한 구름을 밟는 소리가 이렇게 부드러울 줄 몰랐네요.",
         review_halo: "천사의 광배에서 뿜어져 나오는 성스러운 백색소음이 경이롭습니다.",
@@ -303,7 +301,6 @@ const TRANSLATIONS = {
         upgrade_max: "한 번에 강화 ⚡",
         auto_heal_button: "자동 치유 시작 ⚡",
         auto_heal_active: "자동 치유 중... ⏸️",
-
         store_branch: "{stage}호점 온실",
         store_branch_1: "달빛 마법 공방 🔮",
         store_branch_2: "속삭이는 비밀의 숲 🍃",
@@ -313,13 +310,11 @@ const TRANSLATIONS = {
         store_branch_6: "영원의 별빛 천상 성소 🌌",
         store_selector_locked: "🔒 {stage}호점 (확장 필요)",
         rank_tag: "온실의 수호자",
-
         prestige_title: "✨ {stage}호점 확장 오픈! ✨",
         prestige_desc1: "모든 코너를 해금했습니다! 확장을 통해 더욱 고급스러운 스튜디오와 새로운 ASMR 코너들,<br><b>모든 보상 영구 x5배</b> 혜택을 누리세요.",
         prestige_desc2: "⚠️ 주의: 정수, 레벨, 경험치, 해금된 방이 모두 초기화됩니다. (버프 유지)",
         prestige_req: "요구: 정수 {costE} / 경험치 {costX}",
         prestige_button: "🚀 {stage}호점으로 확장하기",
-
         video_default_title: "[ASMR] 편안한 {room} 1시간",
         views_text: "조회수: <span class=\"video-stat-val\">{views}</span> (XP)",
         earnings_text: "수익: <span class=\"video-stat-val\">✨{earnings}</span>",
@@ -327,7 +322,6 @@ const TRANSLATIONS = {
         slots_exceeded: "업로드 한도를 초과했습니다. 레벨을 올려 슬롯을 늘리세요! (현재 최대 {slots}개)",
         upload_complete: "🎥 '{title}' 영상 업로드 완료!",
         superchat_alert: "🎉 [{title}] 영상에서 슈퍼챗 터짐! ✨{donation}",
-
         game_saved_manual: "게임 진행 상황이 수동으로 저장되었습니다.",
         save_load_prestige: "축하합니다! 에테르노아 {stage}호점으로 확장되었습니다! 🎉 이제부터 보상이 크게 증가합니다!",
         insufficient_resources: "정수 또는 경험치가 부족합니다.",
@@ -347,7 +341,6 @@ const TRANSLATIONS = {
         unlock_button: "해금하기",
         level_required: "레벨 부족",
         treat_button: "직접 치유",
-
         upgrade_wind_name: "자동 치유 정령",
         upgrade_wind_desc: "초당 정수 자동 획득",
         upgrade_incense_name: "평온의 향초",
@@ -356,11 +349,9 @@ const TRANSLATIONS = {
         upgrade_mic_desc: "정수(돈) 획득량 +50%",
         upgrade_book_name: "지혜의 책",
         upgrade_book_desc: "경험치 획득량 +50%",
-
         diff_easy: "쉬움",
         diff_medium: "보통",
         diff_hard: "어려움",
-
         visitor_fairy: "지친 꼬마 요정",
         visitor_squirrel: "잠 못 드는 다람쥐",
         visitor_bear: "스트레스 받은 곰돌이",
@@ -379,7 +370,6 @@ const TRANSLATIONS = {
         visitor_angel: "타락한 천사",
         visitor_pegasus: "날개 다친 페가수스",
         visitor_god: "지쳐버린 창조주",
-
         room_crystal_name: "수정 탭핑 방",
         room_potion_name: "물약 믹싱룸",
         room_waterbowl_name: "수중 꽃열매 믹싱룸",
@@ -422,7 +412,6 @@ const TRANSLATIONS = {
         room_choir_name: "천상 정령의 합창",
         room_starlight_name: "별빛 세례",
         room_sanctuary_name: "에테르노아 성소",
-
         instruction_stage_1: "<b>조작 방법:</b> 클릭하거나 마우스를 드래그하여 에테르노아의 소리를 들어보세요.",
         instruction_mixing: "<b>조작 방법:</b> 마우스를 클릭한 채로 둥글게 드래그하여 저어보세요.",
         instruction_stage_2: "<b>조작 방법:</b> 클릭(톡톡), 더블클릭(강하게 치기), 마우스 휠(바람 불기) 등 다양하게 상호작용 해보세요. (Space 키 사용 가능)",
@@ -430,7 +419,6 @@ const TRANSLATIONS = {
         instruction_stage_4: "<b>조작 방법:</b> 휠 스크롤(해류 만들기), 더블클릭(큰 물방울), 우클릭 등 심해의 소리를 제어해보세요. (Q, W, E 키 지원)",
         instruction_stage_5: "<b>조작 방법:</b> 마우스 우클릭, 더블클릭, 휠 스크롤, 방향키(상하좌우)로 고풍스러운 소리를 만들어보세요.",
         instruction_default: "클릭, 우클릭, 더블클릭, 마우스 휠, 드래그 등을 자유롭게 시도해보세요.",
-
         tab_inventory: "보관함",
         stress_none: "증상 없음",
         stress_normal: "일반 스트레스",
@@ -460,7 +448,102 @@ const TRANSLATIONS = {
         item_desc_silver_pouch: "120초 동안 정수(돈) 획득량이 2배 증가합니다.",
         item_flower_perfume: "꽃향수",
         item_desc_flower_perfume: "180초 동안 치유 속도와 치유량이 2배 증가합니다.",
-        buff_applied: "[{itemName}] 버프가 적용되었습니다!"
+        buff_applied: "[{itemName}] 버프가 적용되었습니다!",
+        instruction_stage_6: "<b>조작 방법:</b> 천상의 악기와 성스러운 파동을 클릭하거나 드래그하여 영혼을 치유하세요.",
+        symptom_none_name: "가벼운 피로 & 일상 스트레스",
+        symptom_none_desc: "일상적인 피로와 긴장감으로 머리가 묵직한 상태입니다.",
+        symptom_none_sound: "경쾌한 탭핑음과 부드러운 촉각 ASMR (수정, 나무, 모래, 깃펜, 하프 등)",
+        symptom_normal_name: "불면증 & 만성 수면부족",
+        symptom_normal_desc: "잡념과 불안으로 며칠째 깊은 잠을 이루지 못하고 있습니다.",
+        symptom_normal_sound: "포근한 빗소리, 오르골 선율, 싱잉보울, 풀벌레 백색소음 등",
+        symptom_mild_dep_name: "번아웃 & 무기력증",
+        symptom_mild_dep_desc: "열정과 에너지가 방전되어 깊은 무력감에 빠져 있습니다.",
+        symptom_mild_dep_sound: "따스한 온기와 활력을 불어넣는 물약, 모닥불, 계곡물, 찻잔 소리 등",
+        symptom_severe_dep_name: "중증 우울증 & 심적 고통",
+        symptom_severe_dep_desc: "마음의 에테르가 상처받아 극심한 슬픔과 고립감을 겪고 있습니다.",
+        symptom_severe_dep_sound: "영혼을 맑게 씻어내는 우주 풍경종, 새소리, 샹들리에, 천상 합창 등",
+        symptom_ptsd_name: "외상 후 스트레스 (PTSD)",
+        symptom_ptsd_desc: "과거의 트라우마가 덮쳐 극도의 공포와 심장 박동 불안을 호소합니다.",
+        symptom_ptsd_sound: "깊은 진동 이완과 심리적 안식처를 주는 싱잉보울, 수정 정화, 성소 소리 등",
+        diagnosis_title: "🩺 진단 증상:",
+        rx_hint_label: "맞춤 처방 권장",
+        rx_modal_instruction: "📍 <strong>{stage}호점 ({branch})</strong> 치유 코너 중 선택해 주세요.",
+        rx_bonus_desc: "✨ 맞춤 처방 코너 선택 시 치유 속도 1.5배 & 완치 보너스!",
+        rx_match_badge: "✨ 맞춤 처방",
+        rx_speed_boost: "치유 가속 1.5배",
+        rx_speed_normal: "일반 치유",
+        rx_active_optimal: "✨ 맞춤 처방 적용 중 (가속 1.5배)",
+        rx_active_standard: "일반 처방 진행 중",
+        rx_toast_optimal: "✨ [맞춤 처방] {name}의 증상에 딱 맞는 코너입니다! (치유 속도 +50%)",
+        modal_healing_complete_title: "🌸 치유 완료!",
+        healing_recovered_msg: "{name} 님이 평온한 마음을 되찾았습니다.",
+        label_guest_satisfaction: "✨ 손님 만족도",
+        satisfaction_optimal_badge: "💖 맞춤 처방 대만족!",
+        satisfaction_standard_badge: "🌿 일반 치유 완료",
+        optimal_comment_none: "\"딱 원하던 맑고 경쾌한 소리 덕분에 머릿속의 피로와 두통이 씻은 듯이 사라졌어요!\"",
+        optimal_comment_normal: "\"포근하고 아늑한 백색소음 덕분에 며칠 만에 마음 편히 푹 쉴 수 있게 되었습니다.\"",
+        optimal_comment_mild_dep: "\"따스하고 활력 넘치는 소리를 들으니 마음속에 다시 온기와 생기가 솟아나요!\"",
+        optimal_comment_severe_dep: "\"영혼을 맑게 감싸주는 성스러운 선율 덕분에 깊었던 슬픔이 치유되었습니다.\"",
+        optimal_comment_ptsd: "\"불안하게 요동치던 마음이 온전한 평온을 찾았어요. 진정한 영혼의 안식처입니다.\"",
+        optimal_comment_fallback: "\"증상에 딱 맞는 ASMR 코너 덕분에 큰 위로를 받았습니다!\"",
+        standard_comment: "\"몸과 마음이 편안해졌습니다. 제 증상({symptom})에는 {sound}가 더 잘 맞았을지도 몰라요!\"",
+        bonus_note_optimal: "✨ 맞춤 처방 효과: 완치 보너스 +30% & 희귀 답례품 기회 적용!",
+        bonus_note_standard: "💡 팁: 증상에 맞는 맞춤 처방 코너를 선택하시면 만족도와 보상이 30% 증가합니다.",
+        label_healing_essence: "치유 정수",
+        label_healing_xp: "연구 경험치",
+        tag_rush_bonus: "🌅 러시 +20%",
+        tag_optimal_bonus: "💖 맞춤처방 +30%",
+        base_essence_note: "기본 치유 정수",
+        base_xp_note: "기본 연구 경험치",
+        bonus_included_note: "({tags} 포함)",
+        special_gift_name: "특별 답례 선물",
+        special_gift_subnote: "보답 선물",
+        btn_claim_healing_reward: "소중한 보답 받기",
+        item_acquired_notif: "🎁 [{itemName}] 획득!",
+        review_stage_collection: "{stage}호점 컬렉션",
+        review_anonymous_visitor: "익명의 방문객",
+        reward_modal_title: "🎉 {stage}호점 도감 컬렉션 달성!",
+        reward_modal_subtitle: "{branch}의 모든 소리 후기를 성공적으로 수집했습니다.",
+        reward_modal_tip: "방문객들의 소중한 후기가 온실에 큰 힘이 되었습니다.",
+        reward_essence_label: "정수 (에센스)",
+        reward_unit_count: "+{count}개",
+        review_reward_toast: "🎁 [{stage}호점 도감 보상] 에센스 +{essence} & 특수 물약 +{potions}개 획득!",
+        review_reward_notif: "도감 완성 보상 획득! 에센스 +{essence} / 특수 물약 +{potions}",
+        rush_start_toast: "🌅 [저녁 러시 시작!] 저녁 6시, 정령 손님들이 한꺼번에 찾아옵니다! (15분간 진행 / 치유 보너스 +20%)",
+        rush_start_notif: "🌅 [저녁 러시] 저녁 6시 정각 피크타임 시작! 대기열이 6명으로 확장되고 치유 보너스(+20%)가 적용됩니다.",
+        rush_end_toast: "🌙 [저녁 러시 종료] 오늘의 피크타임이 무사히 마무리되었습니다.",
+        rush_end_notif: "🌙 [저녁 러시 종료] 저녁 6시 15분, 오늘의 피크타임이 종료되었습니다. 수고하셨습니다!",
+        interaction_mode_title: "상호작용 모드",
+        interaction_mode_direct: "직접 상호작용 (클릭/드래그 시 재화 획득)",
+        interaction_mode_auto: "자동 재생 (반복 듣기 전용, 재화 획득 불가)",
+        auto_sound_on: "🔊 소리 켜기",
+        auto_sound_off: "⏸️ 소리 끄기",
+        auto_play_toggle: "🔊 소리 켜기",
+        btn_cancel: "취소",
+        levelup_title: "레벨 업!",
+        skip_screen: "화면 건너뛰기",
+        game_subtitle: "에테르노아 : 달빛 소리 온실",
+        secret_shop_title: "1시간 한정 비밀 보물상점",
+        secret_shop_timer: "⏱️ 재고 교체까지: {mins}분 {secs}초",
+        secret_shop_sold_out: "품절 (COMPLETED)",
+        secret_shop_limited: "[한정 특가]",
+        secret_shop_elixir_name: "별빛 에센스 영약",
+        secret_shop_elixir_desc: "30분 동안 에센스 획득량 2배 증가!",
+        secret_shop_scroll_name: "정령의 축복 주문서",
+        secret_shop_scroll_desc: "30분 동안 치유 진행 속도 2배 가속!",
+        secret_shop_script_name: "고대 팅글 양피지",
+        secret_shop_script_desc: "1시간 동안 경험치(XP) 획득량 3배 증가!",
+        secret_shop_tea_name: "달빛 릴랙스 허브티",
+        secret_shop_tea_desc: "현재 대기 중인 모든 손님의 스트레스 즉시 -50 완화!",
+        secret_shop_crystal_name: "치유의 무지개 결정",
+        secret_shop_crystal_desc: "즉시 대량의 에센스 보따리를 획득합니다!",
+        tutorial_title: "📖 게임 방법 (스튜디오 가이드)",
+        tutorial_step1_text: "<b>1. 손님 맞이</b><br>지친 손님이 찾아오면 클릭하여 원하는 치유 코너로 안내하세요. 붉은 바는 손님의 스트레스를 의미합니다.",
+        tutorial_step2_text: "<b>2. ASMR 상호작용</b><br>코너 안의 요소를 클릭하거나 문지르면 <b>안정지수</b>가 오르고 치유 속도가 2배 빨라집니다!",
+        tutorial_step3_text: "<b>3. 성장과 확장</b><br>치유가 끝나면 에센스(✨)와 경험치를 받습니다. 돈을 모아 장비를 업그레이드하고 호점을 오픈하세요!",
+        tutorial_enter_btn: "✨ 지금 바로 스튜디오 입장하기",
+        tutorial_prev: "◀ 이전",
+        tutorial_next: "다음 ▶"
     },
     en: {
         start_button: "Enter Conservatory",
@@ -469,7 +552,55 @@ const TRANSLATIONS = {
         tab_manage: "Manage",
         tab_upgrade: "Upgrade",
         tab_stream: "Stream",
+        tab_reviews: "Reviews",
         tab_settings: "Settings",
+        reviews_title: "Aeternoia Sound Review Guide",
+        reviews_desc: "Heal visitors and collect their reviews to earn special rewards.",
+        reviews_unknown: "??? (Complete healing to collect review)",
+        claim_reward: "Claim Reward",
+        reward_claimed: "Claimed!",
+        review_crystal: "The clear crystal tapping brought absolute peace to my mind. So crisp and pure!",
+        review_potion: "The gentle clinking glass and swirling liquids felt delightfully soothing.",
+        review_waterbowl: "The rippling water with floating flower petals felt completely magical.",
+        review_sand: "Hearing the kinetic sand slice and crunch washed all my stress away.",
+        review_chimes: "The lingering chime reverberations cleared my cluttered head completely.",
+        review_musicbox: "The gentle winding and melodies of the music box lulled me straight to sleep.",
+        review_rainwindow: "Fell into deep sleep to gentle raindrops tapping the window. Best white noise ever!",
+        review_woodblock: "The rustic clack of wooden blocks gave an oddly satisfying sense of calm.",
+        review_leaves: "The crisp rustling of walking through dry autumn leaves was so refreshing.",
+        review_campfire: "Felt like cozying up by a warm campfire. Crackle sounds are 10/10!",
+        review_singingbowl: "The deep, sustained hum of the singing bowl dissolved all tension instantly.",
+        review_birdsong: "Healed by fresh birdsongs that felt just like a morning forest stroll.",
+        review_stream: "All stray thoughts were washed away by the babbling mountain stream.",
+        review_crickets: "Gentle cricket chirps evocative of quiet night woods brought sweet peace.",
+        review_keyboard: "The rhythmic mechanical keyboard thuds are great for focus and work.",
+        review_scissors: "The crisp snip-snip of shears gave delightful ear tingles.",
+        review_makeup: "The soft caress of brush bristles was immensely soothing.",
+        review_slime: "Squishy, squelchy slime mixing gave off incredible ASMR tingles!",
+        review_soap: "The crisp shaving and peeling of dry soap is utterly addictive.",
+        review_woodcarving: "The delicate shavings of carved wood sharpened my mental focus.",
+        review_icetype: "The refreshing clink of ice cubes blew away all lingering heat.",
+        review_bubble: "Underwater bubble pops were surprisingly mesmerizing.",
+        review_whale: "Mystical whale calls felt as though I was drifting in the oceanic abyss.",
+        review_jellyfish: "Hypnotized by the gentle ripples of jellyfish gracefully swimming by.",
+        review_sub: "The low, humming drone of the submarine provided profound serenity.",
+        review_coral: "The gentle scrape of ocean currents through coral reefs was delightful.",
+        review_oxygentank: "The rhythmic diving breaths naturally guided my own deep breathing.",
+        review_caveecho: "Deep cavernous echoes from the underwater cave wrapped around my senses.",
+        review_quill: "The gentle scratch of a writing quill upon parchment calmed my soul.",
+        review_parchment: "Turning old mystical grimoire pages felt wonderfully enchanting.",
+        review_teacup: "The clear clink of porcelain teacups and silver spoons felt so elegant.",
+        review_royalchimes: "The grand resonance of the golden crystal chandelier was magnificent.",
+        review_velvet: "The heavy, muted brush of velvet curtains felt like a warm embrace.",
+        review_chess: "The crisp clack of polished marble chess pieces was delightfully pleasant.",
+        review_royalfire: "The hearth fire of the royal hall sounded deeper, warmer, and richer.",
+        review_harp: "The celestial harp notes felt as if they purified my very soul.",
+        review_clouds: "I never imagined the sound of walking on soft clouds could be so comforting.",
+        review_halo: "The sacred white noise radiating from the angel's halo is truly wondrous.",
+        review_gate: "The grand resonance as Heaven's gates swung open gave me chills.",
+        review_choir: "The soft a cappella harmonies of the celestial spirits melted away all my stress.",
+        review_starlight: "The crystalline sound of starlight cascading down is purely breathtaking.",
+        review_sanctuary: "The healing vibrations here bring an indescribable, perfect tranquility.",
         visitor_title: "Weary Spirits Waiting",
         visitor_desc: "Heal the spirits directly to earn massive rewards.",
         shop_title: "Soul Shop (Buffs & Automation)",
@@ -499,7 +630,6 @@ const TRANSLATIONS = {
         upgrade_max: "Upgrade Max ⚡",
         auto_heal_button: "Start Auto-Heal ⚡",
         auto_heal_active: "Auto-Healing... ⏸️",
-
         store_branch: "Aeternoia Conservatory",
         store_branch_1: "Moonlight Magic Atelier 🔮",
         store_branch_2: "Whispering Secret Forest 🍃",
@@ -509,13 +639,11 @@ const TRANSLATIONS = {
         store_branch_6: "Celestial Starlight Sanctuary 🌌",
         store_selector_locked: "🔒 Branch {stage} (Expansion Required)",
         rank_tag: "Conservatory Master",
-
         prestige_title: "✨ Open Branch {stage} Expansion! ✨",
         prestige_desc1: "All corners unlocked! Expand to enjoy a more luxurious studio, brand new ASMR corners, and a **permanent x5 reward multiplier**.",
         prestige_desc2: "⚠️ Warning: Essence, level, XP, and unlocked rooms will reset. (Buffs will persist)",
         prestige_req: "Required: Essence {costE} / XP {costX}",
         prestige_button: "🚀 Expand to Branch {stage}",
-
         video_default_title: "[ASMR] Relaxing {room} 1 Hour",
         views_text: "Views: <span class=\"video-stat-val\">{views}</span> (XP)",
         earnings_text: "Earnings: <span class=\"video-stat-val\">✨{earnings}</span>",
@@ -523,7 +651,6 @@ const TRANSLATIONS = {
         slots_exceeded: "Upload limit exceeded. Level up to expand slots! (Current Max: {slots})",
         upload_complete: "🎥 Video '{title}' upload complete!",
         superchat_alert: "🎉 Super Chat exploded in [{title}]! ✨{donation}",
-
         game_saved_manual: "Game progress saved manually.",
         save_load_prestige: "Congratulations! Expanded to Aeternoia Branch {stage}! 🎉 Rewards are greatly increased!",
         insufficient_resources: "Insufficient Essence or XP.",
@@ -543,7 +670,6 @@ const TRANSLATIONS = {
         unlock_button: "Unlock",
         level_required: "Level Low",
         treat_button: "Heal Directly",
-
         upgrade_wind_name: "Auto-Healing Spirit",
         upgrade_wind_desc: "Automatically earn essence per second",
         upgrade_incense_name: "Tranquil Incense",
@@ -552,11 +678,9 @@ const TRANSLATIONS = {
         upgrade_mic_desc: "Essence earnings +50%",
         upgrade_book_name: "Book of Wisdom",
         upgrade_book_desc: "XP earnings +50%",
-
         diff_easy: "Easy",
         diff_medium: "Normal",
         diff_hard: "Hard",
-
         visitor_fairy: "Exhausted Little Fairy",
         visitor_squirrel: "Sleepless Squirrel",
         visitor_bear: "Stressed Teddy Bear",
@@ -572,7 +696,9 @@ const TRANSLATIONS = {
         visitor_knight: "Knight of Fallen Kingdom",
         visitor_queen: "Bored Queen",
         visitor_dragon: "Starlight-Lost Space Dragon",
-
+        visitor_angel: "Fallen Angel",
+        visitor_pegasus: "Wing-Injured Pegasus",
+        visitor_god: "Weary Creator",
         room_crystal_name: "Crystal Tapping Room",
         room_potion_name: "Potion Mixing Room",
         room_waterbowl_name: "Water Bowl Petals",
@@ -608,13 +734,145 @@ const TRANSLATIONS = {
         room_velvet_name: "Velvet Curtain",
         room_chess_name: "Chess Clink",
         room_royalfire_name: "Royal Fireplace",
-
+        room_harp_name: "Celestial Harp",
+        room_clouds_name: "Cloud Promenade",
+        room_halo_name: "Angel's Halo",
+        room_gate_name: "Heaven's Gate",
+        room_choir_name: "Celestial Choir",
+        room_starlight_name: "Starlight Baptism",
+        room_sanctuary_name: "Aeternoia Sanctuary",
         instruction_stage_1: "<b>Controls:</b> Click (tap), right-click (flick), drag (rub), mouse wheel (roll) to play. Number keys (1, 2, 3) are also supported.",
+        instruction_mixing: "<b>Controls:</b> Click and drag in circular motions to stir.",
         instruction_stage_2: "<b>Controls:</b> Click (tap), double-click (hard hit), mouse wheel (blow wind) to interact. (Space key supported)",
         instruction_stage_3: "<b>Controls:</b> Use mouse wheel, right-click, or double-click to control machine sounds. Keyboard inputs (A~Z) are also supported.",
         instruction_stage_4: "<b>Controls:</b> Scroll wheel (create currents), double-click (large bubbles), right-click to control deep sea sounds. (Q, W, E keys supported)",
         instruction_stage_5: "<b>Controls:</b> Right-click, double-click, scroll wheel, and arrow keys (Up, Down, Left, Right) to produce antique sounds.",
-        instruction_default: "Feel free to try clicking, right-clicking, double-clicking, scrolling, or dragging."
+        instruction_default: "Feel free to try clicking, right-clicking, double-clicking, scrolling, or dragging.",
+        tab_inventory: "Storage",
+        stress_none: "No Symptoms",
+        stress_normal: "Daily Stress",
+        stress_mild_dep: "Mild Burnout",
+        stress_severe_dep: "Severe Distress",
+        stress_ptsd: "PTSD",
+        inventory_title: "Item Storage",
+        inventory_empty: "Storage is currently empty.",
+        item_use_confirm: "Do you really want to use this item?",
+        btn_use: "Use",
+        btn_later: "Later",
+        item_potion_small: "Small Healing Potion",
+        item_desc_small: "Boosts all gains by 1.2x for 30s.",
+        item_potion_medium: "Medium Healing Potion",
+        item_desc_medium: "Boosts all gains by 1.5x for 60s.",
+        item_potion_large: "Large Healing Potion",
+        item_desc_large: "Boosts all gains by 2x for 120s.",
+        item_potion_special: "Miracle Essence",
+        item_desc_special: "Boosts all gains by 5x for 300s.",
+        item_money_bag: "Full Money Bag",
+        item_desc_money: "Triples Essence gains for 180s.",
+        item_promo_bell: "Publicity Bell",
+        item_desc_promo: "Increases chance of severe symptom guests for 300s.",
+        item_coin_small: "Small Lucky Coin",
+        item_desc_coin_small: "Boosts Essence gains by 1.5x for 60s.",
+        item_silver_pouch: "Silver Coin Pouch",
+        item_desc_silver_pouch: "Doubles Essence gains for 120s.",
+        item_flower_perfume: "Flower Perfume",
+        item_desc_flower_perfume: "Doubles healing speed and power for 180s.",
+        buff_applied: "[{itemName}] buff is now active!",
+        instruction_stage_6: "<b>Controls:</b> Click or drag the celestial instruments and sacred waves to cleanse the soul.",
+        symptom_none_name: "Mild Fatigue & Daily Stress",
+        symptom_none_desc: "Head feels heavy from routine fatigue and mental tension.",
+        symptom_none_sound: "Crisp tapping and soothing tactile ASMR (Crystal, Wood, Sand, Quill, Harp, etc.)",
+        symptom_normal_name: "Insomnia & Chronic Sleep Loss",
+        symptom_normal_desc: "Unable to sleep deeply for days due to anxiety and racing thoughts.",
+        symptom_normal_sound: "Cozy rainfall, music box melody, singing bowl, soothing cricket white noise",
+        symptom_mild_dep_name: "Burnout & Lethargy",
+        symptom_mild_dep_desc: "Completely drained of energy and motivation, feeling deep lethargy.",
+        symptom_mild_dep_sound: "Warming, invigorating sounds: Potions, Campfire, Mountain Stream, Teacup, etc.",
+        symptom_severe_dep_name: "Severe Depression & Emotional Pain",
+        symptom_severe_dep_desc: "Soul ether is deeply wounded, suffering from intense grief and isolation.",
+        symptom_severe_dep_sound: "Soul-cleansing resonances: Cosmic Chimes, Birdsong, Chandelier, Celestial Choir, etc.",
+        symptom_ptsd_name: "Post-Traumatic Stress (PTSD)",
+        symptom_ptsd_desc: "Haunted by past trauma, suffering severe anxiety and racing heartbeat.",
+        symptom_ptsd_sound: "Deep grounding vibrations: Singing Bowl, Crystal Tapping, Holy Sanctuary, etc.",
+        diagnosis_title: "🩺 Diagnosed Condition:",
+        rx_hint_label: "Recommended Prescription",
+        rx_modal_instruction: "📍 Please select a corner in <strong>Branch {stage} ({branch})</strong>.",
+        rx_bonus_desc: "✨ Matching prescription grants 1.5x speed & completion bonuses!",
+        rx_match_badge: "✨ Best Match",
+        rx_speed_boost: "1.5x Speed Boost",
+        rx_speed_normal: "Normal Healing",
+        rx_active_optimal: "✨ Prescription Active (1.5x Speed)",
+        rx_active_standard: "Standard Session",
+        rx_toast_optimal: "✨ [Perfect Match] Perfectly prescribed corner for {name}! (+50% Healing Speed)",
+        modal_healing_complete_title: "🌸 Healing Complete!",
+        healing_recovered_msg: "{name} has regained serene peace of mind.",
+        label_guest_satisfaction: "✨ Guest Satisfaction",
+        satisfaction_optimal_badge: "💖 Greatly Satisfied (Optimal Rx)!",
+        satisfaction_standard_badge: "🌿 Standard Healing Complete",
+        optimal_comment_none: "\"The crisp, refreshing tapping completely blew away all my mental fatigue and headaches!\"",
+        optimal_comment_normal: "\"The cozy, warm white noise finally allowed me to rest deeply after sleepless days.\"",
+        optimal_comment_mild_dep: "\"Listening to these warming, vibrant sounds revived the warmth and vitality in my heart!\"",
+        optimal_comment_severe_dep: "\"The sacred melodies gently embracing my soul healed my deep-seated sorrow.\"",
+        optimal_comment_ptsd: "\"My racing, terrified mind found total peace. This is a true haven for the weary soul.\"",
+        optimal_comment_fallback: "\"The tailored ASMR corner brought immense comfort and relief to my soul!\"",
+        standard_comment: "\"My body and mind feel lighter. For my condition ({symptom}), perhaps {sound} might have been even better!\"",
+        bonus_note_optimal: "✨ Optimal Rx: +30% Healing Bonus & Rare Gift Chance applied!",
+        bonus_note_standard: "💡 Tip: Choosing a matching prescription corner increases satisfaction and rewards by 30%.",
+        label_healing_essence: "Healing Essence",
+        label_healing_xp: "Research XP",
+        tag_rush_bonus: "🌅 Rush +20%",
+        tag_optimal_bonus: "💖 Optimal Rx +30%",
+        base_essence_note: "Base Healing Essence",
+        base_xp_note: "Base Research XP",
+        bonus_included_note: "(Includes {tags})",
+        special_gift_name: "Special Thank-You Gift",
+        special_gift_subnote: "Thank-you Gift",
+        btn_claim_healing_reward: "Claim Rewards",
+        item_acquired_notif: "🎁 Acquired [{itemName}]!",
+        review_stage_collection: "Branch {stage} Collection",
+        review_anonymous_visitor: "Anonymous Guest",
+        reward_modal_title: "🎉 Branch {stage} Collection Complete!",
+        reward_modal_subtitle: "Successfully collected all sound reviews from {branch}.",
+        reward_modal_tip: "The heartfelt reviews from our guests have brought great vitality to the conservatory.",
+        reward_essence_label: "Essence",
+        reward_unit_count: "+{count}",
+        review_reward_toast: "🎁 [Branch {stage} Reward] Essence +{essence} & Miracle Essence +{potions}!",
+        review_reward_notif: "Collection Reward Claimed! Essence +{essence} / Miracle Essence +{potions}",
+        rush_start_toast: "🌅 [Evening Rush Started!] 6:00 PM: A flock of spirits is arriving! (15 min / +20% Healing Bonus)",
+        rush_start_notif: "🌅 [Evening Rush] 6:00 PM Peak hour started! Queue expands to 6 and +20% healing bonus is applied.",
+        rush_end_toast: "🌙 [Evening Rush Ended] Today's peak time has ended smoothly.",
+        rush_end_notif: "🌙 [Evening Rush Ended] 6:15 PM, today's peak hour has finished. Great job!",
+        interaction_mode_title: "Interaction Mode",
+        interaction_mode_direct: "Direct Play (Click/drag to earn currency)",
+        interaction_mode_auto: "Auto-Play (Listen only, no currency gain)",
+        auto_sound_on: "🔊 Sound On",
+        auto_sound_off: "⏸️ Sound Off",
+        auto_play_toggle: "🔊 Sound On",
+        btn_cancel: "Cancel",
+        levelup_title: "Level Up!",
+        skip_screen: "Skip Screen",
+        game_subtitle: "Aeternoia: Moonlight Sound Conservatory",
+        secret_shop_title: "1-Hour Secret Treasure Shop",
+        secret_shop_timer: "⏱️ Next Restock: {mins}m {secs}s",
+        secret_shop_sold_out: "Sold Out",
+        secret_shop_limited: "[Limited Deal]",
+        secret_shop_elixir_name: "Starlight Essence Elixir",
+        secret_shop_elixir_desc: "Doubles Essence earnings for 30 minutes!",
+        secret_shop_scroll_name: "Spirit Blessing Scroll",
+        secret_shop_scroll_desc: "Doubles healing speed for 30 minutes!",
+        secret_shop_script_name: "Ancient Tingle Parchment",
+        secret_shop_script_desc: "Triples XP gains for 1 hour!",
+        secret_shop_tea_name: "Moonlight Relax Herbal Tea",
+        secret_shop_tea_desc: "Immediately soothes -50 stress for all waiting guests!",
+        secret_shop_crystal_name: "Rainbow Healing Crystal",
+        secret_shop_crystal_desc: "Instantly receive a massive bundle of Essence!",
+        tutorial_title: "📖 How to Play (Studio Guide)",
+        tutorial_step1_text: "<b>1. Welcome Guests</b><br>Click on weary visitors to guide them to healing corners. The red bar indicates stress.",
+        tutorial_step2_text: "<b>2. ASMR Interaction</b><br>Click or drag items inside the room to raise the <b>Stability Index</b> and double healing speed!",
+        tutorial_step3_text: "<b>3. Growth & Expansion</b><br>Receive Essence (✨) and XP after healing. Upgrade studio tools and expand to new branches!",
+        tutorial_enter_btn: "✨ Enter Studio Now",
+        tutorial_prev: "◀ Prev",
+        tutorial_next: "Next ▶"
     },
     ja: {
         start_button: "スタジオに入る",
@@ -623,7 +881,55 @@ const TRANSLATIONS = {
         tab_manage: "経営",
         tab_upgrade: "強化",
         tab_stream: "配信",
+        tab_reviews: "図鑑",
         tab_settings: "設定",
+        reviews_title: "エーテリアSNSレビュー図鑑",
+        reviews_desc: "来店者を治療して残されたレビューを集め、特別な報酬を獲得しましょう。",
+        reviews_unknown: "??? (治療を完了してレビューを解放)",
+        claim_reward: "報酬を受け取る",
+        reward_claimed: "獲得済み！",
+        review_crystal: "透明な水晶のタッピング音で心がとても落ち着きました。本当に澄んだ音ですね！",
+        review_potion: "ガラス瓶のカチャカチャ音と液体が混ざり合う音が心地よすぎます。",
+        review_waterbowl: "水のせせらぎと花びらが揺れる感触が本当に幻想的です。",
+        review_sand: "砂がサクサクと切れる音を聴いていたら、ストレスが一気に吹き飛びました。",
+        review_chimes: "宇宙のウィンドチャイムの余韻が、頭の中を澄み渡らせてくれるようです。",
+        review_musicbox: "ぜんまいを巻き上げる音とメロディーで、心地よく眠りにつけました。",
+        review_rainwindow: "窓を打つ雨音を聴きながらぐっすり眠れました。最高のホワイトノイズ！",
+        review_woodblock: "木がぶつかる素朴な音が、不思議と深い安心感を与えてくれます。",
+        review_leaves: "枯れ葉の上を歩くような心地よいカサカサ音がたまりません。",
+        review_campfire: "温かいたき火の前で炎を眺めている気分でした。パチパチ音が最高！",
+        review_singingbowl: "シンギングボウルの深くて長い余韻が緊張を解きほぐしてくれました。",
+        review_birdsong: "朝の森にいるような爽やかな鳥のさえずりにとても癒やされました。",
+        review_stream: "勢いよく流れる渓流のせせらぎに、雑念がすべて洗い流されました。",
+        review_crickets: "夜の森を思わせる穏やかな秋の虫の声のおかげで、心が落ち着きました。",
+        review_keyboard: "スコスコ鳴るキーボードの打鍵音が、作業中のBGMにぴったりです。",
+        review_scissors: "サクサクというハサミの音が、耳元をくすぐるように心地よいです。",
+        review_makeup: "ブラシがそっと触れる柔らかな音に、心が穏やかになります。",
+        review_slime: "スライムのモチモチしたこねる音、最高のティングルを感じました！",
+        review_soap: "石鹸を薄く削るサクサクした音が中毒性抜群です。",
+        review_woodcarving: "木が繊細に削れる音に、集中力がぐっと高まります。",
+        review_icetype: "氷がぶつかる清涼感あふれる音で、暑さが吹き飛びました。",
+        review_bubble: "水中で空気の泡がプチプチ弾ける音がとても不思議で癒やされます。",
+        review_whale: "クジラの神秘的な鳴き声に、まるで深海を漂っているような気分になりました。",
+        review_jellyfish: "クラゲが優雅に水中を漂う波の音に、うっとり見とれてしまいました。",
+        review_sub: "潜水艦の低く響くエンジン音が、不思議な安心感を与えてくれます。",
+        review_coral: "珊瑚礁の間をすり抜けるカサカサした音がとても魅力的です。",
+        review_oxygentank: "規則的な酸素呼吸音に合わせて、思わず深呼吸してリラックスできました。",
+        review_caveecho: "海底洞窟の奥深い反響音が、全身を包み込むようでした。",
+        review_quill: "羊皮紙の上を走る羽ペンのサラサラした音が、心を落ち着かせてくれます。",
+        review_parchment: "古びた魔法書をめくる時の乾いたページ音がとても心地よいです。",
+        review_teacup: "磁器のティーカップと銀のスプーンが奏でる澄んだ音に優雅な気分を味わいました。",
+        review_royalchimes: "巨大な黄金のシャンデリアが放つ壮大な響きに圧倒されました。",
+        review_velvet: "重厚なベルベットカーテンが擦れ合う音が、暖かく包み込んでくれます。",
+        review_chess: "大理石にチェス駒が打ち合わされるカチッとした音がとても軽快です。",
+        review_royalfire: "王室の壮麗な暖炉の薪がはぜる音は、より深みと温もりを感じさせます。",
+        review_harp: "天上のハープの音色に、魂まで浄化されるような気がしました。",
+        review_clouds: "ふわふわの雲を踏む音がこれほど柔らかいとは思いませんでした。",
+        review_halo: "天使の光輪から放たれる聖なるホワイトノイズが神秘的で素晴らしいです。",
+        review_gate: "天国の大きな門が開く時の荘厳な余韻に鳥肌が立ちました。",
+        review_choir: "精霊たちの柔らかなアカペラハーモニーに心が完全に溶かされました。",
+        review_starlight: "降り注ぐ星の光が奏でるきらびやかな音色は、ただただ美しいです。",
+        review_sanctuary: "ここの癒やしの波動は、言葉では言い表せないほど完璧な平穏をもたらしてくれます。",
         visitor_title: "待機中の疲れた精霊たち",
         visitor_desc: "精霊を直接癒やして莫大な報酬を獲得しましょう。",
         shop_title: "ソウルショップ (バフ＆自動化)",
@@ -653,7 +959,6 @@ const TRANSLATIONS = {
         upgrade_max: "一括強化 ⚡",
         auto_heal_button: "自動治療開始 ⚡",
         auto_heal_active: "自動治療中... ⏸️",
-
         store_branch: "エーテリアスタジオ",
         store_branch_1: "月光の魔法工房 🔮",
         store_branch_2: "囁きの秘密の森 🍃",
@@ -663,13 +968,11 @@ const TRANSLATIONS = {
         store_branch_6: "永遠の星光天界聖所 🌌",
         store_selector_locked: "🔒 {stage}号店 (拡張が必要)",
         rank_tag: "スタジオマネージャー",
-
         prestige_title: "✨ {stage}号店の新規オープン！ ✨",
         prestige_desc1: "すべてのコーナーを解禁しました！拡張することで、より豪華なスタジオや新しいASMRコーナー、そして<b>すべての報酬が永久に5倍</b>になる特典が得られます。",
         prestige_desc2: "⚠️ 注意: エッセンス、レベル、経験値、解放された部屋はすべて初期化されます (バフは維持されます)。",
         prestige_req: "要求: エッセンス {costE} / 経験値 {costX}",
         prestige_button: "🚀 {stage}号店に拡張する",
-
         video_default_title: "[ASMR] 快適な {room} 1時間",
         views_text: "再生回数: <span class=\"video-stat-val\">{views}</span> (XP)",
         earnings_text: "収益: <span class=\"video-stat-val\">✨{earnings}</span>",
@@ -677,7 +980,6 @@ const TRANSLATIONS = {
         slots_exceeded: "アップロード上限を超えました。レベルを上げてスロットを増やしましょう！(現在最大: {slots}個)",
         upload_complete: "🎥 動画「{title}」の投稿が完了しました！",
         superchat_alert: "🎉 「{title}」動画でスパチャ発生！ ✨{donation}",
-
         game_saved_manual: "ゲームの進行状況が手動で保存されました。",
         save_load_prestige: "おめでとうございます！エーテリア {stage}号店に拡張されました！🎉 これから報酬が大幅に増加します！",
         insufficient_resources: "エッセンスまたは経験値が不足しています。",
@@ -697,7 +999,6 @@ const TRANSLATIONS = {
         unlock_button: "解禁する",
         level_required: "レベル不足",
         treat_button: "直接治療",
-
         upgrade_wind_name: "自動治療精霊",
         upgrade_wind_desc: "1秒ごとにエッセンスを自動獲得",
         upgrade_incense_name: "平穏のお香",
@@ -706,11 +1007,9 @@ const TRANSLATIONS = {
         upgrade_mic_desc: "エッセンス獲得量 +50%",
         upgrade_book_name: "知恵の書",
         upgrade_book_desc: "経験値獲得量 +50%",
-
         diff_easy: "簡単",
         diff_medium: "普通",
         diff_hard: "難しい",
-
         visitor_fairy: "疲れた小さな妖精",
         visitor_squirrel: "眠れないリス",
         visitor_bear: "ストレスのたまったクマちゃん",
@@ -726,7 +1025,9 @@ const TRANSLATIONS = {
         visitor_knight: "没落した王国の騎士",
         visitor_queen: "退屈そうな女王",
         visitor_dragon: "星の光を失った宇宙ドラゴン",
-
+        visitor_angel: "堕ちた天使",
+        visitor_pegasus: "翼を痛めたペガサス",
+        visitor_god: "疲れ果てた創造主",
         room_crystal_name: "水晶タッピング室",
         room_potion_name: "ポーション調合室",
         room_waterbowl_name: "水中花びらミキシング",
@@ -762,13 +1063,145 @@ const TRANSLATIONS = {
         room_velvet_name: "ベルベットのカーテン",
         room_chess_name: "チェス駒のぶつかり音",
         room_royalfire_name: "王室の暖炉",
-
+        room_harp_name: "天上のハープ",
+        room_clouds_name: "雲の散歩道",
+        room_halo_name: "天使の光輪",
+        room_gate_name: "天国の門",
+        room_choir_name: "天上精霊の合唱",
+        room_starlight_name: "星光の洗礼",
+        room_sanctuary_name: "エーテリア聖所",
         instruction_stage_1: "<b>操作方法:</b> クリック(叩く)、右クリック(弾く)、ドラッグ(擦る)、マウスホイール(転がす)で演奏してみてください。数字キー(1, 2, 3)も使用できます。",
+        instruction_mixing: "<b>操作方法:</b> クリックしたまま円を描くようにドラッグしてかき混ぜてください。",
         instruction_stage_2: "<b>操作方法:</b> クリック(トントン)、ダブルクリック(強く叩く)、マウスホイール(風を吹く)など、様々にインタラクションしてみてください。(Spaceキーも使用可能)",
         instruction_stage_3: "<b>操作方法:</b> マウスホイールを回す、右クリック、ダブルクリックで機械音を制御してください。キーボード(A~Z)入力も対応しています。",
         instruction_stage_4: "<b>操作方法:</b> ホイールスクロール(潮流を起こす)、ダブルクリック(大きな水泡)、右クリックなどで深海の音を制御してください。(Q, W, Eキーに対応)",
         instruction_stage_5: "<b>操作方法:</b> マウスの右クリック、ダブルクリック、ホイールスクロール、矢印キー(上下左右)で優雅な音を奏でてみてください。",
-        instruction_default: "クリック、右クリック、ダブルクリック、マウスホイール、ドラッグなど、自由に試してみてください。"
+        instruction_default: "クリック、右クリック、ダブルクリック、マウスホイール、ドラッグなど、自由に試してみてください。",
+        tab_inventory: "保管庫",
+        stress_none: "症状なし",
+        stress_normal: "一般ストレス",
+        stress_mild_dep: "軽度バーンアウト",
+        stress_severe_dep: "重度うつ症状",
+        stress_ptsd: "PTSD",
+        inventory_title: "アイテム保管庫",
+        inventory_empty: "保管庫は空っぽです。",
+        item_use_confirm: "本当にこのアイテムを使用しますか？",
+        btn_use: "使う",
+        btn_later: "後で",
+        item_potion_small: "小さな癒やしのポーション",
+        item_desc_small: "30秒間、獲得量が1.2倍になります。",
+        item_potion_medium: "中くらいの癒やしのポーション",
+        item_desc_medium: "60秒間、獲得量が1.5倍になります。",
+        item_potion_large: "大きな癒やしのポーション",
+        item_desc_large: "120秒間、獲得量が2倍になります。",
+        item_potion_special: "奇跡のエッセンス",
+        item_desc_special: "300秒間、獲得量が5倍になります。",
+        item_money_bag: "ずっしりした金貨袋",
+        item_desc_money: "180秒間、エッセンス獲得量が3倍になります。",
+        item_promo_bell: "広報の鐘",
+        item_desc_promo: "300秒間、重度症状の客の来店確率が上昇します。",
+        item_coin_small: "小さな幸運のコイン",
+        item_desc_coin_small: "60秒間、エッセンス獲得量が1.5倍になります。",
+        item_silver_pouch: "銀貨の詰まった巾着",
+        item_desc_silver_pouch: "120秒間、エッセンス獲得量が2倍になります。",
+        item_flower_perfume: "花の香水",
+        item_desc_flower_perfume: "180秒間、治療速度と治療量が2倍になります。",
+        buff_applied: "[{itemName}] バフが適用されました！",
+        instruction_stage_6: "<b>操作方法:</b> 天上の楽器や神聖な波動をクリックまたはドラッグして魂を癒やしてください。",
+        symptom_none_name: "軽い疲労と日常のストレス",
+        symptom_none_desc: "日頃の疲れと緊張で頭が重く感じている状態です。",
+        symptom_none_sound: "軽快なタッピング音と心地よい触覚ASMR (水晶、木、砂、羽ペン、ハープなど)",
+        symptom_normal_name: "不眠症と慢性的な睡眠不足",
+        symptom_normal_desc: "雑念と不安で何日もぐっすり眠れずにいます。",
+        symptom_normal_sound: "心地よい雨音、オルゴールの旋律、シンギングボウル、虫の音のホワイトノイズなど",
+        symptom_mild_dep_name: "バーンアウトと無気力症",
+        symptom_mild_dep_desc: "情熱とエネルギーが尽き果て、深い無力感に陥っています。",
+        symptom_mild_dep_sound: "温かさと活力を吹き込むポーション、たき火、渓流、ティーカップの音など",
+        symptom_severe_dep_name: "重度うつと深い心の痛み",
+        symptom_severe_dep_desc: "心の霊気が傷つき、極度の悲しみと孤独感に苦しんでいます。",
+        symptom_severe_dep_sound: "魂を清らかに洗う宇宙の風鈴、鳥の声、シャンデリア、天上合唱など",
+        symptom_ptsd_name: "心的外傷後ストレス (PTSD)",
+        symptom_ptsd_desc: "過去のトラウマに襲われ、極度の恐怖と動悸に苛まれています。",
+        symptom_ptsd_sound: "深い振動で緊張をほぐすシンギングボウル、水晶の浄化、聖所の音など",
+        diagnosis_title: "🩺 診断された症状:",
+        rx_hint_label: "推奨される処方",
+        rx_modal_instruction: "📍 <strong>{stage}号店 ({branch})</strong> の治療コーナーを選択してください。",
+        rx_bonus_desc: "✨ 処方に合ったコーナーを選択すると治療速度1.5倍＆特別ボーナス！",
+        rx_match_badge: "✨ 推奨処方",
+        rx_speed_boost: "治療速度 1.5倍",
+        rx_speed_normal: "通常の治療",
+        rx_active_optimal: "✨ 推奨処方を適用中 (1.5倍速)",
+        rx_active_standard: "通常セッション進行中",
+        rx_toast_optimal: "✨ [推奨処方] {name}の症状にぴったりのコーナーです！ (治療速度 +50%)",
+        modal_healing_complete_title: "🌸 治療完了！",
+        healing_recovered_msg: "{name}様が穏やかな心を取り戻しました。",
+        label_guest_satisfaction: "✨ 来店者の満足度",
+        satisfaction_optimal_badge: "💖 オーダーメイド処方に大満足！",
+        satisfaction_standard_badge: "🌿 通常の治療完了",
+        optimal_comment_none: "「まさに求めていた澄んだ音のおかげで、頭の疲れと重さがすっきりと消え去りました！」",
+        optimal_comment_normal: "「心地よく温かなホワイトノイズのおかげで、何日かぶりにぐっすりと休めました。」",
+        optimal_comment_mild_dep: "「温かく活力に満ちた音を聴いて、心に再び温もりと活力が湧いてきました！」",
+        optimal_comment_severe_dep: "「魂を優しく包み込む聖なる旋律のおかげで、深かった悲しみが癒やされました。」",
+        optimal_comment_ptsd: "「激しく動揺していた心が完全な平穏を取り戻しました。まさに魂のオアシスです。」",
+        optimal_comment_fallback: "「症状にぴったりのASMRコーナーのおかげで、とても心が救われました！」",
+        standard_comment: "「心身ともに楽になりました。私の症状({symptom})には、{sound}のほうがもっと合っていたかもしれません！」",
+        bonus_note_optimal: "✨ 推奨処方効果: 完治ボーナス +30% ＆ 貴重な返礼品の獲得確率UP！",
+        bonus_note_standard: "💡 ヒント: 症状に合った処方コーナーを選ぶと、満足度と報酬が30%増加します。",
+        label_healing_essence: "治癒のエッセンス",
+        label_healing_xp: "研究経験値",
+        tag_rush_bonus: "🌅 ラッシュ +20%",
+        tag_optimal_bonus: "💖 処方一致 +30%",
+        base_essence_note: "基本治療エッセンス",
+        base_xp_note: "基本研究経験値",
+        bonus_included_note: "({tags} 適用)",
+        special_gift_name: "特別な返礼品",
+        special_gift_subnote: "お礼の品",
+        btn_claim_healing_reward: "お礼を受け取る",
+        item_acquired_notif: "🎁 [{itemName}] を獲得！",
+        review_stage_collection: "{stage}号店コレクション",
+        review_anonymous_visitor: "匿名の訪問者",
+        reward_modal_title: "🎉 {stage}号店コレクション達成！",
+        reward_modal_subtitle: "{branch}のすべてのASMRレビューを収集しました。",
+        reward_modal_tip: "訪問者の温かいレビューがスタジオの大きな力になりました。",
+        reward_essence_label: "エッセンス",
+        reward_unit_count: "+{count}個",
+        review_reward_toast: "🎁 [{stage}号店図鑑報酬] エッセンス +{essence} ＆ 特殊ポーション +{potions}個 獲得！",
+        review_reward_notif: "図鑑完成報酬を獲得！ エッセンス +{essence} / 特殊ポーション +{potions}",
+        rush_start_toast: "🌅 [イブニングラッシュ開始！] 夕方6時、精霊たちが一斉に訪れます！ (15分間開催 / 治療ボーナス +20%)",
+        rush_start_notif: "🌅 [イブニングラッシュ] 夕方6時ピークタイム開始！ 待機列が6人に拡大され、治療ボーナス(+20%)が適用されます。",
+        rush_end_toast: "🌙 [イブニングラッシュ終了] 本日のピークタイムが無事終了しました。",
+        rush_end_notif: "🌙 [イブニングラッシュ終了] 夕方6時15分、本日のピークタイムが終了しました。お疲れ様でした！",
+        interaction_mode_title: "インタラクションモード",
+        interaction_mode_direct: "手動演奏 (クリック/ドラッグで獲得)",
+        interaction_mode_auto: "自動再生 (連続鑑賞専用、報酬なし)",
+        auto_sound_on: "🔊 サウンドON",
+        auto_sound_off: "⏸️ サウンドOFF",
+        auto_play_toggle: "🔊 サウンドON",
+        btn_cancel: "キャンセル",
+        levelup_title: "レベルアップ！",
+        skip_screen: "スキップ",
+        game_subtitle: "エーテリア：月光の音温室",
+        secret_shop_title: "1時間限定 秘密の宝物店",
+        secret_shop_timer: "⏱️ 入荷まで: {mins}分{secs}秒",
+        secret_shop_sold_out: "完売 (COMPLETED)",
+        secret_shop_limited: "[限定特価]",
+        secret_shop_elixir_name: "星光のエッセンス霊薬",
+        secret_shop_elixir_desc: "30分間、エッセンス獲得量が2倍になります！",
+        secret_shop_scroll_name: "精霊の祝福の巻物",
+        secret_shop_scroll_desc: "30分間、治療速度が2倍になります！",
+        secret_shop_script_name: "古代のティングル羊皮紙",
+        secret_shop_script_desc: "1時間、経験値(XP)獲得量が3倍になります！",
+        secret_shop_tea_name: "月光のリラックスハーブティー",
+        secret_shop_tea_desc: "現在待機中のすべての客のストレスを即座に-50緩和！",
+        secret_shop_crystal_name: "癒やしの虹色クリスタル",
+        secret_shop_crystal_desc: "即座に大量のエッセンスを獲得します！",
+        tutorial_title: "📖 遊び方 (スタジオガイド)",
+        tutorial_step1_text: "<b>1. 来店者を迎える</b><br>疲れた客が訪れたらクリックして治療コーナーへ案内します。赤いバーはストレスを表します。",
+        tutorial_step2_text: "<b>2. ASMRインタラクション</b><br>部屋の要素をクリックやドラッグすると<b>安定指数</b>が上がり、治療速度が2倍になります！",
+        tutorial_step3_text: "<b>3. 成長と拡張</b><br>治療完了でエッセンス(✨)と経験値を獲得。機材を強化して新しい支店をオープンしましょう！",
+        tutorial_enter_btn: "✨ 今すぐスタジオに入る",
+        tutorial_prev: "◀ 前へ",
+        tutorial_next: "次へ ▶"
     },
     zh: {
         start_button: "进入工作室",
@@ -777,7 +1210,55 @@ const TRANSLATIONS = {
         tab_manage: "经营",
         tab_upgrade: "强化",
         tab_stream: "直播",
+        tab_reviews: "图鉴",
         tab_settings: "设置",
+        reviews_title: "埃泰里亚SNS后记图鉴",
+        reviews_desc: "治愈来访的客人并收集他们的好评，以领取专属奖励。",
+        reviews_unknown: "??? (完成治愈以解锁评价)",
+        claim_reward: "领取奖励",
+        reward_claimed: "已领取！",
+        review_crystal: "清脆的水晶敲击声让心情变得格外平静，声音太清澈了！",
+        review_potion: "玻璃瓶清脆的碰撞声和液体混合的声音听着真舒服。",
+        review_waterbowl: "水声潺潺，花瓣轻摇，感觉真的太梦幻了。",
+        review_sand: "听着沙子沙沙切开的声音，所有压力都烟消云散了。",
+        review_chimes: "宇宙风铃悠长的余音彻底清空了我杂乱的思绪。",
+        review_musicbox: "发条转动与清脆的八音盒旋律让人不知不觉想要安睡。",
+        review_rainwindow: "伴着雨滴敲打窗户的声音安然入眠，最棒的白噪音！",
+        review_woodblock: "木块碰撞那朴素厚实的声音带来了一种奇妙的安心感。",
+        review_leaves: "宛如踩在枯叶堆中的沙沙声，让人感到无比惬意。",
+        review_campfire: "仿佛坐在温暖的篝火旁发呆，噼啪作响的声音太棒了！",
+        review_singingbowl: "颂钵深沉悠扬的共鸣瞬间消散了所有的紧绷感。",
+        review_birdsong: "清晨森林般欢快清脆的鸟鸣让人倍感治愈。",
+        review_stream: "奔流不息的溪水声把脑海里所有的杂念都冲刷得一干二净。",
+        review_crickets: "宁静宛如深夜林间的微弱虫鸣，让人格外心旷神怡。",
+        review_keyboard: "清脆利落的机械键盘敲击声特别适合工作时聆听。",
+        review_scissors: "剪刀咔嚓咔嚓剪动的清脆声音让人耳边酥酥麻麻的。",
+        review_makeup: "化妆刷轻轻掠过的柔软触感声让人心境祥和。",
+        review_slime: "软糯起泡胶的搅拌挤压声，颅内高潮感直接拉满！",
+        review_soap: "细细削刮肥皂的沙沙声实在太让人上瘾了。",
+        review_woodcarving: "木材细腻雕琢的声音让注意力高度集中。",
+        review_icetype: "冰块碰撞的清凉脆响让人瞬间扫除所有燥热。",
+        review_bubble: "水下气泡缓缓破裂的咕噜声格外奇妙。",
+        review_whale: "空灵神秘的深海鲸歌仿佛带我漫游在无垠的大洋深处。",
+        review_jellyfish: "水母优雅游动时激起的温和水波声令人陶醉神往。",
+        review_sub: "潜艇低沉平稳的引擎嗡鸣声带来了一种奇特的心安。",
+        review_coral: "穿梭于珊瑚丛间的沙沙摩擦声极具魅力。",
+        review_oxygentank: "随着氧气瓶规律的呼吸节律，不由自主地跟着深呼吸放松下来。",
+        review_caveecho: "水下溶洞那深邃幽微的共鸣仿佛包裹住了整个身心。",
+        review_quill: "羽毛笔在厚羊皮纸上划过的沙沙声抚平了内心的浮躁。",
+        review_parchment: "翻阅古老魔法典籍那沙沙的书页声让人心生愉悦。",
+        review_teacup: "精致陶瓷茶杯与银勺轻碰的清脆声让人倍感优雅。",
+        review_royalchimes: "黄金水晶吊灯那宏伟华丽的共鸣音令人心旷神怡。",
+        review_velvet: "厚重丝绒窗帘轻拂而过的低沉声响宛如温暖的拥抱。",
+        review_chess: "大理石棋盘上棋子轻叩的咔嗒声清脆利落。",
+        review_royalfire: "王室华丽壁炉里的炭火燃烧声显得格外深沉而温暖。",
+        review_harp: "天堂竖琴的声音让我感觉灵魂都得到了净化。",
+        review_clouds: "没想到踩在松软云朵上的声音竟然如此轻柔舒适。",
+        review_halo: "天使光环中散发出的神圣白噪音令人赞叹不已。",
+        review_gate: "天堂之门敞开时传来的庄严回音让我为之动容。",
+        review_choir: "精灵们柔和的清唱和声让我的心彻底融化了。",
+        review_starlight: "星光洒落碰撞发出的璀璨之声，美得令人心醉。",
+        review_sanctuary: "这里的治愈波动带来了一种无法言喻的极致平静。",
         visitor_title: "等待中的疲惫灵体",
         visitor_desc: "直接治愈灵体以获得丰厚奖励。",
         shop_title: "灵魂商店 (增益 & 自动化)",
@@ -807,7 +1288,6 @@ const TRANSLATIONS = {
         upgrade_max: "一键强化 ⚡",
         auto_heal_button: "开始自动治愈 ⚡",
         auto_heal_active: "自动治愈中... ⏸️",
-
         store_branch: "埃泰里亚工作室",
         store_branch_1: "月光魔法工坊 🔮",
         store_branch_2: "低语秘密森林 🍃",
@@ -817,13 +1297,11 @@ const TRANSLATIONS = {
         store_branch_6: "永恒星光天界圣所 🌌",
         store_selector_locked: "🔒 {stage}号店 (需要扩张)",
         rank_tag: "工作室经理",
-
         prestige_title: "✨ {stage}号店扩张开业！ ✨",
         prestige_desc1: "所有区域已解锁！通过扩张获得更豪华的工作室、全新的ASMR区域，以及**所有收益永久5倍**的加成。",
         prestige_desc2: "⚠️ 注意：精华、等级、经验值和已解锁的房间都将重置。(增益会保留)",
         prestige_req: "要求：精华 {costE} / 经验 {costX}",
         prestige_button: "🚀 扩张至{stage}号店",
-
         video_default_title: "[ASMR] 舒适的 {room} 1小时",
         views_text: "播放量: <span class=\"video-stat-val\">{views}</span> (XP)",
         earnings_text: "收益: <span class=\"video-stat-val\">✨{earnings}</span>",
@@ -831,7 +1309,6 @@ const TRANSLATIONS = {
         slots_exceeded: "已超过上传上限。提升等级以增加插槽！(当前最大：{slots}个)",
         upload_complete: "🎥 视频 '{title}' 上传完成！",
         superchat_alert: "🎉 视频 [{title}] 触发了超级留言！ ✨{donation}",
-
         game_saved_manual: "游戏进度已手动保存。",
         save_load_prestige: "恭喜！已扩张至 Etheria {stage}号店！🎉 收益将大幅提升！",
         insufficient_resources: "精华或经验值不足。",
@@ -851,7 +1328,6 @@ const TRANSLATIONS = {
         unlock_button: "解锁",
         level_required: "等级不足",
         treat_button: "直接治愈",
-
         upgrade_wind_name: "自动治愈精灵",
         upgrade_wind_desc: "每秒自动获得精华",
         upgrade_incense_name: "宁静香薰",
@@ -860,11 +1336,9 @@ const TRANSLATIONS = {
         upgrade_mic_desc: "精华收益 +50%",
         upgrade_book_name: "智慧之书",
         upgrade_book_desc: "经验获得量 +50%",
-
         diff_easy: "简单",
         diff_medium: "普通",
         diff_hard: "困难",
-
         visitor_fairy: "疲惫的小妖精",
         visitor_squirrel: "失眠的小松鼠",
         visitor_bear: "压力巨大的泰迪熊",
@@ -880,7 +1354,9 @@ const TRANSLATIONS = {
         visitor_knight: "陨落王国的骑士",
         visitor_queen: "百无聊赖的女王",
         visitor_dragon: "失去星光的太空巨龙",
-
+        visitor_angel: "堕落天使",
+        visitor_pegasus: "断翼飞马",
+        visitor_god: "疲惫的造物主",
         room_crystal_name: "水晶敲击室",
         room_potion_name: "药水调制室",
         room_waterbowl_name: "水中花瓣混合",
@@ -916,13 +1392,145 @@ const TRANSLATIONS = {
         room_velvet_name: "丝绒窗帘",
         room_chess_name: "落子弹指声",
         room_royalfire_name: "皇家壁暖",
-
+        room_harp_name: "天堂竖琴",
+        room_clouds_name: "云端漫步",
+        room_halo_name: "天使光环",
+        room_gate_name: "天国之门",
+        room_choir_name: "天界精灵合唱",
+        room_starlight_name: "星光洗礼",
+        room_sanctuary_name: "埃泰里亚圣所",
         instruction_stage_1: "<b>操作方法：</b> 点击（敲击）、右击（弹指）、拖拽（摩擦）、滚轮（滚动）来弹奏。也支持数字键（1, 2, 3）。",
+        instruction_mixing: "<b>操作方法：</b> 按住鼠标画圈拖动以搅拌调合。",
         instruction_stage_2: "<b>操作方法：</b> 点击（轻敲）、双击（重击）、滚轮（吹风）以进行各种互动。（支持空格键）",
         instruction_stage_3: "<b>操作方法：</b> 滚动滚轮、右击、双击以控制机械音。也支持键盘（A~Z）输入。",
         instruction_stage_4: "<b>操作方法：</b> 滚动滚轮（创建暖流）、双击（大气泡）、右击以控制深海之声。（支持 Q, W, E 键）",
         instruction_stage_5: "<b>操作方法：</b> 右击、双击、滚动滚轮，以及方向键（上下左右）来弹奏古雅之音。",
-        instruction_default: "自由尝试点击、右击、双击、滚动或拖拽。"
+        instruction_default: "自由尝试点击、右击、双击、滚动或拖拽。",
+        tab_inventory: "储物库",
+        stress_none: "无特殊症状",
+        stress_normal: "日常压力",
+        stress_mild_dep: "轻度倦怠",
+        stress_severe_dep: "重度抑郁",
+        stress_ptsd: "PTSD",
+        inventory_title: "道具储物柜",
+        inventory_empty: "储物柜目前是空的。",
+        item_use_confirm: "确定要使用该道具吗？",
+        btn_use: "使用",
+        btn_later: "稍后",
+        item_potion_small: "微型治愈药水",
+        item_desc_small: "30秒内所有收益提升1.2倍。",
+        item_potion_medium: "普通治愈药水",
+        item_desc_medium: "60秒内所有收益提升1.5倍。",
+        item_potion_large: "强效治愈药水",
+        item_desc_large: "120秒内所有收益提升2倍。",
+        item_potion_special: "奇迹精华液",
+        item_desc_special: "300秒内所有收益提升5倍。",
+        item_money_bag: "沉甸甸的钱袋",
+        item_desc_money: "180秒内精华收益提升3倍。",
+        item_promo_bell: "宣传灵铃",
+        item_desc_promo: "300秒内重度症状客人来访概率提高。",
+        item_coin_small: "幸运小硬币",
+        item_desc_coin_small: "60秒内精华收益提升1.5倍。",
+        item_silver_pouch: "银币福袋",
+        item_desc_silver_pouch: "120秒内精华收益提升2倍。",
+        item_flower_perfume: "百花香水",
+        item_desc_flower_perfume: "180秒内治愈速度与总量翻倍。",
+        buff_applied: "[{itemName}] 增益已生效！",
+        instruction_stage_6: "<b>操作方法：</b> 点击或拖拽天界圣物与神圣光波以洗涤治愈心灵。",
+        symptom_none_name: "轻度疲劳与日常压力",
+        symptom_none_desc: "因日常疲惫与紧绷感而感到头脑昏沉。",
+        symptom_none_sound: "清脆敲击音与温和触觉ASMR (水晶、木块、沙子、羽毛笔、竖琴等)",
+        symptom_normal_name: "失眠与慢性睡眠不足",
+        symptom_normal_desc: "杂念纷扰与焦虑导致连日无法进入深层睡眠。",
+        symptom_normal_sound: "温暖雨声、八音盒旋律、颂钵、草丛虫鸣白噪音等",
+        symptom_mild_dep_name: "职业倦怠与身心无力",
+        symptom_mild_dep_desc: "热情与精力被掏空，陷入了深深的无力与倦怠感。",
+        symptom_mild_dep_sound: "注入温暖与活力的药水、篝火、山间溪流、午后茶杯等",
+        symptom_severe_dep_name: "重度抑郁与内心苦痛",
+        symptom_severe_dep_desc: "心灵以太受创，正承受着极度的悲伤与孤立无援感。",
+        symptom_severe_dep_sound: "洗涤灵魂的宇宙风铃、林间鸟鸣、水晶吊灯、天界合唱等",
+        symptom_ptsd_name: "创伤后应激综合征 (PTSD)",
+        symptom_ptsd_desc: "因过去的创伤复发，正忍受着极度恐慌与心悸不安。",
+        symptom_ptsd_sound: "带来深度放松与安全感的颂钵、水晶净化、天界圣所音等",
+        diagnosis_title: "🩺 诊断症状：",
+        rx_hint_label: "推荐定制疗方",
+        rx_modal_instruction: "📍 请在 <strong>{stage}号店 ({branch})</strong> 中选择疗愈区域。",
+        rx_bonus_desc: "✨ 选择匹配的定制疗方可获得1.5倍加速与完治丰厚加成！",
+        rx_match_badge: "✨ 最佳对症",
+        rx_speed_boost: "治愈加速 1.5倍",
+        rx_speed_normal: "常规治愈",
+        rx_active_optimal: "✨ 定制对症处方生效中 (1.5倍加速)",
+        rx_active_standard: "常规疗愈进行中",
+        rx_toast_optimal: "✨ [精准对症] 正好切合 {name} 的症状需求！(治愈速度 +50%)",
+        modal_healing_complete_title: "🌸 治愈完成！",
+        healing_recovered_msg: "{name} 重新寻获了内心的宁静。",
+        label_guest_satisfaction: "✨ 访客满意度",
+        satisfaction_optimal_badge: "💖 对症疗方极度满意！",
+        satisfaction_standard_badge: "🌿 常规治愈完毕",
+        optimal_comment_none: "“正是我期盼的清脆爽朗之音，脑海中的疲惫与头痛一扫而空！”",
+        optimal_comment_normal: "“温暖惬意的白噪音终于让我连日来第一次能安心睡个好觉。”",
+        optimal_comment_mild_dep: "“聆听着这般温暖有活力的声音，心中再度涌起了生机与暖意！”",
+        optimal_comment_severe_dep: "“神圣旋律轻柔地包裹住我的灵魂，抚平了潜藏已久的深切悲伤。”",
+        optimal_comment_ptsd: "“原本忐忑恐慌的心境彻底重获平静，这里是真正的灵魂庇护所。”",
+        optimal_comment_fallback: "“多亏了这处精准对症的ASMR角落，让我得到了莫大的慰藉！”",
+        standard_comment: "“身心轻松了许多。针对我的症状({symptom})，也许{sound}会带来更惊艳的效果呢！”",
+        bonus_note_optimal: "✨ 对症处方生效：完治奖励 +30% 且提升稀有谢礼掉落率！",
+        bonus_note_standard: "💡 提示：选择符合症状的对症区域，可使满意度与总收益额外提升30%。",
+        label_healing_essence: "治愈精华",
+        label_healing_xp: "研究经验值",
+        tag_rush_bonus: "🌅 高峰 +20%",
+        tag_optimal_bonus: "💖 对症加成 +30%",
+        base_essence_note: "基础治愈精华",
+        base_xp_note: "基础研究经验",
+        bonus_included_note: "(含 {tags})",
+        special_gift_name: "特别答谢礼品",
+        special_gift_subnote: "谢礼",
+        btn_claim_healing_reward: "领取谢礼与报酬",
+        item_acquired_notif: "🎁 获得 [{itemName}]！",
+        review_stage_collection: "{stage}号店图鉴收集",
+        review_anonymous_visitor: "匿名访客",
+        reward_modal_title: "🎉 {stage}号店图鉴圆满达成！",
+        reward_modal_subtitle: "已成功收集来自 {branch} 的所有声音好评。",
+        reward_modal_tip: "访客们珍贵的感言给治愈温室带来了巨大的生命力。",
+        reward_essence_label: "精华",
+        reward_unit_count: "+{count}个",
+        review_reward_toast: "🎁 [{stage}号店图鉴奖励] 精华 +{essence} & 奇迹药水 +{potions}个！",
+        review_reward_notif: "图鉴完成奖励到账！精华 +{essence} / 奇迹药水 +{potions}",
+        rush_start_toast: "🌅 [傍晚客流高峰开始！] 傍晚6点，灵体客人们蜂拥而至！(持续15分钟 / 治愈加成 +20%)",
+        rush_start_notif: "🌅 [傍晚客流高峰] 傍晚6点整高峰期开启！等候队列扩至6人，治愈收益提升(+20%)。",
+        rush_end_toast: "🌙 [傍晚高峰结束] 今天的客流高峰已顺利落幕。",
+        rush_end_notif: "🌙 [傍晚高峰结束] 傍晚6点15分，今日高峰期圆满结束。辛苦了！",
+        interaction_mode_title: "交互操作模式",
+        interaction_mode_direct: "手动交互 (点击/拖动赚取收益)",
+        interaction_mode_auto: "自动播放 (连续倾听专用，无收益)",
+        auto_sound_on: "🔊 开启声音",
+        auto_sound_off: "⏸️ 关闭声音",
+        auto_play_toggle: "🔊 开启声音",
+        btn_cancel: "取消",
+        levelup_title: "等级提升！",
+        skip_screen: "跳过画面",
+        game_subtitle: "埃泰里亚：月光声音温室",
+        secret_shop_title: "1小时限时神秘宝物店",
+        secret_shop_timer: "⏱️ 补货倒计时: {mins}分{secs}秒",
+        secret_shop_sold_out: "已售罄 (COMPLETED)",
+        secret_shop_limited: "[限时特惠]",
+        secret_shop_elixir_name: "星光精华灵药",
+        secret_shop_elixir_desc: "30分钟内精华收益翻倍！",
+        secret_shop_scroll_name: "精灵祝福卷轴",
+        secret_shop_scroll_desc: "30分钟内治愈速度翻倍！",
+        secret_shop_script_name: "远古高潮感羊皮纸",
+        secret_shop_script_desc: "1小时内经验值(XP)收益翻3倍！",
+        secret_shop_tea_name: "月光舒缓花草茶",
+        secret_shop_tea_desc: "立即减少当前所有候诊客人的50点压力！",
+        secret_shop_crystal_name: "治愈彩虹水晶",
+        secret_shop_crystal_desc: "立即获得巨额精华礼包！",
+        tutorial_title: "📖 怎么玩 (工作室指南)",
+        tutorial_step1_text: "<b>1. 迎接客人</b><br>点击来访的疲惫客人，引导他们进入疗愈区域。红色量条代表客人的压力值。",
+        tutorial_step2_text: "<b>2. ASMR互动</b><br>点击或拖拽区域内的物件可提升<b>安定指数</b>，并使治愈速度翻倍！",
+        tutorial_step3_text: "<b>3. 成长与扩张</b><br>治愈后可获得精华(✨)与经验。升级设备以扩张至全新分店！",
+        tutorial_enter_btn: "✨ 立即进入工作室",
+        tutorial_prev: "◀ 上一步",
+        tutorial_next: "下一步 ▶"
     },
     fr: {
         start_button: "Entrer dans le Studio",
@@ -931,7 +1539,55 @@ const TRANSLATIONS = {
         tab_manage: "Gérer",
         tab_upgrade: "Améliorer",
         tab_stream: "Diffuser",
+        tab_reviews: "Avis",
         tab_settings: "Paramètres",
+        reviews_title: "Guide des avis sonores d'Aeternoia",
+        reviews_desc: "Guérissez les visiteurs et collectez leurs avis pour recevoir des récompenses spéciales.",
+        reviews_unknown: "??? (Terminez le soin pour débloquer l'avis)",
+        claim_reward: "Récupérer la récompense",
+        reward_claimed: "Déjà obtenu !",
+        review_crystal: "Les tapotements de cristal clair ont apaisé mon esprit. Un son si pur !",
+        review_potion: "Le doux tintement du verre et le mélange des potions sont si réconfortants.",
+        review_waterbowl: "Le clapotis de l'eau et les pétales de fleurs créent une ambiance magique.",
+        review_sand: "Le crissement du sable cinétique découpé a fait disparaître tout mon stress.",
+        review_chimes: "La résonance des carillons cosmiques a complètement purifié mes pensées.",
+        review_musicbox: "Le remontoir et la douce mélodie de la boîte à musique m'ont doucement endormi.",
+        review_rainwindow: "Endormi paisiblement au son des gouttes de pluie sur la vitre. Le meilleur bruit blanc !",
+        review_woodblock: "Le son rustique des blocs de bois qui s'entrechoquent apporte un calme surprenant.",
+        review_leaves: "Le doux froissement de feuilles mortes sous les pas était merveilleusement relaxant.",
+        review_campfire: "C'était comme rêvasser au coin d'un feu de camp crépitant. Parfait !",
+        review_singingbowl: "Le bourdonnement profond et continu du bol chantant a dissipé toute tension.",
+        review_birdsong: "Apaisé par les chants d'oiseaux matinaux, comme lors d'une promenade en forêt.",
+        review_stream: "Toutes mes pensées confuses ont été emportées par le murmure du ruisseau.",
+        review_crickets: "Le doux chant des grillons rappelant la forêt nocturne m'a apporté la paix.",
+        review_keyboard: "Le cliquetis rythmé du clavier mécanique est parfait pour la concentration.",
+        review_scissors: "Le doux bruit des ciseaux tranchants a fait frissonner mes oreilles de plaisir.",
+        review_makeup: "Le doux balayage des poils de pinceau m'a profondément détendu.",
+        review_slime: "Le malaxage doux et spongieux du slime procure des frissons ASMR incroyables !",
+        review_soap: "Le raclement précis du savon taillé en copeaux est totalement addictif.",
+        review_woodcarving: "Le rabotage délicat du bois sculpté a aiguisé ma concentration.",
+        review_icetype: "Le tintement rafraîchissant des glaçons a dissipé toute lourdeur.",
+        review_bubble: "L'éclatement des bulles sous l'eau était étonnamment captivant.",
+        review_whale: "Le chant mystique des baleines m'a donné l'impression de flotter dans les abysses.",
+        review_jellyfish: "Hypnotisé par les douces ondulations des méduses nageant avec grâce.",
+        review_sub: "Le vrombissement sourd du sous-marin m'a apporté une sérénité totale.",
+        review_coral: "Le frottement des courants marins contre les récifs de corail était délicieux.",
+        review_oxygentank: "La respiration rythmée du détendeur de plongée m'a incité à respirer calmement.",
+        review_caveecho: "Les échos caverneux de la grotte sous-marine ont enveloppé tous mes sens.",
+        review_quill: "Le grattement doux d'une plume sur le parchemin a calmé mon âme.",
+        review_parchment: "Tourner les pages d'un vieux grimoire magique était tellement enchanteur.",
+        review_teacup: "Le tintement clair de la tasse en porcelaine et de la cuillère en argent était si raffiné.",
+        review_royalchimes: "La résonance magistrale du grand lustre en cristal doré était magnifique.",
+        review_velvet: "Le froissement feutré des épais rideaux de velours était chaud et réconfortant.",
+        review_chess: "Le claquement franc des pièces d'échecs en marbre poli était très agréable.",
+        review_royalfire: "Le feu de cheminée du palais royal crépitait avec une profondeur chaleureuse.",
+        review_harp: "Le son de la harpe céleste a purifié mon âme tout entière.",
+        review_clouds: "Je n'aurais jamais imaginé que marcher sur des nuages cotonneux soit si doux.",
+        review_halo: "Le bruit blanc sacré émanant de l'auréole de l'ange est tout simplement merveilleux.",
+        review_gate: "Le grondement majestueux des portes célestes s'ouvrant m'a donné des frissons.",
+        review_choir: "Les douces harmonies a cappella des esprits célestes ont fait fondre toute mon anxiété.",
+        review_starlight: "Le tintement cristallin de la lumière d'étoiles tombant en cascade est tout simplement féerique.",
+        review_sanctuary: "Les ondes curatives de ce sanctuaire apportent une sérénité absolue et indescriptible.",
         visitor_title: "Esprits fatigués en attente",
         visitor_desc: "Guérissez les esprits directement pour obtenir d'immenses récompenses.",
         shop_title: "Boutique d'âmes (Améliorations & Automatisation)",
@@ -961,7 +1617,6 @@ const TRANSLATIONS = {
         upgrade_max: "Améliorer Max ⚡",
         auto_heal_button: "Auto-Guérison ⚡",
         auto_heal_active: "Guérison Auto... ⏸️",
-
         store_branch: "Studio Etheria",
         store_branch_1: "Atelier de Magie de Luna 🔮",
         store_branch_2: "Forêt Secrète Chuchotante 🍃",
@@ -971,13 +1626,11 @@ const TRANSLATIONS = {
         store_branch_6: "Sanctuaire Céleste Étoilé 🌌",
         store_selector_locked: "🔒 Succursale {stage} (Expansion requise)",
         rank_tag: "Gérant du Studio",
-
         prestige_title: "✨ Ouverture de la succursale {stage} ! ✨",
         prestige_desc1: "Tous les coins ont été déverrouillés ! Développez votre empire pour profiter d'un studio plus luxueux, de nouveaux coins ASMR et d'un **multiplicateur permanent de récompenses x5**.",
         prestige_desc2: "⚠️ Attention : L'essence, le niveau, l'XP et les cabines déverrouillées seront réinitialisés. (Les bonus persisteront)",
         prestige_req: "Requis : Essence {costE} / XP {costX}",
         prestige_button: "🚀 Développer la succursale {stage}",
-
         video_default_title: "[ASMR] 1 heure de détente - {room}",
         views_text: "Vues : <span class=\"video-stat-val\">{views}</span> (XP)",
         earnings_text: "Gains : <span class=\"video-stat-val\">✨{earnings}</span>",
@@ -985,7 +1638,6 @@ const TRANSLATIONS = {
         slots_exceeded: "Limite de téléversement dépassée. Montez de niveau pour débloquer plus de slots ! (Max actuel : {slots})",
         upload_complete: "🎥 Téléversement de la vidéo '{title}' terminé !",
         superchat_alert: "🎉 Super Chat reçu sur la vidéo [{title}] ! ✨{donation}",
-
         game_saved_manual: "La progression de la partie a été sauvegardée manuellement.",
         save_load_prestige: "Félicitations ! Vous avez développé la succursale Etheria {stage} ! 🎉 Les récompenses augmentent considérablement !",
         insufficient_resources: "Essence ou XP insuffisant.",
@@ -1005,7 +1657,6 @@ const TRANSLATIONS = {
         unlock_button: "Déverrouiller",
         level_required: "Niveau requis",
         treat_button: "Soigner directement",
-
         upgrade_wind_name: "Esprit de soin automatique",
         upgrade_wind_desc: "Génère automatiquement de l'essence chaque seconde",
         upgrade_incense_name: "Encens de tranquillité",
@@ -1014,11 +1665,9 @@ const TRANSLATIONS = {
         upgrade_mic_desc: "Gains d'essence +50%",
         upgrade_book_name: "Livre de Sagesse",
         upgrade_book_desc: "Gains d'XP +50%",
-
         diff_easy: "Facile",
         diff_medium: "Moyen",
         diff_hard: "Difficile",
-
         visitor_fairy: "Petite fée épuisée",
         visitor_squirrel: "Écureuil insomniaque",
         visitor_bear: "Ours en peluche stressé",
@@ -1034,7 +1683,9 @@ const TRANSLATIONS = {
         visitor_knight: "Chevalier du royaume déchu",
         visitor_queen: "Reine lasse",
         visitor_dragon: "Dragon spatial ayant perdu son éclat",
-
+        visitor_angel: "Ange déchu",
+        visitor_pegasus: "Pégase blessé",
+        visitor_god: "Créateur épuisé",
         room_crystal_name: "Cabine des tapotements de cristal",
         room_potion_name: "Cabine des potions et fioles",
         room_waterbowl_name: "Fleurs et eau clapotante",
@@ -1070,13 +1721,145 @@ const TRANSLATIONS = {
         room_velvet_name: "Rideau de velours",
         room_chess_name: "Claquement de pièces d'échecs",
         room_royalfire_name: "Cheminée royale",
-
+        room_harp_name: "Harpe Céleste",
+        room_clouds_name: "Promenade sur les Nuages",
+        room_halo_name: "Auréole d'Ange",
+        room_gate_name: "Porte du Paradis",
+        room_choir_name: "Chœur Céleste",
+        room_starlight_name: "Baptême d'Étoiles",
+        room_sanctuary_name: "Sanctuaire d'Etheria",
         instruction_stage_1: "<b>Commandes :</b> Clic (tapotement), clic droit (pichenette), glisser (frotter), molette (roulement). Les touches (1, 2, 3) sont aussi supportées.",
+        instruction_mixing: "<b>Commandes :</b> Maintenez le clic et décrivez des cercles pour mélanger.",
         instruction_stage_2: "<b>Commandes :</b> Clic (tapotements légers), double-clic (coup fort), molette (souffle de vent) pour interagir. (Touche Espace supportée)",
         instruction_stage_3: "<b>Commandes :</b> Utilisez la molette, le clic droit ou le double-clic pour contrôler les sons mécaniques. Les touches (A~Z) sont aussi supportées.",
         instruction_stage_4: "<b>Commandes :</b> Molette (générer des courants), double-clic (grosses bulles), clic droit pour contrôler les sons abyssaux. (Touches Q, W, E supportées)",
         instruction_stage_5: "<b>Commandes :</b> Clic droit, double-clic, molette et touches directionnelles (Haut, Bas, Gauche, Droite) pour produire des sons anciens.",
-        instruction_default: "N'hésitez pas à essayer les clics, clics droits, double-clics, roulements ou glissements."
+        instruction_default: "N'hésitez pas à essayer les clics, clics droits, double-clics, roulements ou glissements.",
+        tab_inventory: "Inventaire",
+        stress_none: "Aucun symptôme",
+        stress_normal: "Stress quotidien",
+        stress_mild_dep: "Épuisement léger",
+        stress_severe_dep: "Détresse sévère",
+        stress_ptsd: "PTSD",
+        inventory_title: "Inventaire d'objets",
+        inventory_empty: "L'inventaire est actuellement vide.",
+        item_use_confirm: "Voulez-vous vraiment utiliser cet objet ?",
+        btn_use: "Utiliser",
+        btn_later: "Plus tard",
+        item_potion_small: "Petite potion de soin",
+        item_desc_small: "Augmente tous les gains de 1,2x pendant 30s.",
+        item_potion_medium: "Potion de soin moyenne",
+        item_desc_medium: "Augmente tous les gains de 1,5x pendant 60s.",
+        item_potion_large: "Grande potion de soin",
+        item_desc_large: "Augmente tous les gains de 2x pendant 120s.",
+        item_potion_special: "Essence Miraculeuse",
+        item_desc_special: "Augmente tous les gains de 5x pendant 300s.",
+        item_money_bag: "Bourse bien remplie",
+        item_desc_money: "Triple les gains d'Essence pendant 180s.",
+        item_promo_bell: "Cloche de promotion",
+        item_desc_promo: "Augmente la fréquence des esprits sévèrement atteints pendant 300s.",
+        item_coin_small: "Petite pièce porte-bonheur",
+        item_desc_coin_small: "Augmente l'Essence de 1,5x pendant 60s.",
+        item_silver_pouch: "Bourse de pièces d'argent",
+        item_desc_silver_pouch: "Double l'Essence pendant 120s.",
+        item_flower_perfume: "Parfum Floral",
+        item_desc_flower_perfume: "Double la vitesse et l'effet de guérison pendant 180s.",
+        buff_applied: "Bonus [{itemName}] activé !",
+        instruction_stage_6: "<b>Commandes :</b> Cliquez ou glissez sur les instruments célestes et ondes sacrées pour apaiser l'âme.",
+        symptom_none_name: "Fatigue légère & Stress quotidien",
+        symptom_none_desc: "Tête lourde causée par la fatigue et la tension accumulée.",
+        symptom_none_sound: "Tapotements nets et ASMR tactile doux (Cristal, Bois, Sable, Plume, Harpe, etc.)",
+        symptom_normal_name: "Insomnie & Manque de sommeil chronique",
+        symptom_normal_desc: "Incapable de trouver un sommeil profond depuis des jours à cause de l'anxiété.",
+        symptom_normal_sound: "Pluie douce, mélodie de boîte à musique, bol chantant, bruit blanc de grillons",
+        symptom_mild_dep_name: "Burnout & Léthargie",
+        symptom_mild_dep_desc: "Vidée de toute énergie et motivation, sombrant dans une grande léthargie.",
+        symptom_mild_dep_sound: "Sons chaleureux et vivifiants : Potions, Feu de camp, Ruisseau, Tasse de thé, etc.",
+        symptom_severe_dep_name: "Dépression sévère & Douleur émotionnelle",
+        symptom_severe_dep_desc: "L'éther de l'âme est profondément blessé, éprouvant un grand chagrin et l'isolement.",
+        symptom_severe_dep_sound: "Sons purificateurs d'âme : Carillons cosmiques, Oiseaux, Lustre, Chœur céleste, etc.",
+        symptom_ptsd_name: "Stress post-traumatique (PTSD)",
+        symptom_ptsd_desc: "Hanté par d'anciens traumatismes, souffrant de panique et de palpitations.",
+        symptom_ptsd_sound: "Vibrations relaxantes profondes : Bol chantant, Cristal, Bruit sacré du Sanctuaire, etc.",
+        diagnosis_title: "🩺 Symptômes diagnostiqués :",
+        rx_hint_label: "Prescription recommandée",
+        rx_modal_instruction: "📍 Veuillez choisir un coin de soin de la <strong>Succursale {stage} ({branch})</strong>.",
+        rx_bonus_desc: "✨ Choisir le bon coin ASMR confère une vitesse x1,5 et des bonus !",
+        rx_match_badge: "✨ Prescription Idéale",
+        rx_speed_boost: "Vitesse boostée 1,5x",
+        rx_speed_normal: "Soin normal",
+        rx_active_optimal: "✨ Prescription active (Vitesse 1,5x)",
+        rx_active_standard: "Séance standard en cours",
+        rx_toast_optimal: "✨ [Prescription idéale] Coin ASMR parfait pour {name} ! (Vitesse de soin +50%)",
+        modal_healing_complete_title: "🌸 Guérison Réussie !",
+        healing_recovered_msg: "{name} a retrouvé la paix et la sérénité.",
+        label_guest_satisfaction: "✨ Satisfaction du visiteur",
+        satisfaction_optimal_badge: "💖 Grande satisfaction (Prescription optimale) !",
+        satisfaction_standard_badge: "🌿 Guérison standard terminée",
+        optimal_comment_none: "« Le son si net et rafraîchissant a chassé tous mes maux de tête et ma fatigue mentale ! »",
+        optimal_comment_normal: "« Ce doux bruit blanc chaleureux m'a enfin permis de me reposer après des nuits sans sommeil. »",
+        optimal_comment_mild_dep: "« Ces sons vivifiants et réconfortants ont ravivé l'étincelle et la chaleur dans mon cœur ! »",
+        optimal_comment_severe_dep: "« Ces mélodies sacrées enveloppant mon âme ont apaisé mon chagrin le plus profond. »",
+        optimal_comment_ptsd: "« Mon esprit autrefois tourmenté a retrouvé une paix totale. Un véritable havre pour l'âme. »",
+        optimal_comment_fallback: "« Ce coin ASMR parfaitement adapté m'a apporté un immense réconfort ! »",
+        standard_comment: "« Je me sens plus serein. Pour mon cas ({symptom}), peut-être que {sound} aurait été encore plus adapté ! »",
+        bonus_note_optimal: "✨ Prescription optimale : Bonus de soin +30% et chance de cadeau rare !",
+        bonus_note_standard: "💡 Astuce : Choisir le coin adapté à la prescription augmente la satisfaction et les gains de 30%.",
+        label_healing_essence: "Essence de soin",
+        label_healing_xp: "XP de recherche",
+        tag_rush_bonus: "🌅 Rush +20%",
+        tag_optimal_bonus: "💖 Rx Optimale +30%",
+        base_essence_note: "Essence de base",
+        base_xp_note: "XP de base",
+        bonus_included_note: "(Inclut {tags})",
+        special_gift_name: "Cadeau de remerciement spécial",
+        special_gift_subnote: "Cadeau",
+        btn_claim_healing_reward: "Recevoir les récompenses",
+        item_acquired_notif: "🎁 [{itemName}] obtenu !",
+        review_stage_collection: "Collection Succursale {stage}",
+        review_anonymous_visitor: "Visiteur anonyme",
+        reward_modal_title: "🎉 Collection Succursale {stage} terminée !",
+        reward_modal_subtitle: "Tous les avis ASMR de {branch} ont été collectés avec succès.",
+        reward_modal_tip: "Les précieux avis de nos visiteurs ont apporté une immense vitalité au conservatoire.",
+        reward_essence_label: "Essence",
+        reward_unit_count: "+{count}",
+        review_reward_toast: "🎁 [Récompense Succursale {stage}] Essence +{essence} & Potion spéciale +{potions} !",
+        review_reward_notif: "Récompense de collection obtenue ! Essence +{essence} / Potion spéciale +{potions}",
+        rush_start_toast: "🌅 [Début du Rush du Soir !] 18h00 : Une foule d'esprits arrive ! (15 min / Bonus de soin +20%)",
+        rush_start_notif: "🌅 [Rush du Soir] Le pic de 18h commence ! File d'attente à 6 et bonus de soin (+20%).",
+        rush_end_toast: "🌙 [Fin du Rush du Soir] L'heure de pointe d'aujourd'hui est terminée.",
+        rush_end_notif: "🌙 [Fin du Rush du Soir] 18h15, le pic d'aujourd'hui est terminé. Bravo !",
+        interaction_mode_title: "Mode d'interaction",
+        interaction_mode_direct: "Mode Direct (Cliquer/glisser pour gagner)",
+        interaction_mode_auto: "Lecture Auto (Écoute continue, sans gain)",
+        auto_sound_on: "🔊 Activer le son",
+        auto_sound_off: "⏸️ Couper le son",
+        auto_play_toggle: "🔊 Activer le son",
+        btn_cancel: "Annuler",
+        levelup_title: "Niveau supérieur !",
+        skip_screen: "Passer l'écran",
+        game_subtitle: "Aeternoia : Serre Sonore au Clair de Lune",
+        secret_shop_title: "Boutique secrète d'une heure",
+        secret_shop_timer: "⏱️ Réapprovisionnement: {mins}m {secs}s",
+        secret_shop_sold_out: "Épuisé (COMPLETED)",
+        secret_shop_limited: "[Offre limitée]",
+        secret_shop_elixir_name: "Élixir d'Essence Étoilée",
+        secret_shop_elixir_desc: "Double les gains d'essence pendant 30 minutes !",
+        secret_shop_scroll_name: "Parchemin de Bénédiction d'Esprit",
+        secret_shop_scroll_desc: "Double la vitesse de guérison pendant 30 minutes !",
+        secret_shop_script_name: "Parchemin Ancien de Frisson",
+        secret_shop_script_desc: "Triple les gains d'XP pendant 1 heure !",
+        secret_shop_tea_name: "Thé relaxant au clair de lune",
+        secret_shop_tea_desc: "Apaise immédiatement de -50 le stress de tous les invités en attente !",
+        secret_shop_crystal_name: "Cristal de Guérison Arc-en-ciel",
+        secret_shop_crystal_desc: "Octroie instantanément une énorme quantité d'essence !",
+        tutorial_title: "📖 Comment Jouer (Guide du Studio)",
+        tutorial_step1_text: "<b>1. Accueillir les invités</b><br>Cliquez sur les visiteurs fatigués pour les guider. La barre rouge indique le stress.",
+        tutorial_step2_text: "<b>2. Interaction ASMR</b><br>Cliquez ou glissez pour augmenter l'<b>Indice de stabilité</b> et doubler la vitesse de soin !",
+        tutorial_step3_text: "<b>3. Croissance & Expansion</b><br>Recevez de l'Essence (✨) et de l'XP. Améliorez le studio et ouvrez de nouvelles succursales !",
+        tutorial_enter_btn: "✨ Entrer dans le Studio",
+        tutorial_prev: "◀ Précédent",
+        tutorial_next: "Suivant ▶"
     }
 };
 
@@ -1104,6 +1887,11 @@ function applyLanguage() {
 
     updateStoreSelector();
     applyStageVisuals();
+    renderRoomList();
+    renderVisitors();
+    renderUpgrades();
+    renderInventory();
+    renderReviewsPanel();
 
     const openPanel = document.querySelector('.panel-container.open');
     if (openPanel) {
@@ -1111,8 +1899,10 @@ function applyLanguage() {
         if (activeTab) {
             const tid = activeTab.dataset.tab;
             if (tid === 'manage') renderVisitors();
+            if (tid === 'inventory') renderInventory();
             if (tid === 'upgrade') renderUpgrades();
             if (tid === 'stream') renderStreamPanel();
+            if (tid === 'reviews') renderReviewsPanel();
         }
     }
 
@@ -1122,10 +1912,11 @@ function applyLanguage() {
         const roomNameEl = document.getElementById('recording-room-name');
         if (roomNameEl) {
             const room = ROOMS.find(r => r.id === state.currentTool);
-            roomNameEl.textContent = t(`room_${room.id}_name`);
+            if (room) roomNameEl.textContent = t(`room_${room.id}_name`);
         }
     }
 
+    handleInteractionModeChange();
     updateUI();
 }
 
@@ -2333,6 +3124,7 @@ function getToolInstruction(roomId) {
     if (room.stage === 3) return t('instruction_stage_4'); // Swapped Deep Sea
     if (room.stage === 4) return t('instruction_stage_3'); // Swapped Machine
     if (room.stage === 5) return t('instruction_stage_5');
+    if (room.stage === 6) return t('instruction_stage_6');
     return t('instruction_default');
 }
 
@@ -2788,7 +3580,7 @@ function processHealing(amount) {
             }
         }
 
-        const rx = PRESCRIPTION_GUIDE[(target.stressEffect && target.stressEffect.id) || 'none'] || PRESCRIPTION_GUIDE['none'];
+        const rx = getRxInfo((target.stressEffect && target.stressEffect.id) || 'none');
         let droppedItem = null;
         if (target.stressEffect && target.stressEffect.id !== 'none') {
             let roll = Math.random();
@@ -2812,7 +3604,7 @@ function processHealing(amount) {
                 state.inventory[itemId]++;
                 droppedItem = INVENTORY_ITEMS[itemId];
                 const itemName = t(droppedItem.nameKey);
-                addNotification(`🎁 [${itemName}] 획득!`, 'system');
+                addNotification(t('item_acquired_notif', { itemName }), 'system');
             }
         }
 
@@ -3106,7 +3898,7 @@ function handleInteractionModeChange() {
         if (state.currentTool && state.settings.interactionMode === 'auto') {
             autoPlayBtn.style.display = 'block';
             autoPlayBtn.classList.remove('hidden');
-            autoPlayBtn.innerHTML = '🔊 소리 켜기';
+            autoPlayBtn.innerHTML = t('auto_sound_on');
         } else {
             autoPlayBtn.style.display = 'none';
         }
@@ -3122,7 +3914,7 @@ function toggleAutoPlay() {
             autoInteractionInterval = null;
         }
         isAutoPlaying = false;
-        if (autoPlayBtn) autoPlayBtn.innerHTML = '🔊 소리 켜기';
+        if (autoPlayBtn) autoPlayBtn.innerHTML = t('auto_sound_on');
     } else {
         // Start
         if (state.currentTool && state.settings.interactionMode === 'auto') {
@@ -3138,7 +3930,7 @@ function toggleAutoPlay() {
             }, intervalTime);
 
             isAutoPlaying = true;
-            if (autoPlayBtn) autoPlayBtn.innerHTML = '⏸️ 소리 끄기';
+            if (autoPlayBtn) autoPlayBtn.innerHTML = t('auto_sound_off');
         }
     }
 }
@@ -3370,8 +4162,8 @@ function startEveningRush() {
         console.warn(e);
     }
 
-    showToast('🌅 [저녁 러시 시작!] 저녁 6시, 정령 손님들이 한꺼번에 찾아옵니다! (15분간 진행 / 치유 보너스 +20%)');
-    addNotification('🌅 [저녁 러시] 저녁 6시 정각 피크타임 시작! 대기열이 6명으로 확장되고 치유 보너스(+20%)가 적용됩니다.', 'event');
+    showToast(t('rush_start_toast'));
+    addNotification(t('rush_start_notif'), 'event');
 
     // 18:00 정각 즉시 손님 1명 대기열 추가 (치유 압박 완화)
     if (state.visitors.length < 6) {
@@ -3390,8 +4182,8 @@ function endEveningRush() {
         console.warn(e);
     }
 
-    showToast('🌙 [저녁 러시 종료] 오늘의 피크타임이 무사히 마무리되었습니다.');
-    addNotification('🌙 [저녁 러시 종료] 저녁 6시 15분, 오늘의 피크타임이 종료되었습니다. 수고하셨습니다!', 'event');
+    showToast(t('rush_end_toast'));
+    addNotification(t('rush_end_notif'), 'event');
 
     updateGameClockDisplay();
 }
@@ -3595,7 +4387,7 @@ function renderReviewsPanel() {
         html += `
             <div class="review-stage-section">
                 <div class="review-stage-title">
-                    <span>${s}호점 컬렉션</span>
+                    <span>${t('review_stage_collection', { stage: s })}</span>
                     <span style="font-size: 0.9rem;">${collectedRooms.length} / ${stageRooms.length}</span>
                 </div>
                 <div class="review-grid">
@@ -3608,7 +4400,7 @@ function renderReviewsPanel() {
                     <div class="review-card">
                         <div class="review-avatar">👤</div>
                         <div class="review-content">
-                            <div class="review-author">익명의 방문객</div>
+                            <div class="review-author">${t('review_anonymous_visitor')}</div>
                             <div class="review-text">"${t('review_' + room.id)}"</div>
                         </div>
                         <div class="review-room-icon">${room.icon}</div>
@@ -3635,7 +4427,7 @@ function renderReviewsPanel() {
                 html += `
                     <div class="claim-reward-container">
                         <button class="reward-btn" onclick="claimReviewReward(${s})">
-                            🎁 ${t('claim_reward')} (Stage ${s})
+                            🎁 ${t('claim_reward')} (${t('store_branch', { stage: s })})
                         </button>
                     </div>
                 `;
@@ -3664,7 +4456,7 @@ function claimReviewReward(stage) {
     gainEssence(essenceReward);
     state.claimedReviewRewards.push(stage);
 
-    addNotification(`도감 완성 보상 획득! 에센스 +${essenceReward.toLocaleString()} / 특수 물약 +${potionCount}`, 'system');
+    addNotification(t('review_reward_notif', { essence: essenceReward.toLocaleString(), potions: potionCount }), 'system');
     playChime(880);
     setTimeout(() => playChime(1100), 200);
 
@@ -3682,22 +4474,22 @@ function showReviewRewardCelebration(stage, essence, potions) {
     const subtitle = document.getElementById('reward-modal-subtitle');
     const itemsContainer = document.getElementById('reward-modal-items');
 
-    if (title) title.textContent = `🎉 ${stage}호점 도감 컬렉션 달성!`;
-    if (subtitle) subtitle.textContent = `${t('store_branch', { stage })}의 모든 소리 후기를 성공적으로 수집했습니다.`;
+    if (title) title.textContent = t('reward_modal_title', { stage });
+    if (subtitle) subtitle.textContent = t('reward_modal_subtitle', { branch: t('store_branch', { stage }) });
     if (itemsContainer) {
         itemsContainer.innerHTML = `
             <div class="reward-item-pill">
                 <span class="pill-icon">✨</span>
                 <div class="pill-details">
-                    <span class="pill-title">정수 (에센스)</span>
+                    <span class="pill-title">${t('reward_essence_label')}</span>
                     <span class="pill-amount">+${Math.floor(essence).toLocaleString()}</span>
                 </div>
             </div>
             <div class="reward-item-pill">
                 <span class="pill-icon">🧪</span>
                 <div class="pill-details">
-                    <span class="pill-title">기적의 에센스 (특수 물약)</span>
-                    <span class="pill-amount">+${potions}개</span>
+                    <span class="pill-title">${t('item_potion_special')}</span>
+                    <span class="pill-amount">${t('reward_unit_count', { count: potions })}</span>
                 </div>
             </div>
         `;
@@ -3705,7 +4497,7 @@ function showReviewRewardCelebration(stage, essence, potions) {
 
     if (modal) modal.classList.remove('hidden');
 
-    showToast(`🎁 [${stage}호점 도감 보상] 에센스 +${Math.floor(essence).toLocaleString()} & 특수 물약 +${potions}개 획득!`);
+    showToast(t('review_reward_toast', { stage, essence: Math.floor(essence).toLocaleString(), potions }));
 
     if (rewardModalTimer) clearTimeout(rewardModalTimer);
     rewardModalTimer = setTimeout(() => {
@@ -3742,7 +4534,10 @@ window.showHealingCompleteModal = function(target, totalEssence, totalXp, droppe
 
     if (avatarEl) avatarEl.textContent = target.avatar || '🧚';
     const visitorName = getVisitorName(target);
-    if (subtitleEl) subtitleEl.textContent = `${visitorName} 님이 평온한 마음을 되찾았습니다.`;
+    if (titleEl) titleEl.textContent = t('modal_healing_complete_title');
+    if (subtitleEl) subtitleEl.textContent = t('healing_recovered_msg', { name: visitorName });
+
+    const effectId = (target.stressEffect && target.stressEffect.id) || 'none';
 
     // 만족도 및 코멘트 세팅
     if (isOptimal) {
@@ -3750,45 +4545,39 @@ window.showHealingCompleteModal = function(target, totalEssence, totalXp, droppe
         if (starsEl) starsEl.textContent = '⭐⭐⭐⭐⭐ (5.0)';
         if (badgeEl) {
             badgeEl.className = 'satisfaction-badge optimal';
-            badgeEl.textContent = '💖 맞춤 처방 대만족!';
+            badgeEl.textContent = t('satisfaction_optimal_badge');
         }
 
-        const effectId = (target.stressEffect && target.stressEffect.id) || 'none';
-        const optimalComments = {
-            'none': `"딱 원하던 맑고 경쾌한 소리 덕분에 머릿속의 피로와 두통이 씻은 듯이 사라졌어요!"`,
-            'normal': `"포근하고 아늑한 백색소음 덕분에 며칠 만에 마음 편히 푹 쉴 수 있게 되었습니다."`,
-            'mild_dep': `"따스하고 활력 넘치는 소리를 들으니 마음속에 다시 온기와 생기가 솟아나요!"`,
-            'severe_dep': `"영혼을 맑게 감싸주는 성스러운 선율 덕분에 깊었던 슬픔이 치유되었습니다."`,
-            'ptsd': `"불안하게 요동치던 마음이 온전한 평온을 찾았어요. 진정한 영혼의 안식처입니다."`
-        };
-        if (commentEl) commentEl.textContent = optimalComments[effectId] || `"증상에 딱 맞는 ASMR 코너 덕분에 큰 위로를 받았습니다!"`;
-        if (bonusNoteEl) bonusNoteEl.textContent = '✨ 맞춤 처방 효과: 완치 보너스 +30% & 희귀 답례품 기회 적용!';
+        const optKey = `optimal_comment_${effectId}`;
+        const comment = t(optKey) !== optKey ? t(optKey) : t('optimal_comment_fallback');
+        if (commentEl) commentEl.textContent = comment;
+        if (bonusNoteEl) bonusNoteEl.textContent = t('bonus_note_optimal');
     } else {
         if (cardEl) cardEl.className = 'satisfaction-card standard';
         if (starsEl) starsEl.textContent = '⭐⭐⭐☆☆ (3.0)';
         if (badgeEl) {
             badgeEl.className = 'satisfaction-badge standard';
-            badgeEl.textContent = '🌿 일반 치유 완료';
+            badgeEl.textContent = t('satisfaction_standard_badge');
         }
-        if (commentEl) commentEl.textContent = `"몸과 마음이 편안해졌습니다. 제 증상(${rx.name})에는 ${rx.rxSoundDesc}가 더 잘 맞았을지도 몰라요!"`;
-        if (bonusNoteEl) bonusNoteEl.textContent = '💡 팁: 증상에 맞는 맞춤 처방 코너를 선택하시면 만족도와 보상이 30% 증가합니다.';
+        if (commentEl) commentEl.textContent = t('standard_comment', { symptom: rx.name, sound: rx.rxSoundDesc });
+        if (bonusNoteEl) bonusNoteEl.textContent = t('bonus_note_standard');
     }
 
     // 보상 표시
     if (essenceEl) essenceEl.textContent = `+${Math.floor(totalEssence).toLocaleString()}`;
     let bonusTags = [];
-    if (state.isEveningRush) bonusTags.push('🌅 러시 +20%');
-    if (isOptimal) bonusTags.push('💖 맞춤처방 +30%');
-    if (essenceSubEl) essenceSubEl.textContent = bonusTags.length > 0 ? `(${bonusTags.join(' / ')} 포함)` : '기본 치유 정수';
+    if (state.isEveningRush) bonusTags.push(t('tag_rush_bonus'));
+    if (isOptimal) bonusTags.push(t('tag_optimal_bonus'));
+    if (essenceSubEl) essenceSubEl.textContent = bonusTags.length > 0 ? t('bonus_included_note', { tags: bonusTags.join(' / ') }) : t('base_essence_note');
 
     if (xpEl) xpEl.textContent = `+${Math.floor(totalXp).toLocaleString()}`;
-    if (xpSubEl) xpSubEl.textContent = bonusTags.length > 0 ? `(${bonusTags.join(' / ')} 포함)` : '기본 연구 경험치';
+    if (xpSubEl) xpSubEl.textContent = bonusTags.length > 0 ? t('bonus_included_note', { tags: bonusTags.join(' / ') }) : t('base_xp_note');
 
     // 아이템 드롭 표시
     if (droppedItem && itemRow) {
         itemRow.classList.remove('hidden');
         if (itemIcon) itemIcon.textContent = droppedItem.icon || '🎁';
-        if (itemName) itemName.textContent = t(droppedItem.nameKey) || '특별 답례 선물';
+        if (itemName) itemName.textContent = t(droppedItem.nameKey) || t('special_gift_name');
     } else if (itemRow) {
         itemRow.classList.add('hidden');
     }
@@ -3958,7 +4747,7 @@ function startDirectHealing(id) {
     }
 
     const effectId = (v.stressEffect && v.stressEffect.id) || 'none';
-    const rx = PRESCRIPTION_GUIDE[effectId] || PRESCRIPTION_GUIDE['none'];
+    const rx = getRxInfo(effectId);
 
     const modal = document.getElementById('room-select-modal');
     const header = document.getElementById('room-select-modal-header');
@@ -3970,14 +4759,14 @@ function startDirectHealing(id) {
                 <div class="patient-avatar">${v.avatar}</div>
                 <div class="patient-details">
                     <h3>${getVisitorName(v)} <span class="difficulty-text">(${getVisitorDifficulty(v)})</span></h3>
-                    <div class="diagnosis-badge">🩺 진단 증상: <strong>${rx.name}</strong></div>
+                    <div class="diagnosis-badge">${t('diagnosis_title')} <strong>${rx.name}</strong></div>
                     <p class="diagnosis-desc">${rx.symptomDesc}</p>
-                    <div class="prescription-hint">💡 <strong>맞춤 처방 권장</strong>: ${rx.rxSoundDesc}</div>
+                    <div class="prescription-hint">💡 <strong>${t('rx_hint_label')}</strong>: ${rx.rxSoundDesc}</div>
                 </div>
             </div>
             <div class="room-select-instruction">
-                <span>📍 <strong>${state.stage}호점 (${t('store_branch', { stage: state.stage })})</strong> 치유 코너 중 선택해 주세요.</span>
-                <span class="rx-bonus-tag">✨ 맞춤 처방 코너 선택 시 치유 속도 1.5배 & 완치 보너스!</span>
+                <span>${t('rx_modal_instruction', { stage: state.stage, branch: t('store_branch', { stage: state.stage }) })}</span>
+                <span class="rx-bonus-tag">${t('rx_bonus_desc')}</span>
             </div>
         `;
     }
@@ -3993,10 +4782,10 @@ function startDirectHealing(id) {
         const isRxMatch = rx.recommendedRooms.includes(room.id);
         html += `
             <button class="upgrade-card ${isRxMatch ? 'rx-recommended' : ''}" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:15px; border:none;" onclick="selectRoomForHealing('${id}', '${room.id}')">
-                ${isRxMatch ? `<span class="rx-match-badge">✨ 맞춤 처방</span>` : ''}
+                ${isRxMatch ? `<span class="rx-match-badge">${t('rx_match_badge')}</span>` : ''}
                 <span style="font-size:2rem; margin-bottom:5px;">${room.icon}</span>
                 <span style="font-weight:bold; font-size:0.9rem;">${t('room_' + room.id + '_name')}</span>
-                <span style="font-size:0.7rem; color:${isRxMatch ? '#34d399' : '#888'}; margin-top:3px;">${isRxMatch ? '치유 가속 1.5배' : '일반 치유'}</span>
+                <span style="font-size:0.7rem; color:${isRxMatch ? '#34d399' : '#888'}; margin-top:3px;">${isRxMatch ? t('rx_speed_boost') : t('rx_speed_normal')}</span>
             </button>
         `;
     });
@@ -4015,7 +4804,7 @@ window.selectRoomForHealing = function (visitorId, roomId) {
     if (!v) return;
 
     const effectId = (v.stressEffect && v.stressEffect.id) || 'none';
-    const rx = PRESCRIPTION_GUIDE[effectId] || PRESCRIPTION_GUIDE['none'];
+    const rx = getRxInfo(effectId);
     const isOptimalRx = rx.recommendedRooms.includes(roomId);
 
     v.isOptimalRx = isOptimalRx;
@@ -4028,11 +4817,11 @@ window.selectRoomForHealing = function (visitorId, roomId) {
     const rxBadge = document.getElementById('healing-prescription-badge');
     if (rxBadge) {
         if (isOptimalRx) {
-            rxBadge.textContent = '✨ 맞춤 처방 적용 중 (가속 1.5배)';
+            rxBadge.textContent = t('rx_active_optimal');
             rxBadge.className = 'prescription-pill optimal';
-            showToast(`✨ [맞춤 처방] ${getVisitorName(v)}의 증상에 딱 맞는 코너입니다! (치유 속도 +50%)`);
+            showToast(t('rx_toast_optimal', { name: getVisitorName(v) }));
         } else {
-            rxBadge.textContent = '일반 처방 진행 중';
+            rxBadge.textContent = t('rx_active_standard');
             rxBadge.className = 'prescription-pill standard';
         }
     }
@@ -5011,7 +5800,8 @@ function checkSecretShopRotation() {
         const remMs = Math.max(0, state.secretShopResetTime - now);
         const mins = Math.floor(remMs / 60000);
         const secs = Math.floor((remMs % 60000) / 1000);
-        timerEl.textContent = `⏱️ 재고 교체까지: ${mins}분 ${secs < 10 ? '0' : ''}${secs}초`;
+        const formattedSecs = secs < 10 ? '0' + secs : secs;
+        timerEl.textContent = t('secret_shop_timer', { mins, secs: formattedSecs });
     }
 }
 
@@ -5022,22 +5812,24 @@ function renderSecretShop() {
     checkSecretShopRotation();
     
     if (!state.secretShopStock || state.secretShopStock.length === 0) {
-        container.innerHTML = '<div style="color:#aaa; font-size:0.85rem;">재고를 불러오는 중입니다...</div>';
+        container.innerHTML = '<div style="color:#aaa; font-size:0.85rem;">...</div>';
         return;
     }
     
     container.innerHTML = state.secretShopStock.map((item, idx) => {
         const isEssence = item.costType === 'essence';
         const costSymbol = isEssence ? '✨' : '⭐';
-        const currencyText = isEssence ? '에센스' : 'XP';
+        const currencyText = isEssence ? t('reward_essence_label') : 'XP';
+        const itemName = item.nameKey ? t(item.nameKey) : item.name;
+        const itemDesc = item.descKey ? t(item.descKey) : item.desc;
         
         let buyBtn = item.purchased
-            ? `<button class="primary-btn" disabled style="font-size: 0.8rem; padding: 6px 12px; background: gray;">품절 (COMPLETED)</button>`
+            ? `<button class="primary-btn" disabled style="font-size: 0.8rem; padding: 6px 12px; background: gray;">${t('secret_shop_sold_out')}</button>`
             : `<button class="primary-btn" onclick="buySecretShopItem(${idx})" style="font-size: 0.8rem; padding: 6px 12px; background: linear-gradient(135deg, #00ffcc, #00b894); color:#000; font-weight:bold;">${costSymbol} ${item.cost.toLocaleString()} ${currencyText}</button>`;
             
         return `
         <div class="upgrade-card" style="border: 1px solid rgba(0,255,204,0.3); background: rgba(0, 255, 204, 0.03);">
-            <div><strong>${item.icon} ${item.name}</strong> <span class="difficulty-text" style="color:#00ffcc;">[한정 특가]</span><br><div class="upgrade-desc">${item.desc}</div></div>
+            <div><strong>${item.icon} ${itemName}</strong> <span class="difficulty-text" style="color:#00ffcc;">${t('secret_shop_limited')}</span><br><div class="upgrade-desc">${itemDesc}</div></div>
             <div class="upgrade-actions" style="display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 130px;">
                 ${buyBtn}
             </div>

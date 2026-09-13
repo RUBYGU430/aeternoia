@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에테르노아 : 달빛 소리 온실 (Aeternoia)</title>
-    <link rel="stylesheet" href="style.css?v=28">
+    <link rel="stylesheet" href="style.css?v=29">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -38,7 +38,7 @@
         <section id="screen-start" class="screen active">
             <div class="title-container">
                 <h1 class="game-title">Aeternoia</h1>
-                <p class="game-subtitle">에테르노아 : 달빛 소리 온실</p>
+                <p class="game-subtitle" data-i18n="game_subtitle">에테르노아 : 달빛 소리 온실</p>
                 <button class="primary-btn glow-btn" onclick="startGame()" data-i18n="start_button">소리 온실 입장</button>
                 <button class="primary-btn glow-btn" onclick="showTutorial(event)" style="margin-top: 15px; background: rgba(255, 255, 255, 0.1);" data-i18n="tutorial_button">게임 방법</button>
             </div>
@@ -120,7 +120,7 @@
                     <!-- 1시간 주기 비밀 상점 섹션 -->
                     <div style="border-top: 1px dashed rgba(255,255,255,0.15); padding-top:15px; margin-top:15px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                            <h3 style="font-size:0.95rem; color:#00ffcc; display:flex; align-items:center; gap:6px;">⏰ 1시간 한정 비밀 보물상점</h3>
+                            <h3 style="font-size:0.95rem; color:#00ffcc; display:flex; align-items:center; gap:6px;" data-i18n="secret_shop_title">⏰ 1시간 한정 비밀 보물상점</h3>
                             <span id="secret-shop-timer" style="font-size:0.8rem; font-family:monospace; color:#ffd700; background:rgba(0,0,0,0.4); padding:4px 10px; border-radius:12px; border:1px solid rgba(255,215,0,0.3);">⏱️ 재고 교체: 계산 중...</span>
                         </div>
                         <div class="upgrade-grid" id="secret-shop-items"></div>
@@ -169,10 +169,10 @@
                             <input type="range" id="sfx-volume-slider" min="0" max="100" value="50" oninput="applySettings()" onchange="applySettings()" style="width:100%;">
                         </div>
                         <div class="upgrade-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
-                            <label for="interaction-mode"><strong>🖱️ 상호작용 모드</strong></label>
+                            <label for="interaction-mode"><strong data-i18n="interaction_mode_title">🖱️ 상호작용 모드</strong></label>
                             <select id="interaction-mode" onchange="applySettings()" class="custom-select" style="background:rgba(255,255,255,0.1); border:none; padding:5px; width:100%;">
-                                <option value="direct">직접 상호작용 (클릭/드래그 시 재화 획득)</option>
-                                <option value="auto">자동 재생 (반복 듣기 전용, 재화 획득 불가)</option>
+                                <option value="direct" data-i18n="interaction_mode_direct">직접 상호작용 (클릭/드래그 시 재화 획득)</option>
+                                <option value="auto" data-i18n="interaction_mode_auto">자동 재생 (반복 듣기 전용, 재화 획득 불가)</option>
                             </select>
                         </div>
                         <div class="upgrade-card" style="flex-direction:row; align-items:center; justify-content:space-between;">
@@ -297,32 +297,32 @@
         <!-- Tutorial Modal -->
     <div id="tutorial-modal" class="modal-overlay hidden" style="z-index: 10000;">
         <div class="modal-content glass" style="max-width: 520px; text-align: center; position: relative; border-radius: 30px; padding: 25px; border: 1.5px solid var(--accent-gold);">
-            <h2 style="margin-bottom: 15px; color: var(--accent-gold); font-size: 1.3rem;">📖 게임 방법 (스튜디오 가이드)</h2>
+            <h2 style="margin-bottom: 15px; color: var(--accent-gold); font-size: 1.3rem;" data-i18n="tutorial_title">📖 게임 방법 (스튜디오 가이드)</h2>
             
             <div id="tutorial-slide-1" class="tutorial-slide">
                 <img src="image/tutorial_step1.png" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);" alt="Step 1">
-                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;"><b>1. 손님 맞이</b><br>지친 손님이 찾아오면 클릭하여 원하는 치유 코너로 안내하세요. 붉은 바는 손님의 스트레스를 의미합니다.</p>
+                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;" data-i18n="tutorial_step1_text"><b>1. 손님 맞이</b><br>지친 손님이 찾아오면 클릭하여 원하는 치유 코너로 안내하세요. 붉은 바는 손님의 스트레스를 의미합니다.</p>
             </div>
             
             <div id="tutorial-slide-2" class="tutorial-slide hidden">
                 <img src="image/tutorial_step2.png" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);" alt="Step 2">
-                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;"><b>2. ASMR 상호작용</b><br>코너 안의 요소를 클릭하거나 문지르면 <b>안정지수</b>가 오르고 치유 속도가 2배 빨라집니다!</p>
+                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;" data-i18n="tutorial_step2_text"><b>2. ASMR 상호작용</b><br>코너 안의 요소를 클릭하거나 문지르면 <b>안정지수</b>가 오르고 치유 속도가 2배 빨라집니다!</p>
             </div>
             
             <div id="tutorial-slide-3" class="tutorial-slide hidden">
                 <img src="image/tutorial_step3.png" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.2);" alt="Step 3">
-                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;"><b>3. 성장과 확장</b><br>치유가 끝나면 에센스(✨)와 경험치를 받습니다. 돈을 모아 장비를 업그레이드하고 호점을 오픈하세요!</p>
-                <button class="primary-btn glow-btn" onclick="startFromTutorial(event)" style="margin-top: 15px; width: 100%; padding: 12px 20px; font-size: 1rem;">✨ 지금 바로 스튜디오 입장하기</button>
+                <p style="line-height: 1.6; font-size: 0.95rem; color: #e2e8f0;" data-i18n="tutorial_step3_text"><b>3. 성장과 확장</b><br>치유가 끝나면 에센스(✨)와 경험치를 받습니다. 돈을 모아 장비를 업그레이드하고 호점을 오픈하세요!</p>
+                <button class="primary-btn glow-btn" onclick="startFromTutorial(event)" style="margin-top: 15px; width: 100%; padding: 12px 20px; font-size: 1rem;" data-i18n="tutorial_enter_btn">✨ 지금 바로 스튜디오 입장하기</button>
             </div>
 
             <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <button class="secondary-btn" id="tutorial-prev" onclick="changeTutorialSlide(-1)" style="visibility: hidden; padding: 8px 18px;">◀ 이전</button>
+                <button class="secondary-btn" id="tutorial-prev" onclick="changeTutorialSlide(-1)" style="visibility: hidden; padding: 8px 18px;" data-i18n="tutorial_prev">◀ 이전</button>
                 <div id="tutorial-dots" style="display: flex; gap: 8px;">
                     <span class="dot active" style="width: 10px; height: 10px; border-radius: 50%; background-color: var(--accent-gold);"></span>
                     <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255,255,255,0.3);"></span>
                     <span class="dot" style="width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255,255,255,0.3);"></span>
                 </div>
-                <button class="primary-btn glow-btn" id="tutorial-next" onclick="changeTutorialSlide(1)" style="padding: 8px 18px;">다음 ▶</button>
+                <button class="primary-btn glow-btn" id="tutorial-next" onclick="changeTutorialSlide(1)" style="padding: 8px 18px;" data-i18n="tutorial_next">다음 ▶</button>
             </div>
             <button onclick="hideTutorial(event)" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
         </div>
@@ -341,7 +341,7 @@
                 <!-- 방 리스트 동적 생성 -->
             </div>
             <div class="modal-actions" style="margin-top: 15px;">
-                <button class="secondary-btn" onclick="closeRoomSelectModal()">취소</button>
+                <button class="secondary-btn" onclick="closeRoomSelectModal()" data-i18n="btn_cancel">취소</button>
             </div>
         </div>
     </div>
@@ -350,9 +350,9 @@
     <div id="levelup-overlay" class="hidden" onclick="this.classList.add('hidden')">
         <div class="levelup-content" onclick="event.stopPropagation(); document.getElementById('levelup-overlay').classList.add('hidden');">
             <div class="levelup-icon">🌟</div>
-            <div class="levelup-text">레벨 업!</div>
+            <div class="levelup-text" data-i18n="levelup_title">레벨 업!</div>
             <div id="levelup-level" class="levelup-level">LV.2</div>
-            <button onclick="document.getElementById('levelup-overlay').classList.add('hidden')" style="margin-top: 20px; display: block; width: 100%; background: transparent; border: none; color: #aaa; cursor: pointer; text-decoration: underline; font-size: 0.9rem;">화면 건너뛰기</button>
+            <button onclick="document.getElementById('levelup-overlay').classList.add('hidden')" style="margin-top: 20px; display: block; width: 100%; background: transparent; border: none; color: #aaa; cursor: pointer; text-decoration: underline; font-size: 0.9rem;" data-i18n="skip_screen">화면 건너뛰기</button>
         </div>
     </div>
 
@@ -389,8 +389,8 @@
             <div id="reward-modal-items" class="reward-items-showcase">
                 <!-- 동적 보상 아이템 -->
             </div>
-            <p class="reward-tip">방문객들의 소중한 후기가 온실에 큰 힘이 되었습니다.</p>
-            <button class="primary-btn glow-btn" onclick="closeRewardCelebrationModal()">보상 받기</button>
+            <p class="reward-tip" data-i18n="reward_modal_tip">방문객들의 소중한 후기가 온실에 큰 힘이 되었습니다.</p>
+            <button class="primary-btn glow-btn" onclick="closeRewardCelebrationModal()" data-i18n="claim_reward">보상 받기</button>
         </div>
     </div>
 
@@ -398,13 +398,13 @@
     <div id="healing-complete-modal" class="modal-overlay hidden" onclick="closeHealingCompleteModal()">
         <div class="healing-complete-box glass" onclick="event.stopPropagation()">
             <div class="healing-complete-avatar" id="healing-complete-avatar">🧚</div>
-            <h2 id="healing-complete-title" class="healing-complete-title">🌸 치유 완료!</h2>
+            <h2 id="healing-complete-title" class="healing-complete-title" data-i18n="modal_healing_complete_title">🌸 치유 완료!</h2>
             <p id="healing-complete-subtitle" class="healing-complete-subtitle">달빛 정령 손님이 평온한 마음을 되찾았습니다.</p>
 
             <!-- 손님 만족도 카드 -->
             <div id="healing-satisfaction-card" class="satisfaction-card optimal">
                 <div class="satisfaction-header">
-                    <span class="satisfaction-label">✨ 손님 만족도</span>
+                    <span class="satisfaction-label" data-i18n="label_guest_satisfaction">✨ 손님 만족도</span>
                     <div id="satisfaction-stars" class="satisfaction-stars">⭐⭐⭐⭐⭐</div>
                     <span id="satisfaction-badge" class="satisfaction-badge optimal">💖 맞춤 처방 대만족!</span>
                 </div>
@@ -417,7 +417,7 @@
                 <div class="healing-reward-row">
                     <span class="reward-icon">✨</span>
                     <div class="reward-meta">
-                        <span class="reward-name">치유 정수</span>
+                        <span class="reward-name" data-i18n="label_healing_essence">치유 정수</span>
                         <span id="healing-essence-subnote" class="reward-subnote"></span>
                     </div>
                     <span id="healing-reward-essence" class="reward-val">+0</span>
@@ -425,7 +425,7 @@
                 <div class="healing-reward-row">
                     <span class="reward-icon">🔮</span>
                     <div class="reward-meta">
-                        <span class="reward-name">연구 경험치</span>
+                        <span class="reward-name" data-i18n="label_healing_xp">연구 경험치</span>
                         <span id="healing-xp-subnote" class="reward-subnote"></span>
                     </div>
                     <span id="healing-reward-xp" class="reward-val">+0</span>
@@ -434,20 +434,20 @@
                     <span id="healing-reward-item-icon" class="reward-icon">🎁</span>
                     <div class="reward-meta">
                         <span id="healing-reward-item-name" class="reward-name">특별 답례 선물</span>
-                        <span class="reward-subnote" style="color:#38bdf8;">보답 선물</span>
+                        <span class="reward-subnote" style="color:#38bdf8;" data-i18n="special_gift_subnote">보답 선물</span>
                     </div>
                     <span class="reward-val highlight">+1개</span>
                 </div>
             </div>
 
-            <button class="primary-btn glow-btn" style="width:100%;" onclick="closeHealingCompleteModal()">소중한 보답 받기</button>
+            <button class="primary-btn glow-btn" style="width:100%;" onclick="closeHealingCompleteModal()" data-i18n="btn_claim_healing_reward">소중한 보답 받기</button>
         </div>
     </div>
 
     <div id="toast-container" class="toast-container"></div>
     <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
-    <script src="audio_base64.js?v=28"></script>
-    <script src="procedural_bgm.js?v=28"></script>
-    <script src="app.js?v=28"></script>
+    <script src="audio_base64.js?v=29"></script>
+    <script src="procedural_bgm.js?v=29"></script>
+    <script src="app.js?v=29"></script>
 </body>
 </html>
