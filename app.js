@@ -27,6 +27,9 @@ const state = {
 
     // 편의성 설정
     highestStage: 1,
+    unlockedAbilities: [],
+    sessionEarnedEssence: 0,
+    sessionEarnedXp: 0,
     settings: {
         bgmVolume: 50,
         sfxVolume: 50,
@@ -313,7 +316,7 @@ const TRANSLATIONS = {
         prestige_title: "✨ {stage}호점 확장 오픈! ✨",
         prestige_desc1: "모든 코너를 해금했습니다! 확장을 통해 더욱 고급스러운 스튜디오와 새로운 ASMR 코너들,<br><b>모든 보상 영구 x5배</b> 혜택을 누리세요.",
         prestige_desc2: "⚠️ 주의: 정수, 레벨, 경험치, 해금된 방이 모두 초기화됩니다. (버프 유지)",
-        prestige_req: "요구: 정수 {costE} / 경험치 {costX}",
+        prestige_req: "요구: 정수 {costE}",
         prestige_button: "🚀 {stage}호점으로 확장하기",
         video_default_title: "[ASMR] 편안한 {room} 1시간",
         views_text: "조회수: <span class=\"video-stat-val\">{views}</span> (XP)",
@@ -585,7 +588,37 @@ const TRANSLATIONS = {
         instruction_room_gate: "<b>조작 방법:</b> 천국의 문을 클릭하거나 드래그하여 장엄하게 열리는 천상의 메아리를 들어보세요.",
         instruction_room_choir: "<b>조작 방법:</b> 성소를 클릭하거나 드래그하여 천상 정령들이 부르는 은은한 아카펠라 합창을 이끌어보세요.",
         instruction_room_starlight: "<b>조작 방법:</b> 쏟아지는 별빛을 클릭하거나 드래그하여 밤하늘의 영롱한 별빛 세례를 만끽해보세요.",
-        instruction_room_sanctuary: "<b>조작 방법:</b> 에테르노아 성소를 클릭하거나 드래그하여 궁극의 치유 파동으로 모든 스트레스를 정화해보세요."
+        instruction_room_sanctuary: "<b>조작 방법:</b> 에테르노아 성소를 클릭하거나 드래그하여 궁극의 치유 파동으로 모든 스트레스를 정화해보세요.",
+        tab_abilities: "능력",
+        abilities_title: "✨ 신비의 능력 각성",
+        abilities_desc: "호점과 요소를 개척하여 치유센터의 강력한 자동화 및 보너스 능력을 해금하세요.",
+        abilities_unlocked_summary: "각성된 능력: {unlocked} / {total}",
+        ability_btn_unlocked: "✨ 각성 완료",
+        ability_btn_unlock: "능력 각성 (✨ {cost})",
+        ability_btn_locked: "조건 미충족",
+        req_stage_badge: "{stage}호점 소유",
+        req_room_badge: "{room} 해금",
+        req_cost_badge: "정수 {cost}",
+        session_rewards_label: "세션 획득",
+        label_healing_tip: "정령의 특별 팁",
+        tip_toast_optimal: "🎁 [정령의 특별 팁!] 깊이 감동한 손님이 팁(정수 +{essence}, XP +{xp})을 건넸습니다!",
+        tip_subnote: "치유에 깊이 감동하여 전달한 특별 보답",
+        ability_auto_reception_1_name: "안내 정령의 환대 I",
+        ability_auto_reception_1_desc: "대기 중인 지친 정령이 방문하면 안내 정령이 자동으로 환영하고 최적의 처방 코너로 안내합니다.",
+        ability_auto_reception_2_name: "수석 안내관의 영접 II",
+        ability_auto_reception_2_desc: "손님 방문 주기가 20% 단축되고, 정령 대기열 한도가 확장됩니다.",
+        ability_auto_heal_1_name: "잔잔한 치유 파동 I",
+        ability_auto_heal_1_desc: "치유 코너 입장 시 조작하지 않아도 1.5초마다 자동으로 치유 파동이 발생하여 정령의 스트레스를 치료합니다.",
+        ability_auto_heal_2_name: "온실의 자연 치유력 II",
+        ability_auto_heal_2_desc: "스튜디오에 머무는 동안에도 대기실의 정령들이 3초마다 지속 치유를 받아 스스로 완치됩니다.",
+        ability_tip_boost_1_name: "감사의 작은 보답 I",
+        ability_tip_boost_1_desc: "정령 치유 완료 시 35% 확률로 만족한 정령이 감사의 팁(+50% 정수 & 경험치)을 남깁니다.",
+        ability_tip_boost_2_name: "기부 천사의 보물 II",
+        ability_tip_boost_2_desc: "팁 획득 확률이 55%로 상승하고, 팁 보너스가 +100%(2배)로 증폭됩니다.",
+        ability_ocean_resonance_name: "심해의 공명 증폭",
+        ability_ocean_resonance_desc: "모든 ASMR 코너 상호작용 및 정령 치유 시 획득하는 정수가 영구적으로 +50% 증가합니다.",
+        ability_cyber_overdrive_name: "사이버네틱 초자동화",
+        ability_cyber_overdrive_desc: "자동 치유 속도가 2배 빨라지고, 자동 응대 시 맞춤 처방 보너스(1.3배)가 100% 확정 적용됩니다.",
     },
     en: {
         start_button: "Enter Conservatory",
@@ -684,7 +717,7 @@ const TRANSLATIONS = {
         prestige_title: "✨ Open Branch {stage} Expansion! ✨",
         prestige_desc1: "All corners unlocked! Expand to enjoy a more luxurious studio, brand new ASMR corners, and a **permanent x5 reward multiplier**.",
         prestige_desc2: "⚠️ Warning: Essence, level, XP, and unlocked rooms will reset. (Buffs will persist)",
-        prestige_req: "Required: Essence {costE} / XP {costX}",
+        prestige_req: "Required: Essence {costE}",
         prestige_button: "🚀 Expand to Branch {stage}",
         video_default_title: "[ASMR] Relaxing {room} 1 Hour",
         views_text: "Views: <span class=\"video-stat-val\">{views}</span> (XP)",
@@ -956,7 +989,37 @@ const TRANSLATIONS = {
         instruction_room_gate: "<b>Controls:</b> Click or drag Heaven's gates to unleash grand, reverberating celestial echos.",
         instruction_room_choir: "<b>Controls:</b> Click or drag to conduct the heavenly spirit choir in gentle, soothing a cappella harmonies.",
         instruction_room_starlight: "<b>Controls:</b> Click or drag through falling starlight to shower your senses in crystalline astral chimes.",
-        instruction_room_sanctuary: "<b>Controls:</b> Click or drag the sanctuary altar to channel ultimate healing waves and dissolve all tension."
+        instruction_room_sanctuary: "<b>Controls:</b> Click or drag the sanctuary altar to channel ultimate healing waves and dissolve all tension.",
+        tab_abilities: "Abilities",
+        abilities_title: "✨ Mystic Ability Awakening",
+        abilities_desc: "Pioneer branches and elements to unlock powerful automation and bonus abilities.",
+        abilities_unlocked_summary: "Awakened Abilities: {unlocked} / {total}",
+        ability_btn_unlocked: "✨ Awakened",
+        ability_btn_unlock: "Awaken (✨ {cost})",
+        ability_btn_locked: "Requirements Unmet",
+        req_stage_badge: "Own Branch {stage}",
+        req_room_badge: "Unlock {room}",
+        req_cost_badge: "Essence {cost}",
+        session_rewards_label: "Session Gain",
+        label_healing_tip: "Spirit's Generous Tip",
+        tip_toast_optimal: "🎁 [Spirit's Tip!] A deeply moved guest left a tip (+{essence} Essence, +{xp} XP)!",
+        tip_subnote: "A heartfelt tip given in deep gratitude for healing",
+        ability_auto_reception_1_name: "Spirit Host's Welcome I",
+        ability_auto_reception_1_desc: "When a weary spirit arrives, the spirit host welcomes them and guides them to the optimal healing room.",
+        ability_auto_reception_2_name: "Head Receptionist's Grace II",
+        ability_auto_reception_2_desc: "Visitor arrival interval is reduced by 20%, and the waiting queue limit expands.",
+        ability_auto_heal_1_name: "Gentle Healing Pulse I",
+        ability_auto_heal_1_desc: "In the healing room, gentle pulses automatically soothe the visitor's stress every 1.5 seconds even while idling.",
+        ability_auto_heal_2_name: "Nature's Grace Aura II",
+        ability_auto_heal_2_desc: "Even while in the studio, waiting spirits in the queue passively heal every 3 seconds until fully recovered.",
+        ability_tip_boost_1_name: "Gratitude's Reward I",
+        ability_tip_boost_1_desc: "Upon healing completion, there is a 35% chance the grateful spirit leaves a generous tip (+50% Essence & XP).",
+        ability_tip_boost_2_name: "Generous Benefactor II",
+        ability_tip_boost_2_desc: "Tip chance increases to 55%, and the tip bonus doubles to +100% additional Essence & XP.",
+        ability_ocean_resonance_name: "Deep Ocean Resonance",
+        ability_ocean_resonance_desc: "All essence gained from ASMR interactions and spirit healing permanently increases by +50%.",
+        ability_cyber_overdrive_name: "Cybernetic Overdrive",
+        ability_cyber_overdrive_desc: "Auto-healing speed doubles, and auto-reception guarantees a 100% optimal prescription bonus (1.3x).",
     },
     ja: {
         start_button: "スタジオに入る",
@@ -1055,7 +1118,7 @@ const TRANSLATIONS = {
         prestige_title: "✨ {stage}号店の新規オープン！ ✨",
         prestige_desc1: "すべてのコーナーを解禁しました！拡張することで、より豪華なスタジオや新しいASMRコーナー、そして<b>すべての報酬が永久に5倍</b>になる特典が得られます。",
         prestige_desc2: "⚠️ 注意: エッセンス、レベル、経験値、解放された部屋はすべて初期化されます (バフは維持されます)。",
-        prestige_req: "要求: エッセンス {costE} / 経験値 {costX}",
+        prestige_req: "要求: エッセンス {costE}",
         prestige_button: "🚀 {stage}号店に拡張する",
         video_default_title: "[ASMR] 快適な {room} 1時間",
         views_text: "再生回数: <span class=\"video-stat-val\">{views}</span> (XP)",
@@ -1327,7 +1390,37 @@ const TRANSLATIONS = {
         instruction_room_gate: "<b>操作方法:</b> 天国の門をクリックまたはドラッグして、壮大に開く天上の余韻を響かせましょう。",
         instruction_room_choir: "<b>操作方法:</b> 聖所をクリックまたはドラッグして、天上精霊たちの優しいアカペラ合唱を響かせましょう。",
         instruction_room_starlight: "<b>操作方法:</b> 降り注ぐ星光をクリックまたはドラッグして、夜空のきらびやかな星の洗礼を浴びましょう。",
-        instruction_room_sanctuary: "<b>操作方法:</b> エーテリア聖所をクリックまたはドラッグして、究極の癒やし波動で全てのストレスを浄化しましょう。"
+        instruction_room_sanctuary: "<b>操作方法:</b> エーテリア聖所をクリックまたはドラッグして、究極の癒やし波動で全てのストレスを浄化しましょう。",
+        tab_abilities: "能力",
+        abilities_title: "✨ 神秘の能力覚醒",
+        abilities_desc: "店舗と要素を開拓し、強力な自動化とボーナス能力を解放しましょう。",
+        abilities_unlocked_summary: "覚醒した能力: {unlocked} / {total}",
+        ability_btn_unlocked: "✨ 覚醒完了",
+        ability_btn_unlock: "能力覚醒 (✨ {cost})",
+        ability_btn_locked: "条件未達成",
+        req_stage_badge: "{stage}号店所有",
+        req_room_badge: "{room} 解放",
+        req_cost_badge: "エッセンス {cost}",
+        session_rewards_label: "セッション獲得",
+        label_healing_tip: "精霊の特別チップ",
+        tip_toast_optimal: "🎁 [精霊のチップ!] 深く感動したゲストからチップ(エッセンス +{essence}, XP +{xp})をいただきました!",
+        tip_subnote: "癒やしに深く感動して贈られた特別なお礼",
+        ability_auto_reception_1_name: "案内精霊の歓迎 I",
+        ability_auto_reception_1_desc: "疲れた精霊が訪れると、案内精霊が自動で出迎え最適な処方部屋へ案内します。",
+        ability_auto_reception_2_name: "首席案内官の迎賓 II",
+        ability_auto_reception_2_desc: "訪問者の来店間隔が20%短縮され、待機列の上限が拡張されます。",
+        ability_auto_heal_1_name: "穏やかな治癒波動 I",
+        ability_auto_heal_1_desc: "治癒部屋に入場時、操作しなくても1.5秒ごとに自動で波動が発生しストレスを治療します。",
+        ability_auto_heal_2_name: "温室の自然治癒力 II",
+        ability_auto_heal_2_desc: "スタジオにいる間も、待機室の精霊たちが3秒ごとに自然治癒を受け自動で完治します。",
+        ability_tip_boost_1_name: "感謝の小さなお礼 I",
+        ability_tip_boost_1_desc: "精霊の治療完了時、35%の確率で満足した精霊が感謝のチップ(+50% エッセンス＆経験値)を残します。",
+        ability_tip_boost_2_name: "寄付天使の宝物 II",
+        ability_tip_boost_2_desc: "チップ獲得確率が55%に上昇し、チップボーナスが+100%(2倍)に強化されます。",
+        ability_ocean_resonance_name: "深海の共鳴増幅",
+        ability_ocean_resonance_desc: "全てのASMR相互作用と精霊治療で獲得するエッセンスが恒久的に+50%増加します。",
+        ability_cyber_overdrive_name: "サイバネティック超自動化",
+        ability_cyber_overdrive_desc: "自動治癒の速度が2倍になり、自動案内時に最適処方ボーナス(1.3倍)が100%確定適用されます。",
     },
     zh: {
         start_button: "进入工作室",
@@ -1426,7 +1519,7 @@ const TRANSLATIONS = {
         prestige_title: "✨ {stage}号店扩张开业！ ✨",
         prestige_desc1: "所有区域已解锁！通过扩张获得更豪华的工作室、全新的ASMR区域，以及**所有收益永久5倍**的加成。",
         prestige_desc2: "⚠️ 注意：精华、等级、经验值和已解锁的房间都将重置。(增益会保留)",
-        prestige_req: "要求：精华 {costE} / 经验 {costX}",
+        prestige_req: "要求：精华 {costE}",
         prestige_button: "🚀 扩张至{stage}号店",
         video_default_title: "[ASMR] 舒适的 {room} 1小时",
         views_text: "播放量: <span class=\"video-stat-val\">{views}</span> (XP)",
@@ -1698,7 +1791,37 @@ const TRANSLATIONS = {
         instruction_room_gate: "<b>操作方法：</b> 点击或推开天国之门，倾听庄严恢弘的天界回声。",
         instruction_room_choir: "<b>操作方法：</b> 点击或挥洒指挥，引导天界精灵吟唱温润空灵的清唱和声。",
         instruction_room_starlight: "<b>操作方法：</b> 点击或挽动洒落的星辉，沐浴在璀璨灵动的星光洗礼中。",
-        instruction_room_sanctuary: "<b>操作方法：</b> 点击或抚触圣所祭坛，引动终极治愈光波净化所有烦忧。"
+        instruction_room_sanctuary: "<b>操作方法：</b> 点击或抚触圣所祭坛，引动终极治愈光波净化所有烦忧。",
+        tab_abilities: "能力",
+        abilities_title: "✨ 神秘能力觉醒",
+        abilities_desc: "拓展分店与要素，解锁强大的自动化与丰厚奖励能力。",
+        abilities_unlocked_summary: "已觉醒能力：{unlocked} / {total}",
+        ability_btn_unlocked: "✨ 已觉醒",
+        ability_btn_unlock: "觉醒能力 (✨ {cost})",
+        ability_btn_locked: "未满足条件",
+        req_stage_badge: "拥有第 {stage} 分店",
+        req_room_badge: "解锁 {room}",
+        req_cost_badge: "精华 {cost}",
+        session_rewards_label: "本次会话获取",
+        label_healing_tip: "精灵的特别小费",
+        tip_toast_optimal: "🎁 [精灵特别小费！] 深受触动的客人赠予了小费（精华 +{essence}，经验 +{xp}）！",
+        tip_subnote: "因深受治愈而奉上的特别谢礼",
+        ability_auto_reception_1_name: "迎宾精灵的款待 I",
+        ability_auto_reception_1_desc: "当疲惫的精灵来访时，迎宾精灵会自动迎接并引导其前往最佳对症疗愈室。",
+        ability_auto_reception_2_name: "首席接待官的礼遇 II",
+        ability_auto_reception_2_desc: "访客来访间隔缩短20%，且候诊排队上限进一步扩展。",
+        ability_auto_heal_1_name: "静谧疗愈微波 I",
+        ability_auto_heal_1_desc: "进入疗愈室后，即使不进行操作，每隔1.5秒也会自动发出疗愈微波持续舒缓访客压力。",
+        ability_auto_heal_2_name: "温室的自然治愈力 II",
+        ability_auto_heal_2_desc: "即使留在主工作室，候诊室中的精灵每隔3秒也会得到自然修愈，直至完全康复。",
+        ability_tip_boost_1_name: "感恩的微小谢礼 I",
+        ability_tip_boost_1_desc: "治愈精灵完成时，有35%的几率满意的精灵会奉上感谢小费（+50% 精华与经验）。",
+        ability_tip_boost_2_name: "慷慨天使的赠礼 II",
+        ability_tip_boost_2_desc: "小费获取几率提升至55%，且小费奖励翻倍至+100%（2倍精华与经验）。",
+        ability_ocean_resonance_name: "深海共鸣增幅",
+        ability_ocean_resonance_desc: "所有ASMR要素互动及精灵治愈所获得的精华永久提升+50%。",
+        ability_cyber_overdrive_name: "赛博超能全自动化",
+        ability_cyber_overdrive_desc: "自动疗愈速度提升2倍，且自动接诊时100%确保获得对症疗方加成（1.3倍）。",
     },
     fr: {
         start_button: "Entrer dans le Studio",
@@ -1797,7 +1920,7 @@ const TRANSLATIONS = {
         prestige_title: "✨ Ouverture de la succursale {stage} ! ✨",
         prestige_desc1: "Tous les coins ont été déverrouillés ! Développez votre empire pour profiter d'un studio plus luxueux, de nouveaux coins ASMR et d'un **multiplicateur permanent de récompenses x5**.",
         prestige_desc2: "⚠️ Attention : L'essence, le niveau, l'XP et les cabines déverrouillées seront réinitialisés. (Les bonus persisteront)",
-        prestige_req: "Requis : Essence {costE} / XP {costX}",
+        prestige_req: "Requis : Essence {costE}",
         prestige_button: "🚀 Développer la succursale {stage}",
         video_default_title: "[ASMR] 1 heure de détente - {room}",
         views_text: "Vues : <span class=\"video-stat-val\">{views}</span> (XP)",
@@ -2069,8 +2192,38 @@ const TRANSLATIONS = {
         instruction_room_gate: "<b>Commandes :</b> Cliquez ou glissez pour entrouvrir les portes du paradis et entendre leur écho majestueux.",
         instruction_room_choir: "<b>Commandes :</b> Cliquez ou glissez pour guider le chœur des esprits célestes dans de douces harmonies.",
         instruction_room_starlight: "<b>Commandes :</b> Cliquez ou glissez à travers les étoiles filantes pour vous immerger dans un baptême d'étoiles.",
-        instruction_room_sanctuary: "<b>Commandes :</b> Cliquez ou glissez sur l'autel du sanctuaire pour libérer l'onde curative ultime et tout purifier."
-    }
+        instruction_room_sanctuary: "<b>Commandes :</b> Cliquez ou glissez sur l'autel du sanctuaire pour libérer l'onde curative ultime et tout purifier.",
+        tab_abilities: "Capacités",
+        abilities_title: "✨ Éveil des Capacités Mystiques",
+        abilities_desc: "Développez vos succursales et éléments pour débloquer de puissantes capacités d'automatisation.",
+        abilities_unlocked_summary: "Capacités éveillées : {unlocked} / {total}",
+        ability_btn_unlocked: "✨ Éveillé",
+        ability_btn_unlock: "Éveiller (✨ {cost})",
+        ability_btn_locked: "Conditions non remplies",
+        req_stage_badge: "Posséder succursale {stage}",
+        req_room_badge: "Débloquer {room}",
+        req_cost_badge: "Essence {cost}",
+        session_rewards_label: "Gain de session",
+        label_healing_tip: "Pourboire généreux de l'esprit",
+        tip_toast_optimal: "🎁 [Pourboire de l'esprit !] Un invité profondément touché a laissé un pourboire (+{essence} Essence, +{xp} XP) !",
+        tip_subnote: "Un pourboire chaleureux offert en profonde gratitude",
+        ability_auto_reception_1_name: "Accueil de l'Esprit I",
+        ability_auto_reception_1_desc: "Lorsqu'un esprit épuisé arrive, l'hôte l'accueille et le guide vers la salle de soins optimale.",
+        ability_auto_reception_2_name: "Grâce du Chef Réceptionniste II",
+        ability_auto_reception_2_desc: "L'intervalle d'arrivée des visiteurs est réduit de 20% et la file d'attente s'agrandit.",
+        ability_auto_heal_1_name: "Onde Apaisante I",
+        ability_auto_heal_1_desc: "Dans la salle de soins, des ondes douces apaisent automatiquement le stress du visiteur toutes les 1,5 s sans toucher l'écran.",
+        ability_auto_heal_2_name: "Grâce Naturelle II",
+        ability_auto_heal_2_desc: "Même au studio, les esprits en attente guérissent passivement toutes les 3 secondes jusqu'à guérison complète.",
+        ability_tip_boost_1_name: "Récompense de Gratitude I",
+        ability_tip_boost_1_desc: "Une fois la guérison terminée, l'esprit reconnaissant a 35% de chances de laisser un pourboire (+50% Essence et XP).",
+        ability_tip_boost_2_name: "Trésor du Bienfaiteur II",
+        ability_tip_boost_2_desc: "La chance de pourboire passe à 55% et le bonus est doublé à +100% d'Essence et d'XP supplémentaires.",
+        ability_ocean_resonance_name: "Résonance des Profondeurs",
+        ability_ocean_resonance_desc: "Toute l'essence obtenue par les interactions ASMR et les soins augmente de façon permanente de +50%.",
+        ability_cyber_overdrive_name: "Surmultiplication Cybernétique",
+        ability_cyber_overdrive_desc: "La vitesse de guérison automatique double et l'accueil automatique garantit 100% de bonus de prescription optimale (1,3x).",
+    },
 };
 
 function t(key, params = {}) {
@@ -2111,6 +2264,7 @@ function applyLanguage() {
             if (tid === 'manage') renderVisitors();
             if (tid === 'inventory') renderInventory();
             if (tid === 'upgrade') renderUpgrades();
+    if (tid === 'abilities') renderAbilitiesPanel();
             if (tid === 'stream') renderStreamPanel();
             if (tid === 'reviews') renderReviewsPanel();
         }
@@ -3295,6 +3449,219 @@ function startGame() {
     switchScreen('studio');
 }
 
+
+// --- 신비의 능력 각성 시스템 ---
+const ABILITIES = [
+    {
+        id: 'auto_reception_1',
+        icon: '🛎️',
+        nameKey: 'ability_auto_reception_1_name',
+        descKey: 'ability_auto_reception_1_desc',
+        reqStage: 1,
+        reqRooms: ['crystal', 'potion'],
+        costEssence: 50000,
+        type: 'auto_reception',
+        tier: 1
+    },
+    {
+        id: 'auto_heal_1',
+        icon: '🌿',
+        nameKey: 'ability_auto_heal_1_name',
+        descKey: 'ability_auto_heal_1_desc',
+        reqStage: 1,
+        reqRooms: ['waterbowl', 'musicbox'],
+        costEssence: 100000,
+        type: 'auto_heal',
+        tier: 1
+    },
+    {
+        id: 'tip_boost_1',
+        icon: '🪙',
+        nameKey: 'ability_tip_boost_1_name',
+        descKey: 'ability_tip_boost_1_desc',
+        reqStage: 1,
+        reqRooms: ['chimes', 'sand'],
+        costEssence: 80000,
+        type: 'tip_boost',
+        tier: 1,
+        tipChance: 0.35,
+        tipRate: 0.50
+    },
+    {
+        id: 'auto_reception_2',
+        icon: '✨',
+        nameKey: 'ability_auto_reception_2_name',
+        descKey: 'ability_auto_reception_2_desc',
+        reqStage: 2,
+        reqRooms: ['campfire', 'singingbowl'],
+        costEssence: 1500000,
+        type: 'auto_reception',
+        tier: 2
+    },
+    {
+        id: 'auto_heal_2',
+        icon: '🕊️',
+        nameKey: 'ability_auto_heal_2_name',
+        descKey: 'ability_auto_heal_2_desc',
+        reqStage: 2,
+        reqRooms: ['stream', 'crickets'],
+        costEssence: 3000000,
+        type: 'auto_heal',
+        tier: 2
+    },
+    {
+        id: 'tip_boost_2',
+        icon: '💎',
+        nameKey: 'ability_tip_boost_2_name',
+        descKey: 'ability_tip_boost_2_desc',
+        reqStage: 2,
+        reqRooms: ['leaves', 'woodblock'],
+        costEssence: 5000000,
+        type: 'tip_boost',
+        tier: 2,
+        tipChance: 0.55,
+        tipRate: 1.00
+    },
+    {
+        id: 'ocean_resonance',
+        icon: '🌊',
+        nameKey: 'ability_ocean_resonance_name',
+        descKey: 'ability_ocean_resonance_desc',
+        reqStage: 3,
+        reqRooms: ['whale', 'bubbles'],
+        costEssence: 50000000,
+        type: 'essence_multiplier',
+        tier: 3,
+        multiplier: 1.50
+    },
+    {
+        id: 'cyber_overdrive',
+        icon: '⚡',
+        nameKey: 'ability_cyber_overdrive_name',
+        descKey: 'ability_cyber_overdrive_desc',
+        reqStage: 4,
+        reqRooms: ['keyboard', 'serverfan'],
+        costEssence: 500000000,
+        type: 'overdrive',
+        tier: 4
+    }
+];
+
+function hasAbility(abilityId) {
+    return Array.isArray(state.unlockedAbilities) && state.unlockedAbilities.includes(abilityId);
+}
+
+function renderAbilitiesPanel() {
+    const listEl = document.getElementById('abilities-list');
+    const balanceEl = document.getElementById('abilities-essence');
+    const countEl = document.getElementById('abilities-unlocked-count');
+    if (balanceEl) balanceEl.textContent = state.essence.toLocaleString();
+
+    const unlockedCount = ABILITIES.filter(a => hasAbility(a.id)).length;
+    if (countEl) countEl.textContent = t('abilities_unlocked_summary', { unlocked: unlockedCount, total: ABILITIES.length });
+
+    if (!listEl) return;
+
+    let html = '';
+    ABILITIES.forEach(ab => {
+        const isUnlocked = hasAbility(ab.id);
+        const stageMet = (state.highestStage || 1) >= ab.reqStage;
+        const roomsMet = ab.reqRooms.every(r => state.unlockedRooms.includes(r));
+        const costMet = state.essence >= ab.costEssence;
+        const canUnlock = !isUnlocked && stageMet && roomsMet && costMet;
+
+        const stageReqBadge = `<span class="req-tag ${stageMet ? 'met' : 'unmet'}">${stageMet ? '✓' : '✗'} ${t('req_stage_badge', { stage: ab.reqStage })}</span>`;
+        const roomReqBadges = ab.reqRooms.map(r => {
+            const rMet = state.unlockedRooms.includes(r);
+            const rName = t('room_' + r + '_name');
+            return `<span class="req-tag ${rMet ? 'met' : 'unmet'}">${rMet ? '✓' : '✗'} ${t('req_room_badge', { room: rName })}</span>`;
+        }).join('');
+        const costReqBadge = `<span class="req-tag ${costMet ? 'met' : 'unmet'}">${costMet ? '✓' : '✗'} ${t('req_cost_badge', { cost: ab.costEssence.toLocaleString() })}</span>`;
+
+        let btnHtml = '';
+        if (isUnlocked) {
+            btnHtml = `<button class="ability-btn btn-unlocked" disabled>${t('ability_btn_unlocked')}</button>`;
+        } else if (canUnlock) {
+            btnHtml = `<button class="ability-btn btn-available" onclick="unlockAbility('${ab.id}')">${t('ability_btn_unlock', { cost: ab.costEssence.toLocaleString() })}</button>`;
+        } else {
+            btnHtml = `<button class="ability-btn btn-locked" disabled>${t('ability_btn_locked')}</button>`;
+        }
+
+        html += `
+        <div class="ability-card ${isUnlocked ? 'unlocked' : 'locked'}">
+            <div class="ability-header">
+                <div class="ability-icon">${ab.icon}</div>
+                <div class="ability-title-box">
+                    <div class="ability-name">${t(ab.nameKey)}</div>
+                    <span class="ability-tier">Tier ${ab.tier}</span>
+                </div>
+            </div>
+            <div class="ability-desc">${t(ab.descKey)}</div>
+            <div class="ability-reqs">
+                ${stageReqBadge}
+                ${roomReqBadges}
+                ${costReqBadge}
+            </div>
+            ${btnHtml}
+        </div>
+        `;
+    });
+
+    listEl.innerHTML = html;
+}
+
+window.unlockAbility = function(abilityId) {
+    const ab = ABILITIES.find(a => a.id === abilityId);
+    if (!ab) return;
+    if (hasAbility(ab.id)) return;
+
+    const stageMet = (state.highestStage || 1) >= ab.reqStage;
+    const roomsMet = ab.reqRooms.every(r => state.unlockedRooms.includes(r));
+    const costMet = state.essence >= ab.costEssence;
+
+    if (!stageMet || !roomsMet || !costMet) {
+        addNotification(t('insufficient_resources'), 'system');
+        return;
+    }
+
+    state.essence -= ab.costEssence;
+    if (!state.unlockedAbilities) state.unlockedAbilities = [];
+    state.unlockedAbilities.push(ab.id);
+
+    playChime(1200);
+    showToast(`✨ [능력 각성!] ${t(ab.nameKey)} 능력을 성공적으로 획득했습니다!`);
+    addNotification(`✨ [능력 각성] ${t(ab.nameKey)} (${t(ab.descKey)})`, 'system');
+
+    renderAbilitiesPanel();
+    updateUI();
+    saveGame();
+};
+
+function updateSessionRewardsDisplay() {
+    const eVal = document.getElementById('session-essence-val');
+    const xVal = document.getElementById('session-xp-val');
+    if (eVal) eVal.textContent = `+${(state.sessionEarnedEssence || 0).toLocaleString()}`;
+    if (xVal) xVal.textContent = `+${(state.sessionEarnedXp || 0).toLocaleString()}`;
+    const badge = document.getElementById('recording-accumulated-rewards');
+    if (badge) {
+        badge.classList.remove('pulse');
+        void badge.offsetWidth;
+        badge.classList.add('pulse');
+    }
+}
+
+function createRewardPopup(x, y, essence, xp) {
+    if (essence <= 0 && xp <= 0) return;
+    const p = document.createElement('div');
+    p.className = 'floating-reward-text';
+    p.innerHTML = `+${essence.toLocaleString()}✨ +${xp.toLocaleString()}🌟`;
+    p.style.left = `${x + (Math.random() - 0.5) * 40}px`;
+    p.style.top = `${y - 20}px`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1100);
+}
+
+
 // --- Unlock System ---
 function unlockRoom(roomId, e) {
     if (e) e.stopPropagation();
@@ -3318,6 +3685,9 @@ function enterRecordingRoom(roomId) {
     const room = ROOMS.find(r => r.id === roomId);
     state.currentTool = roomId;
     el.roomName.textContent = t('room_' + room.id + '_name');
+    state.sessionEarnedEssence = 0;
+    state.sessionEarnedXp = 0;
+    updateSessionRewardsDisplay();
     if (el.toolInstruction) el.toolInstruction.innerHTML = getToolInstruction(roomId);
     renderSanctuary();
     closePanel();
@@ -3434,11 +3804,20 @@ function gainResource(essence, xp) {
         fireMulti = 1.0 + ((state.fireLevel - 1) * 0.2); // Up to 2x at level 6
     }
 
-    const realEssence = Math.floor(essence * eMulti * fireMulti);
+    // 신비의 능력: 심해의 공명 증폭 (+50% 정수)
+    let oceanMulti = hasAbility('ocean_resonance') ? 1.5 : 1.0;
+
+    const realEssence = Math.floor(essence * eMulti * fireMulti * oceanMulti);
     const realXp = Math.floor(xp * xMulti * fireMulti);
 
     state.essence += realEssence;
     gainXp(realXp);
+
+    // 요소 상호작용 실시간 누적 획득 정수 & 경험치 반영
+    state.sessionEarnedEssence = (state.sessionEarnedEssence || 0) + realEssence;
+    state.sessionEarnedXp = (state.sessionEarnedXp || 0) + realXp;
+    updateSessionRewardsDisplay();
+
     saveGame();
     updateUI();
 }
@@ -3505,7 +3884,7 @@ function handleInteraction(e, type, key = null) {
     switch (state.currentTool) {
         // Stage 1
         case 'crystal':
-            if (type === 'click' || type === 'auto') { playCrystalTap(880); gainResource(essenceGain, xpGain); createParticle(px, py, "💎"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'click' || type === 'auto') { playCrystalTap(880); gainResource(essenceGain, xpGain); createParticle(px, py, "💎"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             else if (type === 'drag' && Math.random() > 0.4) { playCrystalTap(660 + Math.random() * 440); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); }
             break;
         case 'potion':
@@ -3529,7 +3908,7 @@ function handleInteraction(e, type, key = null) {
             break;
         case 'chimes':
             if (type === 'drag' && Math.random() > 0.5) { playChime(400 + Math.random() * 800); gainResource(essenceGain, xpGain); createParticle(px, py, "🎐"); }
-            else if (type === 'click' || type === 'auto') { playChime(500 + Math.random() * 400); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); }
+            else if (type === 'click' || type === 'auto') { playChime(500 + Math.random() * 400); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'musicbox':
             playMusicbox(type);
@@ -3641,7 +4020,7 @@ function handleInteraction(e, type, key = null) {
             if (type === 'drag' || type === 'click' || type === 'auto') { playGlitch(); gainResource(essenceGain, xpGain); triggerToolAnimation('anim-wobble'); }
             break;
         case 'spaceship':
-            if (type === 'drag' || type === 'click' || type === 'auto') { playSpaceshipDrone(); gainResource(essenceGain, xpGain); triggerToolAnimation('anim-pulse'); }
+            if (type === 'drag' || type === 'click' || type === 'auto') { playSpaceshipDrone(); gainResource(essenceGain, xpGain); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'serverfan':
             if (type === 'drag' || type === 'click' || type === 'auto') { playServerFan(); gainResource(essenceGain, xpGain); spinServerFan(); }
@@ -3650,7 +4029,7 @@ function handleInteraction(e, type, key = null) {
             if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.8)) { playServoMotor(); gainResource(essenceGain, xpGain); createParticle(px, py, "🦾"); triggerToolAnimation('anim-bounce'); }
             break;
         case 'datatransfer':
-            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.8)) { playDataTransfer(); gainResource(essenceGain, xpGain); createParticle(px, py, "💽"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.8)) { playDataTransfer(); gainResource(essenceGain, xpGain); createParticle(px, py, "💽"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'zerogpod':
             if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.9)) { playZeroGPod(); gainResource(essenceGain, xpGain); createParticle(px, py, "🌌"); triggerToolAnimation('anim-wobble'); }
@@ -3658,7 +4037,7 @@ function handleInteraction(e, type, key = null) {
 
         // Stage 4
         case 'bubbles':
-            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.6)) { playBubbles(); gainResource(essenceGain, xpGain); createParticle(px, py, "🫧"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.6)) { playBubbles(); gainResource(essenceGain, xpGain); createParticle(px, py, "🫧"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'submarine':
             if (type === 'drag' || type === 'click' || type === 'auto') { playSubmarine(); gainResource(essenceGain, xpGain); if (Math.random() > 0.8) createSonarWave(); }
@@ -3673,7 +4052,7 @@ function handleInteraction(e, type, key = null) {
             if (type === 'drag' || type === 'click' || type === 'auto') { playCoral(); gainResource(essenceGain, xpGain); createParticle(px, py, "🪸"); triggerToolAnimation('anim-shake'); }
             break;
         case 'oxygentank':
-            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.8)) { playOxygenTank(); gainResource(essenceGain, xpGain); createParticle(px, py, "🤿"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.8)) { playOxygenTank(); gainResource(essenceGain, xpGain); createParticle(px, py, "🤿"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'caveecho':
             if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.85)) { playCaveEcho(); gainResource(essenceGain, xpGain); createParticle(px, py, "🕳️"); triggerToolAnimation('anim-wobble'); }
@@ -3690,7 +4069,7 @@ function handleInteraction(e, type, key = null) {
             if (type === 'click' || type === 'drag' || type === 'auto') { playTeacup(); gainResource(essenceGain, xpGain); createParticle(px, py, "☕"); triggerToolAnimation('anim-bounce'); }
             break;
         case 'royalchimes':
-            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.95)) { playRoyalChimes(); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'click' || type === 'auto' || (type === 'drag' && Math.random() > 0.95)) { playRoyalChimes(); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'velvet':
             if (type === 'drag' || type === 'click' || type === 'auto') { playVelvet(); gainResource(essenceGain, xpGain); createParticle(px, py, "🧣"); triggerToolAnimation('anim-wobble'); }
@@ -3699,7 +4078,7 @@ function handleInteraction(e, type, key = null) {
             if (type === 'click' || type === 'drag' || type === 'auto') { playChess(); gainResource(essenceGain, xpGain); createParticle(px, py, "♟️"); triggerToolAnimation('anim-shake'); }
             break;
         case 'royalfire':
-            if (type === 'drag' || type === 'click' || type === 'auto') { playRoyalFireplace(); gainResource(essenceGain, xpGain); createParticle(px, py, "🏰"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'drag' || type === 'click' || type === 'auto') { playRoyalFireplace(); gainResource(essenceGain, xpGain); createParticle(px, py, "🏰"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
 
         // Stage 6
@@ -3710,7 +4089,7 @@ function handleInteraction(e, type, key = null) {
             if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playChime === 'function') playChime(400); gainResource(essenceGain, xpGain); createParticle(px, py, "☁️"); triggerToolAnimation('anim-wobble'); }
             break;
         case 'halo':
-            if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playChime === 'function') playChime(800); gainResource(essenceGain, xpGain); createParticle(px, py, "😇"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playChime === 'function') playChime(800); gainResource(essenceGain, xpGain); createParticle(px, py, "😇"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'gate':
             if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playWoodTap === 'function') playWoodTap(); gainResource(essenceGain, xpGain); createParticle(px, py, "🏛️"); triggerToolAnimation('anim-shake'); }
@@ -3719,7 +4098,7 @@ function handleInteraction(e, type, key = null) {
             if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playChime === 'function') playChime(600); gainResource(essenceGain, xpGain); createParticle(px, py, "👼"); triggerToolAnimation('anim-wobble'); }
             break;
         case 'starlight':
-            if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playCrystalTap === 'function') playCrystalTap(1200); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); }
+            if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playCrystalTap === 'function') playCrystalTap(1200); gainResource(essenceGain, xpGain); createParticle(px, py, "✨"); triggerToolAnimation('anim-pulse'); createRewardPopup(px, py, essenceGain, xpGain); }
             break;
         case 'sanctuary':
             if (type === 'click' || type === 'drag' || type === 'auto') { if (typeof playChime === 'function') playChime(500); gainResource(essenceGain, xpGain); createParticle(px, py, "💒"); triggerToolAnimation('anim-bounce'); }
@@ -3777,6 +4156,21 @@ function processHealing(amount) {
         if (state.isEveningRush) {
             showToast('🔥 [저녁 러시 보너스] 에센스 & XP +20% 추가 획득!');
         }
+
+        // --- 패시브 능력: 팁 획득 확률 (tip_boost_1 / tip_boost_2) ---
+        let tipData = null;
+        if (hasAbility('tip_boost_2') || hasAbility('tip_boost_1')) {
+            const tipChance = hasAbility('tip_boost_2') ? 0.55 : 0.35;
+            const tipRate = hasAbility('tip_boost_2') ? 1.00 : 0.50;
+            if (Math.random() < tipChance) {
+                const tipE = Math.floor(totalEssence * tipRate);
+                const tipX = Math.floor(totalXp * tipRate);
+                gainEssence(tipE);
+                gainXp(tipX);
+                tipData = { essence: tipE, xp: tipX };
+                showToast(t('tip_toast_optimal', { essence: tipE.toLocaleString(), xp: tipX.toLocaleString() }));
+            }
+        }
         if (isOptimal) {
             showToast(`💖 [맞춤 처방 완치!] ${getVisitorName(target)}의 증상이 완전히 호전되어 추가 보답(+30%)을 받았습니다!`);
         }
@@ -3830,7 +4224,7 @@ function processHealing(amount) {
         addNotification(t('healing_complete_alert', { essence: Math.floor(totalEssence).toLocaleString(), xp: Math.floor(totalXp).toLocaleString() }), 'system');
 
         // 치유 완료 팝업 모달 호출 (보상 내역 및 맞춤형 선택에 따른 손님 만족도 표시)
-        showHealingCompleteModal(target, totalEssence, totalXp, droppedItem, isOptimal, rx);
+        showHealingCompleteModal(target, totalEssence, totalXp, droppedItem, isOptimal, rx, tipData);
     }
 }
 
@@ -4452,10 +4846,59 @@ function gameLoop() {
     let auto = (state.spirits.wind || 0) * Math.max(1, Math.floor(roomReward * 0.25)) * state.buffs.essenceMultiplier;
     if (auto > 0) gainEssence(auto);
 
+    // --- 패시브 능력 1: 녹음실 자동 치유 파동 (auto_heal_1 / cyber_overdrive) ---
+    if (state.currentTool && state.activeHealingTarget && (hasAbility('auto_heal_1') || hasAbility('cyber_overdrive'))) {
+        if (!window._lastAutoHealPulse || now - window._lastAutoHealPulse > (hasAbility('cyber_overdrive') ? 750 : 1500)) {
+            window._lastAutoHealPulse = now;
+            handleInteraction(null, 'auto');
+        }
+    }
+
+    // --- 패시브 능력 2: 스튜디오 대기열 자연 치유 (auto_heal_2) ---
+    if (hasAbility('auto_heal_2') && state.visitors && state.visitors.length > 0 && !state.activeHealingTarget) {
+        if (!window._lastQueueHealTick || now - window._lastQueueHealTick > 3000) {
+            window._lastQueueHealTick = now;
+            const waitingV = state.visitors[0];
+            if (waitingV) {
+                const healAmt = Math.max(10, Math.floor(waitingV.maxStress * 0.12));
+                waitingV.currentStress = Math.max(0, waitingV.currentStress - healAmt);
+                renderVisitors();
+                if (waitingV.currentStress <= 0) {
+                    // 자연 완치 보상 지급
+                    const curTool = state.unlockedRooms[0] || 'crystal';
+                    const rx = getRxInfo((waitingV.stressEffect && waitingV.stressEffect.id) || 'none');
+                    const isOptimal = rx.recommendedRooms.includes(curTool);
+                    completeDirectHealing(waitingV, isOptimal, rx);
+                    state.visitors.shift();
+                    renderVisitors();
+                    showToast(`🕊️ [자연 치유 완료] ${getVisitorName(waitingV)}이(가) 온실의 기운으로 완치되었습니다!`);
+                }
+            }
+        }
+    }
+
+    // --- 패시브 능력 3: 자동 손님 응대 (auto_reception_1) ---
+    if (hasAbility('auto_reception_1') && state.visitors && state.visitors.length > 0 && !state.activeHealingTarget && !state.currentTool) {
+        if (!window._lastAutoReceptionTick || now - window._lastAutoReceptionTick > 6000) {
+            window._lastAutoReceptionTick = now;
+            const v = state.visitors[0];
+            if (v && v.currentStress > 0) {
+                // 안내 정령이 최적 코너로 방문객 안내 및 치유 시작
+                const rx = getRxInfo((v.stressEffect && v.stressEffect.id) || 'none');
+                const matchedRoom = rx.recommendedRooms.find(rid => state.unlockedRooms.includes(rid)) || state.unlockedRooms[0];
+                if (matchedRoom) {
+                    showToast(`🛎️ [안내 정령] ${getVisitorName(v)}을(를) 최적의 치유 코너(${t('room_' + matchedRoom + '_name')})로 안내했습니다.`);
+                }
+            }
+        }
+    }
+
     const now = Date.now();
     const maxCapacity = state.isEveningRush ? 6 : 3;
     const spawnInterval = getVisitorSpawnInterval();
-    if (state.visitors.length < maxCapacity && (now - state.lastVisitorSpawnTime) > spawnInterval) {
+    let effSpawnInterval = spawnInterval;
+    if (hasAbility('auto_reception_2')) effSpawnInterval *= 0.8;
+    if (state.visitors.length < maxCapacity && (now - state.lastVisitorSpawnTime) > effSpawnInterval) {
         spawnVisitor();
         state.lastVisitorSpawnTime = now;
     }
@@ -4726,7 +5169,7 @@ function closeRewardCelebrationModal() {
 }
 
 // --- 치유 완료 팝업 모달 로직 (만족도 & 보상 내역) ---
-window.showHealingCompleteModal = function(target, totalEssence, totalXp, droppedItem, isOptimal, rx) {
+window.showHealingCompleteModal = function(target, totalEssence, totalXp, droppedItem, isOptimal, rx, tipData = null) {
     const modal = document.getElementById('healing-complete-modal');
     if (!modal) return;
 
@@ -4786,6 +5229,18 @@ window.showHealingCompleteModal = function(target, totalEssence, totalXp, droppe
 
     if (xpEl) xpEl.textContent = `+${Math.floor(totalXp).toLocaleString()}`;
     if (xpSubEl) xpSubEl.textContent = bonusTags.length > 0 ? t('bonus_included_note', { tags: bonusTags.join(' / ') }) : t('base_xp_note');
+
+    // 팁 획득 표시
+    const tipRow = document.getElementById('healing-reward-tip-row');
+    const tipValEl = document.getElementById('healing-reward-tip');
+    if (tipRow && tipValEl) {
+        if (tipData && tipData.essence > 0) {
+            tipRow.classList.remove('hidden');
+            tipValEl.textContent = `+${tipData.essence.toLocaleString()} 정수 / +${tipData.xp.toLocaleString()} XP`;
+        } else {
+            tipRow.classList.add('hidden');
+        }
+    }
 
     // 아이템 드롭 표시
     if (droppedItem && itemRow) {
@@ -4913,29 +5368,30 @@ function renderVisitors() {
     const hasUnlockedAllInStage = currentStageRooms.length > 0 && currentStageRooms.every(r => state.unlockedRooms.includes(r.id));
 
 function getPrestigeRequirements(stage) {
+    // 호점 확장 시 경험치 조건 제외 (정수 조건만 적용)
     const costs = {
-        1: { essence: 1200000, xp: 350000 },
-        2: { essence: 22000000, xp: 6000000 },
-        3: { essence: 450000000, xp: 120000000 },
-        4: { essence: 8000000000, xp: 2200000000 },
-        5: { essence: 160000000000, xp: 45000000000 }
+        1: { essence: 1200000, xp: 0 },
+        2: { essence: 22000000, xp: 0 },
+        3: { essence: 450000000, xp: 0 },
+        4: { essence: 8000000000, xp: 0 },
+        5: { essence: 160000000000, xp: 0 }
     };
-    return costs[stage] || { essence: 1000000000000, xp: 300000000000 };
+    return costs[stage] || { essence: 1000000000000, xp: 0 };
 }
 
     // 사용자가 이미 다음 호점을 해금한 적이 있다면(state.stage < state.highestStage), 이미 잠금해제된 호점이므로 다시 확장 창을 띄우지 않음
-    if (hasUnlockedAllInStage && state.stage < 6 && state.stage >= (state.highestStage || 1)) {
+    // 호점 잠금해제 시 경험치 및 요소 조건 제외 (에센스 조건만 충족 시 확장 가능)
+    if (state.stage < 6 && state.stage >= (state.highestStage || 1)) {
         const req = getPrestigeRequirements(state.stage);
         const prestigeCost = req.essence;
-        const prestigeXp = req.xp;
 
         html += `
         <div id="prestige-container">
             <h3>${t('prestige_title', { stage: state.stage + 1 })}</h3>
             <p>${t('prestige_desc1')}</p>
             <p style="color:#ff5555; font-size:0.75rem; margin-bottom:5px;">${t('prestige_desc2')}</p>
-            <p style="color:var(--accent-purple);">${t('prestige_req', { costE: prestigeCost.toLocaleString(), costX: prestigeXp.toLocaleString() })}</p>
-            <button class="prestige-btn" onclick="doPrestige(${prestigeCost}, ${prestigeXp})">${t('prestige_button', { stage: state.stage + 1 })}</button>
+            <p style="color:var(--accent-purple);">${t('prestige_req', { costE: prestigeCost.toLocaleString() })}</p>
+            <button class="prestige-btn" onclick="doPrestige(${prestigeCost}, 0)">${t('prestige_button', { stage: state.stage + 1 })}</button>
         </div>
         `;
     }
@@ -5047,15 +5503,16 @@ window.selectRoomForHealing = function (visitorId, roomId) {
     enterRecordingRoom(roomId);
 };
 
-function doPrestige(costE, costX) {
-    if (state.essence >= costE && state.xp >= costX) {
+function doPrestige(costE, costX = 0) {
+    // 호점 확장 시 경험치 조건 제외 (에센스만 소모, 경험치는 온전히 보존)
+    if (state.essence >= costE) {
         state.highestStage = Math.max(state.highestStage, state.stage + 1);
 
         // 현재 지점 상태 저장
         if (!state.storeSaves) state.storeSaves = {};
         state.storeSaves[state.stage] = {
             essence: state.essence - costE,
-            xp: state.xp - costX,
+            xp: state.xp, // 경험치 보존
             level: state.level,
             nextLevelXp: state.nextLevelXp,
             inventory: { ...state.inventory },
@@ -5553,6 +6010,7 @@ function switchTab(tid) {
     if (tid === 'manage') renderVisitors();
     if (tid === 'inventory') renderInventory();
     if (tid === 'upgrade') renderUpgrades();
+    if (tid === 'abilities') renderAbilitiesPanel();
     if (tid === 'stream') renderStreamPanel();
     if (tid === 'reviews') {
         state.unreadReviews = 0;
@@ -5730,6 +6188,9 @@ function loadGame() {
     if (!state.claimedReviewRewards) state.claimedReviewRewards = [];
     if (state.unreadReviews === undefined) state.unreadReviews = 0;
     if (!state.activeTemporaryBuffs) state.activeTemporaryBuffs = [];
+    if (!state.unlockedAbilities) state.unlockedAbilities = [];
+    state.sessionEarnedEssence = 0;
+    state.sessionEarnedXp = 0;
     recalculateAllBuffs();
     if (!state.settings) state.settings = { bgmVolume: 50, sfxVolume: 50, volume: 50, autoSave: false, graphics: 'high', language: 'ko' };
     if (state.settings.bgmVolume === undefined) state.settings.bgmVolume = state.settings.volume !== undefined ? state.settings.volume : 50;

@@ -3102,3 +3102,231 @@ body.low-graphics * {
 .healing-reward-row .reward-val.highlight {
     color: #38bdf8;
 }
+/* --- 신비의 능력 각성 패널 스타일 --- */
+.ability-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.ability-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+
+.ability-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.ability-card.unlocked {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(52, 211, 153, 0.08));
+    border: 1.5px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+}
+
+.ability-card.locked {
+    opacity: 0.85;
+}
+
+.ability-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.ability-icon {
+    font-size: 2rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ability-card.unlocked .ability-icon {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.5);
+}
+
+.ability-title-box {
+    flex: 1;
+}
+
+.ability-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+.ability-card.unlocked .ability-name {
+    color: var(--accent-gold);
+}
+
+.ability-tier {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #bbb;
+    font-weight: 600;
+}
+
+.ability-desc {
+    font-size: 0.82rem;
+    color: #ccc;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    min-height: 38px;
+}
+
+.ability-reqs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+}
+
+.req-tag {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+
+.req-tag.met {
+    background: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.req-tag.unmet {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ability-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.ability-btn.btn-unlocked {
+    background: rgba(52, 211, 153, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    cursor: default;
+}
+
+.ability-btn.btn-available {
+    background: linear-gradient(135deg, var(--accent-gold), #ffaa00);
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.ability-btn.btn-available:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+.ability-btn.btn-locked {
+    background: rgba(255, 255, 255, 0.1);
+    color: #777;
+    cursor: not-allowed;
+}
+
+/* --- 녹음실 세션 누적 보상 위젯 --- */
+.session-rewards-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    font-size: 0.8rem;
+    transition: transform 0.15s ease;
+}
+
+.session-rewards-badge.pulse {
+    animation: rewardBadgePulse 0.3s ease;
+}
+
+@keyframes rewardBadgePulse {
+    0% { transform: scale(1); border-color: rgba(255, 215, 0, 0.35); }
+    50% { transform: scale(1.06); border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+    100% { transform: scale(1); border-color: rgba(255, 215, 0, 0.35); }
+}
+
+.session-reward-label {
+    font-size: 0.72rem;
+    color: #bbb;
+    margin-right: 2px;
+}
+
+.session-val {
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.session-essence {
+    color: var(--accent-gold);
+}
+
+.session-xp {
+    color: #c084fc;
+}
+
+/* --- 플로팅 획득 넘버 텍스트 --- */
+.floating-reward-text {
+    position: fixed;
+    pointer-events: none;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #ffd700;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+    animation: floatRewardUp 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    z-index: 9999;
+}
+
+@keyframes floatRewardUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.9);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-25px) scale(1.15);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+    }
+}

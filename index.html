@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에테르노아 : 달빛 소리 온실 (Aeternoia)</title>
-    <link rel="stylesheet" href="style.css?v=30">
+    <link rel="stylesheet" href="style.css?v=31">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -76,6 +76,7 @@
                 <button class="tab-btn active" data-tab="manage"><span class="tab-icon">🏢</span><span class="tab-text" data-i18n="tab_manage">경영</span></button>
                 <button class="tab-btn" data-tab="inventory"><span class="tab-icon">🎒</span><span class="tab-text" data-i18n="tab_inventory">보관함</span></button>
                 <button class="tab-btn" data-tab="upgrade"><span class="tab-icon">🛠️</span><span class="tab-text" data-i18n="tab_upgrade">강화</span></button>
+                <button class="tab-btn" data-tab="abilities"><span class="tab-icon">✨</span><span class="tab-text" data-i18n="tab_abilities">능력</span></button>
                 <button class="tab-btn" data-tab="stream" style="display:none;"><span class="tab-icon">🌌</span><span class="tab-text" data-i18n="tab_stream">방송</span></button>
                 <button class="tab-btn" data-tab="reviews">
                     <span class="tab-icon">📱</span>
@@ -124,6 +125,23 @@
                             <span id="secret-shop-timer" style="font-size:0.8rem; font-family:monospace; color:#ffd700; background:rgba(0,0,0,0.4); padding:4px 10px; border-radius:12px; border:1px solid rgba(255,215,0,0.3);">⏱️ 재고 교체: 계산 중...</span>
                         </div>
                         <div class="upgrade-grid" id="secret-shop-items"></div>
+                    </div>
+                </div>
+
+                <div id="abilities-panel" class="panel">
+                    <div class="shop-header">
+                        <div>
+                            <h2 data-i18n="abilities_title">✨ 신비의 능력 각성</h2>
+                            <p class="desc" data-i18n="abilities_desc" style="font-size:0.8rem; color:#aaa; margin-top:3px;">호점과 요소를 개척하여 치유센터의 강력한 자동화 및 보너스 능력을 해금하세요.</p>
+                        </div>
+                        <div class="current-balance glass">✨ <span id="abilities-essence">0</span></div>
+                    </div>
+                    <div class="abilities-status-bar glass" id="abilities-status-summary" style="margin-bottom:15px; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; border-radius:14px;">
+                        <span id="abilities-unlocked-count" style="font-size:0.85rem; color:var(--accent-gold); font-weight:bold;">각성된 능력: 0 / 8</span>
+                        <span id="abilities-status-tip" style="font-size:0.75rem; color:#aaa;">조건을 충족하면 능력을 깨울 수 있습니다.</span>
+                    </div>
+                    <div class="ability-grid" id="abilities-list">
+                        <!-- 동적 생성 -->
                     </div>
                 </div>
 
@@ -244,6 +262,11 @@
                     <div id="recording-active-buffs" class="active-buffs-container"></div>
                 </div>
                 <div class="metrics glass">
+                    <div id="recording-accumulated-rewards" class="session-rewards-badge glass" title="이번 세션 획득량">
+                        <span class="session-reward-label" data-i18n="session_rewards_label">세션 획득</span>
+                        <span class="session-val session-essence">✨ <strong id="session-essence-val">+0</strong></span>
+                        <span class="session-val session-xp">🌟 <strong id="session-xp-val">+0</strong></span>
+                    </div>
                     <div class="metric-item" id="stability-index">
                         <span class="label" data-i18n="stability_index">안정 지수</span>
                         <div class="meter-bg"><div class="meter-fill" style="width: 80%;"></div></div>
@@ -430,6 +453,14 @@
                     </div>
                     <span id="healing-reward-xp" class="reward-val">+0</span>
                 </div>
+                <div id="healing-reward-tip-row" class="healing-reward-row tip-bonus-row hidden">
+                    <span class="reward-icon">🎁</span>
+                    <div class="reward-meta">
+                        <span class="reward-name" style="color:var(--accent-gold);" data-i18n="label_healing_tip">정령의 특별 팁</span>
+                        <span id="healing-tip-subnote" class="reward-subnote" style="color:#ffd700;" data-i18n="tip_subnote">치유에 깊이 감동하여 전달한 특별 보답</span>
+                    </div>
+                    <span id="healing-reward-tip" class="reward-val" style="color:var(--accent-gold);">+0</span>
+                </div>
                 <div id="healing-reward-item-row" class="healing-reward-row item-row hidden">
                     <span id="healing-reward-item-icon" class="reward-icon">🎁</span>
                     <div class="reward-meta">
@@ -446,8 +477,8 @@
 
     <div id="toast-container" class="toast-container"></div>
     <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
-    <script src="audio_base64.js?v=30"></script>
-    <script src="procedural_bgm.js?v=30"></script>
-    <script src="app.js?v=30"></script>
+    <script src="audio_base64.js?v=31"></script>
+    <script src="procedural_bgm.js?v=31"></script>
+    <script src="app.js?v=31"></script>
 </body>
 </html>
