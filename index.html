@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에테르노아 : 달빛 소리 온실 (Aeternoia)</title>
-    <link rel="stylesheet" href="style.css?v=31">
+    <link rel="stylesheet" href="style.css?v=32">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -262,11 +262,6 @@
                     <div id="recording-active-buffs" class="active-buffs-container"></div>
                 </div>
                 <div class="metrics glass">
-                    <div id="recording-accumulated-rewards" class="session-rewards-badge glass" title="이번 세션 획득량">
-                        <span class="session-reward-label" data-i18n="session_rewards_label">세션 획득</span>
-                        <span class="session-val session-essence">✨ <strong id="session-essence-val">+0</strong></span>
-                        <span class="session-val session-xp">🌟 <strong id="session-xp-val">+0</strong></span>
-                    </div>
                     <div class="metric-item" id="stability-index">
                         <span class="label" data-i18n="stability_index">안정 지수</span>
                         <div class="meter-bg"><div class="meter-fill" style="width: 80%;"></div></div>
@@ -309,6 +304,13 @@
             </div>
             
             <div class="recording-footer">
+                <div class="recording-footer-top">
+                    <div id="recording-accumulated-rewards" class="session-rewards-badge glass" title="이번 세션 획득량">
+                        <span class="session-reward-label" data-i18n="session_rewards_label">세션 획득</span>
+                        <span class="session-val session-essence">✨ <strong id="session-essence-val">+0</strong></span>
+                        <span class="session-val session-xp">🌟 <strong id="session-xp-val">+0</strong></span>
+                    </div>
+                </div>
                 <div class="xp-bar-container glass">
                     <div class="xp-bar-fill"></div>
                     <span class="xp-text" data-i18n="growth_gauge">성장 게이지</span>
@@ -477,8 +479,8 @@
 
     <div id="toast-container" class="toast-container"></div>
     <audio id="bgm" src="game_sound/background_sound/Beneath_The_Glass_Willow.mp3" loop></audio>
-    <script src="audio_base64.js?v=31"></script>
-    <script src="procedural_bgm.js?v=31"></script>
-    <script src="app.js?v=31"></script>
+    <script src="audio_base64.js?v=32"></script>
+    <script src="procedural_bgm.js?v=32"></script>
+    <script src="app.js?v=32"></script>
 </body>
 </html>

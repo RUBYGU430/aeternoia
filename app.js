@@ -619,6 +619,7 @@ const TRANSLATIONS = {
         ability_ocean_resonance_desc: "모든 ASMR 코너 상호작용 및 정령 치유 시 획득하는 정수가 영구적으로 +50% 증가합니다.",
         ability_cyber_overdrive_name: "사이버네틱 초자동화",
         ability_cyber_overdrive_desc: "자동 치유 속도가 2배 빨라지고, 자동 응대 시 맞춤 처방 보너스(1.3배)가 100% 확정 적용됩니다.",
+        insufficient_essence_prestige_toast: "✨ 정수가 부족합니다! (필요: {cost} 정수 / 부족: {needed} 정수)",
     },
     en: {
         start_button: "Enter Conservatory",
@@ -1020,6 +1021,7 @@ const TRANSLATIONS = {
         ability_ocean_resonance_desc: "All essence gained from ASMR interactions and spirit healing permanently increases by +50%.",
         ability_cyber_overdrive_name: "Cybernetic Overdrive",
         ability_cyber_overdrive_desc: "Auto-healing speed doubles, and auto-reception guarantees a 100% optimal prescription bonus (1.3x).",
+        insufficient_essence_prestige_toast: "✨ Insufficient Essence! (Required: {cost} / Missing: {needed})",
     },
     ja: {
         start_button: "スタジオに入る",
@@ -1421,6 +1423,7 @@ const TRANSLATIONS = {
         ability_ocean_resonance_desc: "全てのASMR相互作用と精霊治療で獲得するエッセンスが恒久的に+50%増加します。",
         ability_cyber_overdrive_name: "サイバネティック超自動化",
         ability_cyber_overdrive_desc: "自動治癒の速度が2倍になり、自動案内時に最適処方ボーナス(1.3倍)が100%確定適用されます。",
+        insufficient_essence_prestige_toast: "✨ エッセンスが不足しています! (必要: {cost} / 不足: {needed})",
     },
     zh: {
         start_button: "进入工作室",
@@ -1822,6 +1825,7 @@ const TRANSLATIONS = {
         ability_ocean_resonance_desc: "所有ASMR要素互动及精灵治愈所获得的精华永久提升+50%。",
         ability_cyber_overdrive_name: "赛博超能全自动化",
         ability_cyber_overdrive_desc: "自动疗愈速度提升2倍，且自动接诊时100%确保获得对症疗方加成（1.3倍）。",
+        insufficient_essence_prestige_toast: "✨ 精华不足！（需要：{cost} / 还差：{needed}）",
     },
     fr: {
         start_button: "Entrer dans le Studio",
@@ -2223,6 +2227,7 @@ const TRANSLATIONS = {
         ability_ocean_resonance_desc: "Toute l'essence obtenue par les interactions ASMR et les soins augmente de façon permanente de +50%.",
         ability_cyber_overdrive_name: "Surmultiplication Cybernétique",
         ability_cyber_overdrive_desc: "La vitesse de guérison automatique double et l'accueil automatique garantit 100% de bonus de prescription optimale (1,3x).",
+        insufficient_essence_prestige_toast: "✨ Essence insuffisante ! (Requis : {cost} / Manquant : {needed})",
     },
 };
 
@@ -5380,8 +5385,8 @@ function getPrestigeRequirements(stage) {
 }
 
     // 사용자가 이미 다음 호점을 해금한 적이 있다면(state.stage < state.highestStage), 이미 잠금해제된 호점이므로 다시 확장 창을 띄우지 않음
-    // 호점 잠금해제 시 경험치 및 요소 조건 제외 (에센스 조건만 충족 시 확장 가능)
-    if (state.stage < 6 && state.stage >= (state.highestStage || 1)) {
+    // 현재 호점의 모든 코너(ASMR 룸)를 해금해야 다음 호점 확장 오픈 가능
+    if (hasUnlockedAllInStage && state.stage < 6 && state.stage >= (state.highestStage || 1)) {
         const req = getPrestigeRequirements(state.stage);
         const prestigeCost = req.essence;
 
@@ -5589,7 +5594,10 @@ function doPrestige(costE, costX = 0) {
         updateGameClockDisplay();
         saveGame();
     } else {
-        addNotification(t('insufficient_resources'), "system");
+        const needed = costE - state.essence;
+        showToast(t('insufficient_essence_prestige_toast', { cost: costE.toLocaleString(), needed: needed.toLocaleString() }));
+        playGlassTingle(440);
+        addNotification(t('insufficient_essence_prestige_toast', { cost: costE.toLocaleString(), needed: needed.toLocaleString() }), "system");
     }
 }
 

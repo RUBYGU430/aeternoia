@@ -3330,3 +3330,11 @@ body.low-graphics * {
         transform: translateY(-50px) scale(0.95);
     }
 }
+
+.recording-footer-top {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
