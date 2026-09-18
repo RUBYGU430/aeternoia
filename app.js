@@ -28,6 +28,7 @@ const state = {
     // 편의성 설정
     highestStage: 1,
     unlockedAbilities: [],
+    unlockedAbilitiesByStage: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
     sessionEarnedEssence: 0,
     sessionEarnedXp: 0,
     settings: {
@@ -620,6 +621,58 @@ const TRANSLATIONS = {
         ability_cyber_overdrive_name: "사이버네틱 초자동화",
         ability_cyber_overdrive_desc: "자동 치유 속도가 2배 빨라지고, 자동 응대 시 맞춤 처방 보너스(1.3배)가 100% 확정 적용됩니다.",
         insufficient_essence_prestige_toast: "✨ 정수가 부족합니다! (필요: {cost} 정수 / 부족: {needed} 정수)",
+        abilities_branch_indicator: "📍 현재 호점: {branch}",
+        abilities_filter_all: "현재 호점 능력 보기",
+        auto_attended_badge: "🛎️ 전담 안내 중 (+25% 치유 가속)",
+        auto_heal_float_text: "🌿 자동 치유 -{val}",
+        ability_s1_reception_name: "온실 안내 정령의 환대",
+        ability_s1_reception_desc: "1호점 방문객을 자동으로 환영하여 치유 속도를 +25% 가속하고, 방문 간격을 25% 단축합니다.",
+        ability_s1_heal_name: "달빛 온실 치유 파동",
+        ability_s1_heal_desc: "녹음실에서 1.2초마다 자동으로 강력한 치유 파동이 터지며, 대기실의 정령들도 2.5초마다 자연 완치됩니다.",
+        ability_s1_tip_name: "온실 정령의 감사 팁",
+        ability_s1_tip_desc: "1호점 정령 치유 완료 시 45% 확률로 감사의 팁(+60% 정수 & 경험치)을 획득합니다.",
+        ability_s1_resonance_name: "달빛 공방 에센스 공명",
+        ability_s1_resonance_desc: "1호점에서 상호작용 및 손님 치유로 얻는 모든 정수가 영구적으로 +50% 증폭됩니다.",
+        ability_s2_reception_name: "비밀의 숲 수호령 안내",
+        ability_s2_reception_desc: "2호점 방문객을 자동으로 환영하여 치유 속도를 +25% 가속하고, 방문 간격을 25% 단축합니다.",
+        ability_s2_heal_name: "피톤치드 자연 치유",
+        ability_s2_heal_desc: "녹음실에서 1.2초마다 자동으로 숲의 치유 파동이 터지며, 대기실의 정령들도 2.5초마다 자연 완치됩니다.",
+        ability_s2_tip_name: "숲의 은혜 특별 팁",
+        ability_s2_tip_desc: "2호점 정령 치유 완료 시 45% 확률로 감사의 팁(+60% 정수 & 경험치)을 획득합니다.",
+        ability_s2_resonance_name: "대자연의 에센스 공명",
+        ability_s2_resonance_desc: "2호점에서 상호작용 및 손님 치유로 얻는 모든 정수가 영구적으로 +50% 증폭됩니다.",
+        ability_s3_reception_name: "심해 소나 안내원",
+        ability_s3_reception_desc: "3호점 방문객을 자동으로 환영하여 치유 속도를 +25% 가속하고, 방문 간격을 25% 단축합니다.",
+        ability_s3_heal_name: "치유의 해류 파동",
+        ability_s3_heal_desc: "녹음실에서 1.2초마다 자동으로 해류 치유 파동이 터지며, 대기실의 정령들도 2.5초마다 자연 완치됩니다.",
+        ability_s3_tip_name: "진주 조개의 은혜 팁",
+        ability_s3_tip_desc: "3호점 정령 치유 완료 시 45% 확률로 감사의 팁(+60% 정수 & 경험치)을 획득합니다.",
+        ability_s3_resonance_name: "심해의 공명 증폭",
+        ability_s3_resonance_desc: "3호점에서 상호작용 및 손님 치유로 얻는 모든 정수가 영구적으로 +50% 증폭됩니다.",
+        ability_s4_reception_name: "사이버 AI 안내 시스템",
+        ability_s4_reception_desc: "4호점 방문객을 자동으로 환영하여 치유 속도를 +25% 가속하고, 방문 간격을 25% 단축합니다.",
+        ability_s4_heal_name: "나노 펄스 급속 치유",
+        ability_s4_heal_desc: "녹음실에서 1.2초마다 자동으로 나노 치유 파동이 터지며, 대기실의 정령들도 2.5초마다 자연 완치됩니다.",
+        ability_s4_tip_name: "사이버 코인 기부 팁",
+        ability_s4_tip_desc: "4호점 정령 치유 완료 시 45% 확률로 감사의 팁(+60% 정수 & 경험치)을 획득합니다.",
+        ability_s4_resonance_name: "사이버네틱 초가속 공명",
+        ability_s4_resonance_desc: "4호점에서 상호작용 및 손님 치유로 얻는 모든 정수가 영구적으로 +50% 증폭됩니다.",
+        ability_s5_reception_name: "왕립 수석 사서의 영접",
+        ability_s5_reception_desc: "5호점 방문객을 자동으로 환영하여 치유 속도를 +25% 가속하고, 방문 간격을 25% 단축합니다.",
+        ability_s5_heal_name: "고서의 치유 서약",
+        ability_s5_heal_desc: "녹음실에서 1.2초마다 자동으로 고서의 치유 파동이 터지며, 대기실의 정령들도 2.5초마다 자연 완치됩니다.",
+        ability_s5_tip_name: "황실 기부금 특별 팁",
+        ability_s5_tip_desc: "5호점 정령 치유 완료 시 45% 확률로 감사의 팁(+60% 정수 & 경험치)을 획득합니다.",
+        ability_s5_resonance_name: "황실 서고의 에센스 공명",
+        ability_s5_resonance_desc: "5호점에서 상호작용 및 손님 치유로 얻는 모든 정수가 영구적으로 +50% 증폭됩니다.",
+        ability_s6_reception_name: "천상 대천사의 영접",
+        ability_s6_reception_desc: "6호점 방문객을 자동으로 환영하여 치유 속도를 +25% 가속하고, 방문 간격을 25% 단축합니다.",
+        ability_s6_heal_name: "천상의 은총 치유 파동",
+        ability_s6_heal_desc: "녹음실에서 1.2초마다 자동으로 천상의 치유 파동이 터지며, 대기실의 정령들도 2.5초마다 자연 완치됩니다.",
+        ability_s6_tip_name: "성배의 축복 특별 팁",
+        ability_s6_tip_desc: "6호점 정령 치유 완료 시 45% 확률로 감사의 팁(+60% 정수 & 경험치)을 획득합니다.",
+        ability_s6_resonance_name: "에테르 성소 에센스 공명",
+        ability_s6_resonance_desc: "6호점에서 상호작용 및 손님 치유로 얻는 모든 정수가 영구적으로 +50% 증폭됩니다.",
     },
     en: {
         start_button: "Enter Conservatory",
@@ -1022,6 +1075,58 @@ const TRANSLATIONS = {
         ability_cyber_overdrive_name: "Cybernetic Overdrive",
         ability_cyber_overdrive_desc: "Auto-healing speed doubles, and auto-reception guarantees a 100% optimal prescription bonus (1.3x).",
         insufficient_essence_prestige_toast: "✨ Insufficient Essence! (Required: {cost} / Missing: {needed})",
+        abilities_branch_indicator: "📍 Current Branch: {branch}",
+        abilities_filter_all: "Current Branch Abilities",
+        auto_attended_badge: "🛎️ Attended (+25% Healing Boost)",
+        auto_heal_float_text: "🌿 Auto Heal -{val}",
+        ability_s1_reception_name: "Greenhouse Host's Welcome",
+        ability_s1_reception_desc: "Welcomes Branch 1 visitors, speeding up healing by +25% and reducing arrival interval by 25%.",
+        ability_s1_heal_name: "Moonlight Healing Pulse",
+        ability_s1_heal_desc: "Automatic healing pulse triggers every 1.2s in the studio, and queue spirits passively heal every 2.5s.",
+        ability_s1_tip_name: "Greenhouse Gratitude Tip",
+        ability_s1_tip_desc: "45% chance for visitors in Branch 1 to leave a generous tip (+60% Essence & XP).",
+        ability_s1_resonance_name: "Moonlight Essence Resonance",
+        ability_s1_resonance_desc: "All essence gained from interactions and healing in Branch 1 increases by +50%.",
+        ability_s2_reception_name: "Forest Guardian Host",
+        ability_s2_reception_desc: "Welcomes Branch 2 visitors, speeding up healing by +25% and reducing arrival interval by 25%.",
+        ability_s2_heal_name: "Phytoncide Natural Healing",
+        ability_s2_heal_desc: "Forest healing pulse triggers every 1.2s in the studio, and queue spirits passively heal every 2.5s.",
+        ability_s2_tip_name: "Forest Grace Special Tip",
+        ability_s2_tip_desc: "45% chance for visitors in Branch 2 to leave a generous tip (+60% Essence & XP).",
+        ability_s2_resonance_name: "Great Nature's Resonance",
+        ability_s2_resonance_desc: "All essence gained from interactions and healing in Branch 2 increases by +50%.",
+        ability_s3_reception_name: "Deep Sea Sonar Host",
+        ability_s3_reception_desc: "Welcomes Branch 3 visitors, speeding up healing by +25% and reducing arrival interval by 25%.",
+        ability_s3_heal_name: "Healing Ocean Currents",
+        ability_s3_heal_desc: "Ocean current healing pulse triggers every 1.2s in the studio, and queue spirits passively heal every 2.5s.",
+        ability_s3_tip_name: "Pearl Oyster's Tip",
+        ability_s3_tip_desc: "45% chance for visitors in Branch 3 to leave a generous tip (+60% Essence & XP).",
+        ability_s3_resonance_name: "Deep Ocean Resonance",
+        ability_s3_resonance_desc: "All essence gained from interactions and healing in Branch 3 increases by +50%.",
+        ability_s4_reception_name: "Cybernetic AI Host",
+        ability_s4_reception_desc: "Welcomes Branch 4 visitors, speeding up healing by +25% and reducing arrival interval by 25%.",
+        ability_s4_heal_name: "Nano Pulse Rapid Healing",
+        ability_s4_heal_desc: "Nano healing pulse triggers every 1.2s in the studio, and queue spirits passively heal every 2.5s.",
+        ability_s4_tip_name: "Cyber Coin Donation Tip",
+        ability_s4_tip_desc: "45% chance for visitors in Branch 4 to leave a generous tip (+60% Essence & XP).",
+        ability_s4_resonance_name: "Cyber Overdrive Resonance",
+        ability_s4_resonance_desc: "All essence gained from interactions and healing in Branch 4 increases by +50%.",
+        ability_s5_reception_name: "Royal Head Librarian Host",
+        ability_s5_reception_desc: "Welcomes Branch 5 visitors, speeding up healing by +25% and reducing arrival interval by 25%.",
+        ability_s5_heal_name: "Tome's Healing Vow",
+        ability_s5_heal_desc: "Ancient tome healing pulse triggers every 1.2s in the studio, and queue spirits passively heal every 2.5s.",
+        ability_s5_tip_name: "Imperial Patronage Tip",
+        ability_s5_tip_desc: "45% chance for visitors in Branch 5 to leave a generous tip (+60% Essence & XP).",
+        ability_s5_resonance_name: "Royal Archives Resonance",
+        ability_s5_resonance_desc: "All essence gained from interactions and healing in Branch 5 increases by +50%.",
+        ability_s6_reception_name: "Celestial Archangel Host",
+        ability_s6_reception_desc: "Welcomes Branch 6 visitors, speeding up healing by +25% and reducing arrival interval by 25%.",
+        ability_s6_heal_name: "Celestial Grace Healing Pulse",
+        ability_s6_heal_desc: "Celestial healing pulse triggers every 1.2s in the studio, and queue spirits passively heal every 2.5s.",
+        ability_s6_tip_name: "Holy Grail Blessing Tip",
+        ability_s6_tip_desc: "45% chance for visitors in Branch 6 to leave a generous tip (+60% Essence & XP).",
+        ability_s6_resonance_name: "Aether Sanctuary Resonance",
+        ability_s6_resonance_desc: "All essence gained from interactions and healing in Branch 6 increases by +50%.",
     },
     ja: {
         start_button: "スタジオに入る",
@@ -1424,6 +1529,58 @@ const TRANSLATIONS = {
         ability_cyber_overdrive_name: "サイバネティック超自動化",
         ability_cyber_overdrive_desc: "自動治癒の速度が2倍になり、自動案内時に最適処方ボーナス(1.3倍)が100%確定適用されます。",
         insufficient_essence_prestige_toast: "✨ エッセンスが不足しています! (必要: {cost} / 不足: {needed})",
+        abilities_branch_indicator: "📍 現在の店舗: {branch}",
+        abilities_filter_all: "現在の店舗能力を表示",
+        auto_attended_badge: "🛎️ 専任案内中 (+25% 治癒加速)",
+        auto_heal_float_text: "🌿 自動治癒 -{val}",
+        ability_s1_reception_name: "温室案内精霊の歓迎",
+        ability_s1_reception_desc: "1号店の訪問者を自動で迎え、治癒速度を+25%加速し来店間隔を25%短縮します。",
+        ability_s1_heal_name: "月光温室の治癒波動",
+        ability_s1_heal_desc: "録音室で1.2秒ごとに強力な治癒波動が発動し、待機列の精霊も2.5秒ごとに自然完治します。",
+        ability_s1_tip_name: "温室精霊の感謝チップ",
+        ability_s1_tip_desc: "1号店精霊の治療完了時、45%の確率で感謝のチップ(+60% エッセンス＆経験値)を獲得します。",
+        ability_s1_resonance_name: "月光工房のエッセンス共鳴",
+        ability_s1_resonance_desc: "1号店の相互作用と治療で獲得するすべてのエッセンスが恒久的に+50%増加します。",
+        ability_s2_reception_name: "秘密の森の守護霊案内",
+        ability_s2_reception_desc: "2号店の訪問者を自動で迎え、治癒速度を+25%加速し来店間隔を25%短縮します。",
+        ability_s2_heal_name: "フィトンチッド自然治癒",
+        ability_s2_heal_desc: "録音室で1.2秒ごとに森の治癒波動が発動し、待機列の精霊も2.5秒ごとに自然完治します。",
+        ability_s2_tip_name: "森の恵み特別チップ",
+        ability_s2_tip_desc: "2号店精霊の治療完了時、45%の確率で感謝のチップ(+60% エッセンス＆経験値)を獲得します。",
+        ability_s2_resonance_name: "大自然のエッセンス共鳴",
+        ability_s2_resonance_desc: "2号店の相互作用と治療で獲得するすべてのエッセンスが恒久的に+50%増加します。",
+        ability_s3_reception_name: "深海ソナー案内係",
+        ability_s3_reception_desc: "3号店の訪問者を自動で迎え、治癒速度を+25%加速し来店間隔を25%短縮します。",
+        ability_s3_heal_name: "治癒の海流波動",
+        ability_s3_heal_desc: "録音室で1.2秒ごとに海流の治癒波動が発動し、待機列の精霊も2.5秒ごとに自然完治します。",
+        ability_s3_tip_name: "真珠貝の恵みチップ",
+        ability_s3_tip_desc: "3号店精霊の治療完了時、45%の確率で感謝のチップ(+60% エッセンス＆経験値)を獲得します。",
+        ability_s3_resonance_name: "深海の共鳴増幅",
+        ability_s3_resonance_desc: "3号店の相互作用と治療で獲得するすべてのエッセンスが恒久的に+50%増加します。",
+        ability_s4_reception_name: "サイバーAI案内システム",
+        ability_s4_reception_desc: "4号店の訪問者を自動で迎え、治癒速度を+25%加速し来店間隔を25%短縮します。",
+        ability_s4_heal_name: "ナノパルス急速治癒",
+        ability_s4_heal_desc: "録音室で1.2秒ごとにナノ治癒波動が発動し、待機列の精霊も2.5秒ごとに自然完治します。",
+        ability_s4_tip_name: "サイバーコイン寄付チップ",
+        ability_s4_tip_desc: "4号店精霊の治療完了時、45%の確率で感謝のチップ(+60% エッセンス＆経験値)を獲得します。",
+        ability_s4_resonance_name: "サイバネティック超加速共鳴",
+        ability_s4_resonance_desc: "4号店の相互作用と治療で獲得するすべてのエッセンスが恒久的に+50%増加します。",
+        ability_s5_reception_name: "王立首席司書の迎賓",
+        ability_s5_reception_desc: "5号店の訪問者を自動で迎え、治癒速度を+25%加速し来店間隔を25%短縮します。",
+        ability_s5_heal_name: "古書の治癒誓約",
+        ability_s5_heal_desc: "録音室で1.2秒ごとに古書の治癒波動が発動し、待機列の精霊も2.5秒ごとに自然完治します。",
+        ability_s5_tip_name: "皇室寄付金特別チップ",
+        ability_s5_tip_desc: "5号店精霊の治療完了時、45%の確率で感謝のチップ(+60% エッセンス＆経験値)を獲得します。",
+        ability_s5_resonance_name: "皇室書庫のエッセンス共鳴",
+        ability_s5_resonance_desc: "5号店の相互作用と治療で獲得するすべてのエッセンスが恒久的に+50%増加します。",
+        ability_s6_reception_name: "天重大天使の迎賓",
+        ability_s6_reception_desc: "6号店の訪問者を自動で迎え、治癒速度を+25%加速し来店間隔を25%短縮します。",
+        ability_s6_heal_name: "天重の恩寵治癒波動",
+        ability_s6_heal_desc: "録音室で1.2秒ごとに天重の治癒波動が発動し、待機列の精霊も2.5秒ごとに自然完治します。",
+        ability_s6_tip_name: "聖杯の祝福特別チップ",
+        ability_s6_tip_desc: "6号店精霊の治療完了時、45%の確率で感謝のチップ(+60% エッセンス＆経験値)を獲得します。",
+        ability_s6_resonance_name: "エーテル聖所のエッセンス共鳴",
+        ability_s6_resonance_desc: "6号店の相互作用と治療で獲得するすべてのエッセンスが恒久的に+50%増加します。",
     },
     zh: {
         start_button: "进入工作室",
@@ -1826,6 +1983,58 @@ const TRANSLATIONS = {
         ability_cyber_overdrive_name: "赛博超能全自动化",
         ability_cyber_overdrive_desc: "自动疗愈速度提升2倍，且自动接诊时100%确保获得对症疗方加成（1.3倍）。",
         insufficient_essence_prestige_toast: "✨ 精华不足！（需要：{cost} / 还差：{needed}）",
+        abilities_branch_indicator: "📍 当前分店：{branch}",
+        abilities_filter_all: "查看当前分店能力",
+        auto_attended_badge: "🛎️ 专员接诊中 (+25% 治愈加速)",
+        auto_heal_float_text: "🌿 自动疗愈 -{val}",
+        ability_s1_reception_name: "温室迎宾精灵的款待",
+        ability_s1_reception_desc: "自动迎接第1分店访客，治愈速度提升+25%，来访间隔缩短25%。",
+        ability_s1_heal_name: "月光温室疗愈微波",
+        ability_s1_heal_desc: "在录音室中每隔1.2秒自动释放强力疗愈波，且候诊室精灵每隔2.5秒自然修愈。",
+        ability_s1_tip_name: "温室精灵的感恩小费",
+        ability_s1_tip_desc: "治愈第1分店精灵完成时，有45%几率获得感谢小费（+60% 精华与经验）。",
+        ability_s1_resonance_name: "月光工坊精华共鸣",
+        ability_s1_resonance_desc: "第1分店互动与治愈所获得的所有精华永久提升+50%。",
+        ability_s2_reception_name: "秘境森林守护灵迎宾",
+        ability_s2_reception_desc: "自动迎接第2分店访客，治愈速度提升+25%，来访间隔缩短25%。",
+        ability_s2_heal_name: "芬多精自然修愈",
+        ability_s2_heal_desc: "在录音室中每隔1.2秒自动释放森林疗愈波，且候诊室精灵每隔2.5秒自然修愈。",
+        ability_s2_tip_name: "森林恩泽特别小费",
+        ability_s2_tip_desc: "治愈第2分店精灵完成时，有45%几率获得感谢小费（+60% 精华与经验）。",
+        ability_s2_resonance_name: "大自然精华共鸣",
+        ability_s2_resonance_desc: "第2分店互动与治愈所获得的所有精华永久提升+50%。",
+        ability_s3_reception_name: "深海声呐迎宾员",
+        ability_s3_reception_desc: "自动迎接第3分店访客，治愈速度提升+25%，来访间隔缩短25%。",
+        ability_s3_heal_name: "疗愈洋流微波",
+        ability_s3_heal_desc: "在录音室中每隔1.2秒自动释放洋流疗愈波，且候诊室精灵每隔2.5秒自然修愈。",
+        ability_s3_tip_name: "珍珠贝恩泽小费",
+        ability_s3_tip_desc: "治愈第3分店精灵完成时，有45%几率获得感谢小费（+60% 精华与经验）。",
+        ability_s3_resonance_name: "深海共鸣增幅",
+        ability_s3_resonance_desc: "第3分店互动与治愈所获得的所有精华永久提升+50%。",
+        ability_s4_reception_name: "赛博AI接待系统",
+        ability_s4_reception_desc: "自动迎接第4分店访客，治愈速度提升+25%，来访间隔缩短25%。",
+        ability_s4_heal_name: "纳米脉冲极速修愈",
+        ability_s4_heal_desc: "在录音室中每隔1.2秒自动释放纳米疗愈波，且候诊室精灵每隔2.5秒自然修愈。",
+        ability_s4_tip_name: "赛博代币打赏小费",
+        ability_s4_tip_desc: "治愈第4分店精灵完成时，有45%几率获得感谢小费（+60% 精华与经验）。",
+        ability_s4_resonance_name: "赛博超频加速共鸣",
+        ability_s4_resonance_desc: "第4分店互动与治愈所获得的所有精华永久提升+50%。",
+        ability_s5_reception_name: "皇家首席馆长礼遇",
+        ability_s5_reception_desc: "自动迎接第5分店访客，治愈速度提升+25%，来访间隔缩短25%。",
+        ability_s5_heal_name: "古籍之愈誓约",
+        ability_s5_heal_desc: "在录音室中每隔1.2秒自动释放古籍疗愈波，且候诊室精灵每隔2.5秒自然修愈。",
+        ability_s5_tip_name: "皇家贵族赞助小费",
+        ability_s5_tip_desc: "治愈第5分店精灵完成时，有45%几率获得感谢小费（+60% 精华与经验）。",
+        ability_s5_resonance_name: "皇家书库精华共鸣",
+        ability_s5_resonance_desc: "第5分店互动与治愈所获得的所有精华永久提升+50%。",
+        ability_s6_reception_name: "天界大天使礼遇",
+        ability_s6_reception_desc: "自动迎接第6分店访客，治愈速度提升+25%，来访间隔缩短25%.",
+        ability_s6_heal_name: "天界恩典疗愈微波",
+        ability_s6_heal_desc: "在录音室中每隔1.2秒自动释放天界疗愈波，且候诊室精灵每隔2.5秒自然修愈。",
+        ability_s6_tip_name: "圣杯祝福特别小费",
+        ability_s6_tip_desc: "治愈第6分店精灵完成时，有45%几率获得感谢小费（+60% 精华与经验）。",
+        ability_s6_resonance_name: "以太圣所精华共鸣",
+        ability_s6_resonance_desc: "第6分店互动与治愈所获得的所有精华永久提升+50%。",
     },
     fr: {
         start_button: "Entrer dans le Studio",
@@ -2228,6 +2437,58 @@ const TRANSLATIONS = {
         ability_cyber_overdrive_name: "Surmultiplication Cybernétique",
         ability_cyber_overdrive_desc: "La vitesse de guérison automatique double et l'accueil automatique garantit 100% de bonus de prescription optimale (1,3x).",
         insufficient_essence_prestige_toast: "✨ Essence insuffisante ! (Requis : {cost} / Manquant : {needed})",
+        abilities_branch_indicator: "📍 Succursale actuelle : {branch}",
+        abilities_filter_all: "Capacités de la succursale",
+        auto_attended_badge: "🛎️ Accompagné (+25% de soin)",
+        auto_heal_float_text: "🌿 Soin auto -{val}",
+        ability_s1_reception_name: "Accueil de l'Esprit de la Serre",
+        ability_s1_reception_desc: "Accueille les visiteurs de la succursale 1, accélère les soins de +25% et réduit l'attente de 25%.",
+        ability_s1_heal_name: "Onde de Guérison Lunaire",
+        ability_s1_heal_desc: "Une onde de soin se déclenche toutes les 1,2s en studio, et les esprits en attente guérissent toutes les 2,5s.",
+        ability_s1_tip_name: "Pourboire de l'Esprit de la Serre",
+        ability_s1_tip_desc: "45% de chances que les visiteurs de la succursale 1 laissent un pourboire (+60% Essence et XP).",
+        ability_s1_resonance_name: "Résonance d'Essence Lunaire",
+        ability_s1_resonance_desc: "Toute l'essence obtenue dans la succursale 1 augmente de façon permanente de +50%.",
+        ability_s2_reception_name: "Gardien de la Forêt Secrète",
+        ability_s2_reception_desc: "Accueille les visiteurs de la succursale 2, accélère les soins de +25% et réduit l'attente de 25%.",
+        ability_s2_heal_name: "Soin Naturel aux Phytoncides",
+        ability_s2_heal_desc: "Une onde de soin forestière se déclenche toutes les 1,2s en studio, et les esprits en attente guérissent toutes les 2,5s.",
+        ability_s2_tip_name: "Pourboire de la Grâce Forestière",
+        ability_s2_tip_desc: "45% de chances que les visiteurs de la succursale 2 laissent un pourboire (+60% Essence et XP).",
+        ability_s2_resonance_name: "Résonance de la Grande Nature",
+        ability_s2_resonance_desc: "Toute l'essence obtenue dans la succursale 2 augmente de façon permanente de +50%.",
+        ability_s3_reception_name: "Guide Sonar des Profondeurs",
+        ability_s3_reception_desc: "Accueille les visiteurs de la succursale 3, accélère les soins de +25% et réduit l'attente de 25%.",
+        ability_s3_heal_name: "Courants Marins Guérisseurs",
+        ability_s3_heal_desc: "Une onde de soin marin se déclenche toutes les 1,2s en studio, et les esprits en attente guérissent toutes les 2,5s.",
+        ability_s3_tip_name: "Pourboire de la Nacre",
+        ability_s3_tip_desc: "45% de chances que les visiteurs de la succursale 3 laissent un pourboire (+60% Essence et XP).",
+        ability_s3_resonance_name: "Résonance des Profondeurs",
+        ability_s3_resonance_desc: "Toute l'essence obtenue dans la succursale 3 augmente de façon permanente de +50%.",
+        ability_s4_reception_name: "Hôte IA Cybernétique",
+        ability_s4_reception_desc: "Accueille les visiteurs de la succursale 4, accélère les soins de +25% et réduit l'attente de 25%.",
+        ability_s4_heal_name: "Guérison Rapide Nano-Pulse",
+        ability_s4_heal_desc: "Une onde de soin nano se déclenche toutes les 1,2s en studio, et les esprits en attente guérissent toutes les 2,5s.",
+        ability_s4_tip_name: "Pourboire Cyber-Coin",
+        ability_s4_tip_desc: "45% de chances que les visiteurs de la succursale 4 laissent un pourboire (+60% Essence et XP).",
+        ability_s4_resonance_name: "Résonance Cybernétique",
+        ability_s4_resonance_desc: "Toute l'essence obtenue dans la succursale 4 augmente de façon permanente de +50%.",
+        ability_s5_reception_name: "Accueil du Bibliothécaire Royal",
+        ability_s5_reception_desc: "Accueille les visiteurs de la succursale 5, accélère les soins de +25% et réduit l'attente de 25%.",
+        ability_s5_heal_name: "Pacte de Soin des Grimoires",
+        ability_s5_heal_desc: "Une onde de soin littéraire se déclenche toutes les 1,2s en studio, et les esprits en attente guérissent toutes les 2,5s.",
+        ability_s5_tip_name: "Pourboire du Mécénat Impérial",
+        ability_s5_tip_desc: "45% de chances que les visiteurs de la succursale 5 laissent un pourboire (+60% Essence et XP).",
+        ability_s5_resonance_name: "Résonance des Archives Royales",
+        ability_s5_resonance_desc: "Toute l'essence obtenue dans la succursale 5 augmente de façon permanente de +50%.",
+        ability_s6_reception_name: "Accueil de l'Archange Céleste",
+        ability_s6_reception_desc: "Accueille les visiteurs de la succursale 6, accélère les soins de +25% et réduit l'attente de 25%.",
+        ability_s6_heal_name: "Onde de Grâce Céleste",
+        ability_s6_heal_desc: "Une onde de soin céleste se déclenche toutes les 1,2s en studio, et les esprits en attente guérissent toutes les 2,5s.",
+        ability_s6_tip_name: "Pourboire du Saint Graal",
+        ability_s6_tip_desc: "45% de chances que les visiteurs de la succursale 6 laissent un pourboire (+60% Essence et XP).",
+        ability_s6_resonance_name: "Résonance du Sanctuaire Éthéré",
+        ability_s6_resonance_desc: "Toute l'essence obtenue dans la succursale 6 augmente de façon permanente de +50%.",
     },
 };
 
@@ -2256,6 +2517,8 @@ function applyLanguage() {
     updateStoreSelector();
     applyStageVisuals();
     renderRoomList();
+    window._abilitiesActiveTab = state.stage;
+    renderAbilitiesPanel();
     renderVisitors();
     renderUpgrades();
     renderInventory();
@@ -3455,127 +3718,370 @@ function startGame() {
 }
 
 
-// --- 신비의 능력 각성 시스템 ---
+// --- 신비의 능력 각성 시스템 (호점별 독립 능력 각성) ---
 const ABILITIES = [
+    // Stage 1 (1호점: 에테르노아 온실 본점)
     {
-        id: 'auto_reception_1',
+        id: 's1_reception',
+        stage: 1,
+        type: 'reception',
         icon: '🛎️',
-        nameKey: 'ability_auto_reception_1_name',
-        descKey: 'ability_auto_reception_1_desc',
-        reqStage: 1,
+        nameKey: 'ability_s1_reception_name',
+        descKey: 'ability_s1_reception_desc',
         reqRooms: ['crystal', 'potion'],
         costEssence: 50000,
-        type: 'auto_reception',
         tier: 1
     },
     {
-        id: 'auto_heal_1',
+        id: 's1_heal',
+        stage: 1,
+        type: 'heal',
         icon: '🌿',
-        nameKey: 'ability_auto_heal_1_name',
-        descKey: 'ability_auto_heal_1_desc',
-        reqStage: 1,
-        reqRooms: ['waterbowl', 'musicbox'],
+        nameKey: 'ability_s1_heal_name',
+        descKey: 'ability_s1_heal_desc',
+        reqRooms: ['waterbowl', 'sand'],
         costEssence: 100000,
-        type: 'auto_heal',
         tier: 1
     },
     {
-        id: 'tip_boost_1',
+        id: 's1_tip',
+        stage: 1,
+        type: 'tip',
         icon: '🪙',
-        nameKey: 'ability_tip_boost_1_name',
-        descKey: 'ability_tip_boost_1_desc',
-        reqStage: 1,
-        reqRooms: ['chimes', 'sand'],
+        nameKey: 'ability_s1_tip_name',
+        descKey: 'ability_s1_tip_desc',
+        reqRooms: ['chimes', 'musicbox'],
         costEssence: 80000,
-        type: 'tip_boost',
-        tier: 1,
-        tipChance: 0.35,
-        tipRate: 0.50
+        tier: 1
     },
     {
-        id: 'auto_reception_2',
+        id: 's1_resonance',
+        stage: 1,
+        type: 'resonance',
         icon: '✨',
-        nameKey: 'ability_auto_reception_2_name',
-        descKey: 'ability_auto_reception_2_desc',
-        reqStage: 2,
+        nameKey: 'ability_s1_resonance_name',
+        descKey: 'ability_s1_resonance_desc',
+        reqRooms: ['crystal', 'rainwindow'],
+        costEssence: 150000,
+        tier: 1
+    },
+
+    // Stage 2 (2호점: 비밀의 숲 지점)
+    {
+        id: 's2_reception',
+        stage: 2,
+        type: 'reception',
+        icon: '🛎️',
+        nameKey: 'ability_s2_reception_name',
+        descKey: 'ability_s2_reception_desc',
+        reqRooms: ['woodblock', 'leaves'],
+        costEssence: 1000000,
+        tier: 1
+    },
+    {
+        id: 's2_heal',
+        stage: 2,
+        type: 'heal',
+        icon: '🌿',
+        nameKey: 'ability_s2_heal_name',
+        descKey: 'ability_s2_heal_desc',
         reqRooms: ['campfire', 'singingbowl'],
+        costEssence: 2000000,
+        tier: 1
+    },
+    {
+        id: 's2_tip',
+        stage: 2,
+        type: 'tip',
+        icon: '🪙',
+        nameKey: 'ability_s2_tip_name',
+        descKey: 'ability_s2_tip_desc',
+        reqRooms: ['birdsong', 'stream'],
         costEssence: 1500000,
-        type: 'auto_reception',
-        tier: 2
+        tier: 1
     },
     {
-        id: 'auto_heal_2',
-        icon: '🕊️',
-        nameKey: 'ability_auto_heal_2_name',
-        descKey: 'ability_auto_heal_2_desc',
-        reqStage: 2,
-        reqRooms: ['stream', 'crickets'],
+        id: 's2_resonance',
+        stage: 2,
+        type: 'resonance',
+        icon: '✨',
+        nameKey: 'ability_s2_resonance_name',
+        descKey: 'ability_s2_resonance_desc',
+        reqRooms: ['woodblock', 'crickets'],
         costEssence: 3000000,
-        type: 'auto_heal',
-        tier: 2
+        tier: 1
+    },
+
+    // Stage 3 (3호점: 심해 바다 지점)
+    {
+        id: 's3_reception',
+        stage: 3,
+        type: 'reception',
+        icon: '🛎️',
+        nameKey: 'ability_s3_reception_name',
+        descKey: 'ability_s3_reception_desc',
+        reqRooms: ['bubbles', 'submarine'],
+        costEssence: 20000000,
+        tier: 1
     },
     {
-        id: 'tip_boost_2',
-        icon: '💎',
-        nameKey: 'ability_tip_boost_2_name',
-        descKey: 'ability_tip_boost_2_desc',
-        reqStage: 2,
-        reqRooms: ['leaves', 'woodblock'],
-        costEssence: 5000000,
-        type: 'tip_boost',
-        tier: 2,
-        tipChance: 0.55,
-        tipRate: 1.00
+        id: 's3_heal',
+        stage: 3,
+        type: 'heal',
+        icon: '🌿',
+        nameKey: 'ability_s3_heal_name',
+        descKey: 'ability_s3_heal_desc',
+        reqRooms: ['whale', 'waterflow'],
+        costEssence: 40000000,
+        tier: 1
     },
     {
-        id: 'ocean_resonance',
-        icon: '🌊',
-        nameKey: 'ability_ocean_resonance_name',
-        descKey: 'ability_ocean_resonance_desc',
-        reqStage: 3,
-        reqRooms: ['whale', 'bubbles'],
+        id: 's3_tip',
+        stage: 3,
+        type: 'tip',
+        icon: '🪙',
+        nameKey: 'ability_s3_tip_name',
+        descKey: 'ability_s3_tip_desc',
+        reqRooms: ['coral', 'oxygentank'],
+        costEssence: 30000000,
+        tier: 1
+    },
+    {
+        id: 's3_resonance',
+        stage: 3,
+        type: 'resonance',
+        icon: '✨',
+        nameKey: 'ability_s3_resonance_name',
+        descKey: 'ability_s3_resonance_desc',
+        reqRooms: ['bubbles', 'caveecho'],
         costEssence: 50000000,
-        type: 'essence_multiplier',
-        tier: 3,
-        multiplier: 1.50
+        tier: 1
+    },
+
+    // Stage 4 (4호점: 사이버네틱 미래 지점)
+    {
+        id: 's4_reception',
+        stage: 4,
+        type: 'reception',
+        icon: '🛎️',
+        nameKey: 'ability_s4_reception_name',
+        descKey: 'ability_s4_reception_desc',
+        reqRooms: ['keyboard', 'glitch'],
+        costEssence: 200000000,
+        tier: 1
     },
     {
-        id: 'cyber_overdrive',
-        icon: '⚡',
-        nameKey: 'ability_cyber_overdrive_name',
-        descKey: 'ability_cyber_overdrive_desc',
-        reqStage: 4,
-        reqRooms: ['keyboard', 'serverfan'],
+        id: 's4_heal',
+        stage: 4,
+        type: 'heal',
+        icon: '🌿',
+        nameKey: 'ability_s4_heal_name',
+        descKey: 'ability_s4_heal_desc',
+        reqRooms: ['spaceship', 'serverfan'],
+        costEssence: 400000000,
+        tier: 1
+    },
+    {
+        id: 's4_tip',
+        stage: 4,
+        type: 'tip',
+        icon: '🪙',
+        nameKey: 'ability_s4_tip_name',
+        descKey: 'ability_s4_tip_desc',
+        reqRooms: ['servomotor', 'datatransfer'],
+        costEssence: 300000000,
+        tier: 1
+    },
+    {
+        id: 's4_resonance',
+        stage: 4,
+        type: 'resonance',
+        icon: '✨',
+        nameKey: 'ability_s4_resonance_name',
+        descKey: 'ability_s4_resonance_desc',
+        reqRooms: ['keyboard', 'zerogpod'],
         costEssence: 500000000,
-        type: 'overdrive',
-        tier: 4
+        tier: 1
+    },
+
+    // Stage 5 (5호점: 에테르노아 왕성 지점)
+    {
+        id: 's5_reception',
+        stage: 5,
+        type: 'reception',
+        icon: '🛎️',
+        nameKey: 'ability_s5_reception_name',
+        descKey: 'ability_s5_reception_desc',
+        reqRooms: ['quill', 'parchment'],
+        costEssence: 2000000000,
+        tier: 1
+    },
+    {
+        id: 's5_heal',
+        stage: 5,
+        type: 'heal',
+        icon: '🌿',
+        nameKey: 'ability_s5_heal_name',
+        descKey: 'ability_s5_heal_desc',
+        reqRooms: ['teacup', 'royalchimes'],
+        costEssence: 4000000000,
+        tier: 1
+    },
+    {
+        id: 's5_tip',
+        stage: 5,
+        type: 'tip',
+        icon: '🪙',
+        nameKey: 'ability_s5_tip_name',
+        descKey: 'ability_s5_tip_desc',
+        reqRooms: ['velvet', 'chess'],
+        costEssence: 3000000000,
+        tier: 1
+    },
+    {
+        id: 's5_resonance',
+        stage: 5,
+        type: 'resonance',
+        icon: '✨',
+        nameKey: 'ability_s5_resonance_name',
+        descKey: 'ability_s5_resonance_desc',
+        reqRooms: ['quill', 'royalfire'],
+        costEssence: 5000000000,
+        tier: 1
+    },
+
+    // Stage 6 (6호점: 천상 성소 지점)
+    {
+        id: 's6_reception',
+        stage: 6,
+        type: 'reception',
+        icon: '🛎️',
+        nameKey: 'ability_s6_reception_name',
+        descKey: 'ability_s6_reception_desc',
+        reqRooms: ['harp', 'clouds'],
+        costEssence: 20000000000,
+        tier: 1
+    },
+    {
+        id: 's6_heal',
+        stage: 6,
+        type: 'heal',
+        icon: '🌿',
+        nameKey: 'ability_s6_heal_name',
+        descKey: 'ability_s6_heal_desc',
+        reqRooms: ['halo', 'gate'],
+        costEssence: 40000000000,
+        tier: 1
+    },
+    {
+        id: 's6_tip',
+        stage: 6,
+        type: 'tip',
+        icon: '🪙',
+        nameKey: 'ability_s6_tip_name',
+        descKey: 'ability_s6_tip_desc',
+        reqRooms: ['choir', 'starlight'],
+        costEssence: 30000000000,
+        tier: 1
+    },
+    {
+        id: 's6_resonance',
+        stage: 6,
+        type: 'resonance',
+        icon: '✨',
+        nameKey: 'ability_s6_resonance_name',
+        descKey: 'ability_s6_resonance_desc',
+        reqRooms: ['harp', 'sanctuary'],
+        costEssence: 50000000000,
+        tier: 1
     }
 ];
 
-function hasAbility(abilityId) {
-    return Array.isArray(state.unlockedAbilities) && state.unlockedAbilities.includes(abilityId);
+window._abilitiesActiveTab = null;
+
+function hasAbility(typeOrId, targetStage = state.stage) {
+    if (!state.unlockedAbilitiesByStage) {
+        state.unlockedAbilitiesByStage = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+    }
+    const list = state.unlockedAbilitiesByStage[targetStage] || [];
+    if (list.includes(typeOrId)) return true;
+    if (list.includes(`s${targetStage}_${typeOrId}`)) return true;
+    const abObj = ABILITIES.find(a => a.id === typeOrId);
+    if (abObj && abObj.stage === targetStage && list.includes(abObj.id)) return true;
+    return false;
 }
+
+window.selectAbilitiesTab = function(stg) {
+    window._abilitiesActiveTab = parseInt(stg);
+    renderAbilitiesPanel();
+};
 
 function renderAbilitiesPanel() {
     const listEl = document.getElementById('abilities-list');
     const balanceEl = document.getElementById('abilities-essence');
     const countEl = document.getElementById('abilities-unlocked-count');
+    const branchBadgeEl = document.getElementById('abilities-current-branch-badge');
+    
     if (balanceEl) balanceEl.textContent = state.essence.toLocaleString();
+    if (branchBadgeEl) {
+        branchBadgeEl.textContent = t('abilities_branch_indicator', { branch: t('store_branch', { stage: state.stage }) });
+    }
 
-    const unlockedCount = ABILITIES.filter(a => hasAbility(a.id)).length;
-    if (countEl) countEl.textContent = t('abilities_unlocked_summary', { unlocked: unlockedCount, total: ABILITIES.length });
+    if (!state.unlockedAbilitiesByStage) {
+        state.unlockedAbilitiesByStage = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+    }
+
+    // Determine currently viewed tab stage
+    if (window._abilitiesActiveTab === null) {
+        window._abilitiesActiveTab = state.stage || 1;
+    }
+    const viewStage = window._abilitiesActiveTab;
+
+    // Total unlocked across all stages
+    let totalUnlocked = 0;
+    Object.values(state.unlockedAbilitiesByStage).forEach(arr => {
+        if (Array.isArray(arr)) totalUnlocked += arr.length;
+    });
+
+    if (countEl) {
+        countEl.textContent = t('abilities_unlocked_summary', { unlocked: totalUnlocked, total: ABILITIES.length });
+    }
 
     if (!listEl) return;
 
-    let html = '';
-    ABILITIES.forEach(ab => {
-        const isUnlocked = hasAbility(ab.id);
-        const stageMet = (state.highestStage || 1) >= ab.reqStage;
+    // 1. Branch Tab Selector HTML
+    let tabsHtml = `<div class="abilities-tab-selector glass" style="display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; padding:6px; border-radius:10px;">`;
+    for (let s = 1; s <= 6; s++) {
+        const isCurrentActiveStage = (s === state.stage);
+        const isSelectedTab = (s === viewStage);
+        const sUnlockedCount = (state.unlockedAbilitiesByStage[s] || []).length;
+        const bName = t('store_branch', { stage: s });
+        const star = isCurrentActiveStage ? ' ★' : '';
+        const activeStyle = isSelectedTab
+            ? 'background:var(--accent-gold); color:#111; font-weight:800; border-color:var(--accent-gold);'
+            : 'background:rgba(255,255,255,0.06); color:#ddd; border-color:rgba(255,255,255,0.15);';
+        tabsHtml += `
+            <button onclick="selectAbilitiesTab(${s})" style="flex:0 0 auto; padding:6px 12px; border-radius:8px; font-size:0.75rem; border:1px solid; cursor:pointer; transition:all 0.2s; white-space:nowrap; ${activeStyle}">
+                ${bName}${star} (${sUnlockedCount}/4)
+            </button>
+        `;
+    }
+    tabsHtml += `</div>`;
+
+    // 2. Abilities for viewStage
+    const stageAbilities = ABILITIES.filter(ab => ab.stage === viewStage);
+    let cardsHtml = '';
+
+    stageAbilities.forEach(ab => {
+        const stageList = state.unlockedAbilitiesByStage[ab.stage] || [];
+        const isUnlocked = stageList.includes(ab.id);
+        const stageMet = (state.highestStage || 1) >= ab.stage;
         const roomsMet = ab.reqRooms.every(r => state.unlockedRooms.includes(r));
         const costMet = state.essence >= ab.costEssence;
-        const canUnlock = !isUnlocked && stageMet && roomsMet && costMet;
+        const isCurrentBranch = (state.stage === ab.stage);
+        const canUnlock = !isUnlocked && stageMet && roomsMet && costMet && isCurrentBranch;
 
-        const stageReqBadge = `<span class="req-tag ${stageMet ? 'met' : 'unmet'}">${stageMet ? '✓' : '✗'} ${t('req_stage_badge', { stage: ab.reqStage })}</span>`;
+        const stageReqBadge = `<span class="req-tag ${stageMet ? 'met' : 'unmet'}">${stageMet ? '✓' : '✗'} ${t('req_stage_badge', { stage: ab.stage })}</span>`;
         const roomReqBadges = ab.reqRooms.map(r => {
             const rMet = state.unlockedRooms.includes(r);
             const rName = t('room_' + r + '_name');
@@ -3585,20 +4091,22 @@ function renderAbilitiesPanel() {
 
         let btnHtml = '';
         if (isUnlocked) {
-            btnHtml = `<button class="ability-btn btn-unlocked" disabled>${t('ability_btn_unlocked')}</button>`;
+            btnHtml = `<button class="ability-btn btn-unlocked" disabled>✓ ${t('ability_btn_unlocked')}</button>`;
+        } else if (!isCurrentBranch) {
+            btnHtml = `<button class="ability-btn btn-locked" disabled title="해당 호점으로 이동해야 각성 가능합니다">📍 ${t('store_branch', { stage: ab.stage })}에서 각성 가능</button>`;
         } else if (canUnlock) {
-            btnHtml = `<button class="ability-btn btn-available" onclick="unlockAbility('${ab.id}')">${t('ability_btn_unlock', { cost: ab.costEssence.toLocaleString() })}</button>`;
+            btnHtml = `<button class="ability-btn btn-available" onclick="unlockAbility('${ab.id}')">✨ ${t('ability_btn_unlock', { cost: ab.costEssence.toLocaleString() })}</button>`;
         } else {
             btnHtml = `<button class="ability-btn btn-locked" disabled>${t('ability_btn_locked')}</button>`;
         }
 
-        html += `
+        cardsHtml += `
         <div class="ability-card ${isUnlocked ? 'unlocked' : 'locked'}">
             <div class="ability-header">
                 <div class="ability-icon">${ab.icon}</div>
                 <div class="ability-title-box">
                     <div class="ability-name">${t(ab.nameKey)}</div>
-                    <span class="ability-tier">Tier ${ab.tier}</span>
+                    <span class="ability-tier">${t('store_branch', { stage: ab.stage })} 전용</span>
                 </div>
             </div>
             <div class="ability-desc">${t(ab.descKey)}</div>
@@ -3612,15 +4120,25 @@ function renderAbilitiesPanel() {
         `;
     });
 
-    listEl.innerHTML = html;
+    listEl.innerHTML = tabsHtml + cardsHtml;
 }
 
 window.unlockAbility = function(abilityId) {
     const ab = ABILITIES.find(a => a.id === abilityId);
     if (!ab) return;
-    if (hasAbility(ab.id)) return;
+    
+    if (!state.unlockedAbilitiesByStage) {
+        state.unlockedAbilitiesByStage = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+    }
+    const stageList = state.unlockedAbilitiesByStage[ab.stage] || [];
+    if (stageList.includes(ab.id)) return;
 
-    const stageMet = (state.highestStage || 1) >= ab.reqStage;
+    if (state.stage !== ab.stage) {
+        showToast(`📍 ${t('store_branch', { stage: ab.stage })}에 방문해야 이 능력을 각성할 수 있습니다.`);
+        return;
+    }
+
+    const stageMet = (state.highestStage || 1) >= ab.stage;
     const roomsMet = ab.reqRooms.every(r => state.unlockedRooms.includes(r));
     const costMet = state.essence >= ab.costEssence;
 
@@ -3630,17 +4148,75 @@ window.unlockAbility = function(abilityId) {
     }
 
     state.essence -= ab.costEssence;
+    if (!state.unlockedAbilitiesByStage[ab.stage]) {
+        state.unlockedAbilitiesByStage[ab.stage] = [];
+    }
+    state.unlockedAbilitiesByStage[ab.stage].push(ab.id);
+    
+    // Legacy sync
     if (!state.unlockedAbilities) state.unlockedAbilities = [];
-    state.unlockedAbilities.push(ab.id);
+    if (!state.unlockedAbilitiesByStage) {
+        state.unlockedAbilitiesByStage = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+    }
+    // Backward compatibility migration
+    const legacyMap = {
+        'auto_reception_1': { stage: 1, id: 's1_reception' },
+        'auto_heal_1': { stage: 1, id: 's1_heal' },
+        'tip_boost_1': { stage: 1, id: 's1_tip' },
+        'auto_reception_2': { stage: 2, id: 's2_reception' },
+        'auto_heal_2': { stage: 2, id: 's2_heal' },
+        'tip_boost_2': { stage: 2, id: 's2_tip' },
+        'ocean_resonance': { stage: 3, id: 's3_resonance' },
+        'cyber_overdrive': { stage: 4, id: 's4_heal' }
+    };
+    state.unlockedAbilities.forEach(oldId => {
+        if (legacyMap[oldId]) {
+            const info = legacyMap[oldId];
+            if (!state.unlockedAbilitiesByStage[info.stage]) state.unlockedAbilitiesByStage[info.stage] = [];
+            if (!state.unlockedAbilitiesByStage[info.stage].includes(info.id)) {
+                state.unlockedAbilitiesByStage[info.stage].push(info.id);
+            }
+        }
+    });
+    if (!state.unlockedAbilities.includes(ab.id)) state.unlockedAbilities.push(ab.id);
 
-    playChime(1200);
+    playChime(1300);
     showToast(`✨ [능력 각성!] ${t(ab.nameKey)} 능력을 성공적으로 획득했습니다!`);
-    addNotification(`✨ [능력 각성] ${t(ab.nameKey)} (${t(ab.descKey)})`, 'system');
+    addNotification(`✨ [${t('store_branch', { stage: ab.stage })} 능력 각성] ${t(ab.nameKey)} (${t(ab.descKey)})`, 'system');
 
     renderAbilitiesPanel();
     updateUI();
     saveGame();
 };
+
+function triggerAutoHealFeedback(amount) {
+    if (!state.activeHealingTarget) return;
+    
+    // 1. Floating text on avatar
+    const avatarEl = document.getElementById('healing-avatar');
+    if (avatarEl) {
+        const rect = avatarEl.getBoundingClientRect();
+        const floatEl = document.createElement('div');
+        floatEl.className = 'floating-heal-text';
+        floatEl.textContent = t('auto_heal_float_text', { val: Math.round(amount) });
+        floatEl.style.left = `${rect.left + rect.width / 2 - 40}px`;
+        floatEl.style.top = `${rect.top - 10}px`;
+        document.body.appendChild(floatEl);
+        setTimeout(() => floatEl.remove(), 1200);
+
+        // 2. Ripple pulse ring
+        const ring = document.createElement('div');
+        ring.className = 'auto-heal-pulse-ring';
+        avatarEl.appendChild(ring);
+        setTimeout(() => ring.remove(), 1000);
+    }
+
+    // 3. Audio chime
+    if (typeof playChime === 'function') {
+        playChime(1100);
+    }
+}
+
 
 function updateSessionRewardsDisplay() {
     const eVal = document.getElementById('session-essence-val');
@@ -3810,7 +4386,7 @@ function gainResource(essence, xp) {
     }
 
     // 신비의 능력: 심해의 공명 증폭 (+50% 정수)
-    let oceanMulti = hasAbility('ocean_resonance') ? 1.5 : 1.0;
+    let oceanMulti = hasAbility('resonance') ? 1.5 : 1.0;
 
     const realEssence = Math.floor(essence * eMulti * fireMulti * oceanMulti);
     const realXp = Math.floor(xp * xMulti * fireMulti);
@@ -4123,10 +4699,11 @@ function processHealing(amount) {
     const target = state.activeHealingTarget;
     const speedMod = target.stressEffect ? target.stressEffect.speedMod : 1.0;
     const rxSpeedMultiplier = target.isOptimalRx ? 1.5 : 1.0;
+    const attendedMultiplier = target.isAutoAttended ? 1.25 : 1.0;
 
     // 안정지수에 비례하여 치유량이 증폭됨 (0~100 안정지수 -> 1.0x ~ 2.0x 치유량)
     const stabilityMultiplier = 1.0 + (state.stability / 100);
-    const rawHeal = amount * speedMod * stabilityMultiplier * rxSpeedMultiplier;
+    const rawHeal = amount * speedMod * stabilityMultiplier * rxSpeedMultiplier * attendedMultiplier;
 
     // 플레이어가 너무 강력해져서 한 번 클릭에 손님이 바로 치유되는 것을 방지.
     // 아무리 치유량이 높아도 1회 상호작용당 최대 스트레스의 15%까지만 깎이도록 제한 (최소 7번의 상호작용 필요)
@@ -4154,7 +4731,8 @@ function processHealing(amount) {
 
         const rushMultiplier = state.isEveningRush ? 1.2 : 1.0;
         const rxMultiplier = isOptimal ? 1.3 : 1.0; // 맞춤 처방 성공 시 에센스 및 경험치 +30% 추가 보너스
-        const totalEssence = target.rewardEssence * state.buffs.essenceMultiplier * rushMultiplier * rxMultiplier;
+        const resonanceMultiplier = hasAbility('resonance') ? 1.5 : 1.0;
+        const totalEssence = target.rewardEssence * state.buffs.essenceMultiplier * rushMultiplier * rxMultiplier * resonanceMultiplier;
         const totalXp = target.rewardXp * state.buffs.xpMultiplier * rushMultiplier * rxMultiplier;
 
         gainEssence(totalEssence); gainXp(totalXp);
@@ -4162,18 +4740,19 @@ function processHealing(amount) {
             showToast('🔥 [저녁 러시 보너스] 에센스 & XP +20% 추가 획득!');
         }
 
-        // --- 패시브 능력: 팁 획득 확률 (tip_boost_1 / tip_boost_2) ---
+        // --- 패시브 능력: 팁 획득 확률 (tip 능력 각성 시 45% 확률로 +60% 팁) ---
         let tipData = null;
-        if (hasAbility('tip_boost_2') || hasAbility('tip_boost_1')) {
-            const tipChance = hasAbility('tip_boost_2') ? 0.55 : 0.35;
-            const tipRate = hasAbility('tip_boost_2') ? 1.00 : 0.50;
+        if (hasAbility('tip')) {
+            const tipChance = 0.45;
+            const tipRate = 0.60;
             if (Math.random() < tipChance) {
                 const tipE = Math.floor(totalEssence * tipRate);
                 const tipX = Math.floor(totalXp * tipRate);
                 gainEssence(tipE);
                 gainXp(tipX);
                 tipData = { essence: tipE, xp: tipX };
-                showToast(t('tip_toast_optimal', { essence: tipE.toLocaleString(), xp: tipX.toLocaleString() }));
+                playChime(1500);
+                showToast(`🪙 ${t('tip_toast_optimal', { essence: tipE.toLocaleString(), xp: tipX.toLocaleString() })}`);
             }
         }
         if (isOptimal) {
@@ -4842,6 +5421,7 @@ window.setGameTime = function(hours, mins = 0) {
 };
 
 function gameLoop() {
+    const now = Date.now();
     processTemporaryBuffs();
     checkSecretShopRotation();
     advanceGameClock();
@@ -4851,58 +5431,66 @@ function gameLoop() {
     let auto = (state.spirits.wind || 0) * Math.max(1, Math.floor(roomReward * 0.25)) * state.buffs.essenceMultiplier;
     if (auto > 0) gainEssence(auto);
 
-    // --- 패시브 능력 1: 녹음실 자동 치유 파동 (auto_heal_1 / cyber_overdrive) ---
-    if (state.currentTool && state.activeHealingTarget && (hasAbility('auto_heal_1') || hasAbility('cyber_overdrive'))) {
-        if (!window._lastAutoHealPulse || now - window._lastAutoHealPulse > (hasAbility('cyber_overdrive') ? 750 : 1500)) {
+    // --- 패시브 능력 1: 녹음실 자동 치유 파동 (체감 연출 & 독립 발동) ---
+    if (state.currentTool && state.activeHealingTarget && hasAbility('heal')) {
+        if (!window._lastAutoHealPulse || now - window._lastAutoHealPulse > 1200) {
             window._lastAutoHealPulse = now;
-            handleInteraction(null, 'auto');
+            const curTool = ROOMS.find(r => r.id === state.currentTool);
+            const baseHeal = curTool ? (curTool.rewardBase * 2) : 10;
+            const target = state.activeHealingTarget;
+            const speedMod = (target && target.stressEffect) ? target.stressEffect.speedMod : 1.0;
+            const attendedMod = (target && target.isAutoAttended) ? 1.25 : 1.0;
+            const rxSpeed = (target && target.isOptimalRx) ? 1.5 : 1.0;
+            const rawHeal = baseHeal * speedMod * attendedMod * rxSpeed * state.buffs.healSpeedMultiplier;
+            const actualHeal = Math.min(rawHeal, target.maxStress * 0.15);
+            
+            processHealing(baseHeal);
+            triggerAutoHealFeedback(actualHeal);
         }
     }
 
-    // --- 패시브 능력 2: 스튜디오 대기열 자연 치유 (auto_heal_2) ---
-    if (hasAbility('auto_heal_2') && state.visitors && state.visitors.length > 0 && !state.activeHealingTarget) {
-        if (!window._lastQueueHealTick || now - window._lastQueueHealTick > 3000) {
+    // --- 패시브 능력 2: 스튜디오 대기열 자연 치유 (독립 발동) ---
+    if (hasAbility('heal') && state.visitors && state.visitors.length > 0 && !state.activeHealingTarget) {
+        if (!window._lastQueueHealTick || now - window._lastQueueHealTick > 2500) {
             window._lastQueueHealTick = now;
             const waitingV = state.visitors[0];
-            if (waitingV) {
-                const healAmt = Math.max(10, Math.floor(waitingV.maxStress * 0.12));
+            if (waitingV && waitingV.currentStress > 0) {
+                const healAmt = Math.max(15, Math.floor(waitingV.maxStress * 0.15));
                 waitingV.currentStress = Math.max(0, waitingV.currentStress - healAmt);
                 renderVisitors();
                 if (waitingV.currentStress <= 0) {
-                    // 자연 완치 보상 지급
-                    const curTool = state.unlockedRooms[0] || 'crystal';
+                    const curTool = getRoomsForCurrentStage()[0] ? getRoomsForCurrentStage()[0].id : 'crystal';
                     const rx = getRxInfo((waitingV.stressEffect && waitingV.stressEffect.id) || 'none');
                     const isOptimal = rx.recommendedRooms.includes(curTool);
                     completeDirectHealing(waitingV, isOptimal, rx);
                     state.visitors.shift();
                     renderVisitors();
-                    showToast(`🕊️ [자연 치유 완료] ${getVisitorName(waitingV)}이(가) 온실의 기운으로 완치되었습니다!`);
+                    playChime(1400);
+                    showToast(`🕊️ [자연 완치] ${getVisitorName(waitingV)}이(가) 지점의 치유 기운으로 완치되었습니다!`);
                 }
             }
         }
     }
 
-    // --- 패시브 능력 3: 자동 손님 응대 (auto_reception_1) ---
-    if (hasAbility('auto_reception_1') && state.visitors && state.visitors.length > 0 && !state.activeHealingTarget && !state.currentTool) {
+    // --- 패시브 능력 3: 자동 손님 응대 (auto_reception) 안내 토스트 ---
+    if (hasAbility('reception') && state.visitors && state.visitors.length > 0 && !state.activeHealingTarget && !state.currentTool) {
         if (!window._lastAutoReceptionTick || now - window._lastAutoReceptionTick > 6000) {
             window._lastAutoReceptionTick = now;
             const v = state.visitors[0];
             if (v && v.currentStress > 0) {
-                // 안내 정령이 최적 코너로 방문객 안내 및 치유 시작
                 const rx = getRxInfo((v.stressEffect && v.stressEffect.id) || 'none');
                 const matchedRoom = rx.recommendedRooms.find(rid => state.unlockedRooms.includes(rid)) || state.unlockedRooms[0];
                 if (matchedRoom) {
-                    showToast(`🛎️ [안내 정령] ${getVisitorName(v)}을(를) 최적의 치유 코너(${t('room_' + matchedRoom + '_name')})로 안내했습니다.`);
+                    showToast(`🛎️ [전담 안내] ${getVisitorName(v)}을(를) 맞춤 코너(${t('room_' + matchedRoom + '_name')})로 안내 중입니다.`);
                 }
             }
         }
     }
 
-    const now = Date.now();
     const maxCapacity = state.isEveningRush ? 6 : 3;
     const spawnInterval = getVisitorSpawnInterval();
     let effSpawnInterval = spawnInterval;
-    if (hasAbility('auto_reception_2')) effSpawnInterval *= 0.8;
+    if (hasAbility('reception')) effSpawnInterval *= 0.75;
     if (state.visitors.length < maxCapacity && (now - state.lastVisitorSpawnTime) > effSpawnInterval) {
         spawnVisitor();
         state.lastVisitorSpawnTime = now;
@@ -5349,6 +5937,9 @@ function spawnVisitor() {
     }
     if (!v.stressEffect) v.stressEffect = STRESS_EFFECTS[0];
 
+        if (hasAbility('reception')) {
+        v.isAutoAttended = true;
+    }
     state.visitors.push(v);
     addNotification(t('visitor_waiting_alert', { difficulty: getVisitorDifficulty(v), name: getVisitorName(v), avatar: v.avatar }), 'visitor');
     renderVisitors();
@@ -5360,7 +5951,7 @@ function renderVisitors() {
         <div class="visitor-card">
             <div class="visitor-avatar">${v.avatar}</div>
             <div class="visitor-info">
-                <strong>${getVisitorName(v)} <span class="difficulty-text">(${getVisitorDifficulty(v)})</span></strong>
+                <strong>${getVisitorName(v)} <span class="difficulty-text">(${getVisitorDifficulty(v)})</span>${v.isAutoAttended ? `<span class="attended-badge-tag">${t('auto_attended_badge')}</span>` : ''}</strong>
                 ${v.stressEffect && v.stressEffect.id !== 'none' ? `<span class="stress-tag stress-${v.stressEffect.id}">${t(v.stressEffect.nameKey)}</span>` : ''}
                 <div class="stress-bar"><div class="stress-fill" style="width: ${(v.currentStress / v.maxStress) * 100}%"></div></div>
             </div>
@@ -6105,7 +6696,7 @@ function addNotification(msg, type = 'system') {
     state.notifications.unshift({ id: Date.now(), text: msg, type: type, time: timeStr });
     if (state.notifications.length > 50) state.notifications.pop(); // 50개 유지
 
-    if (!el.notifPanel.classList.contains('open')) {
+    if (el.notifPanel && !el.notifPanel.classList.contains('open')) {
         state.unreadNotifs++;
         updateNotifBadge();
     }

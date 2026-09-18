@@ -3338,3 +3338,72 @@ body.low-graphics * {
     margin-bottom: 8px;
     padding-left: 4px;
 }
+
+/* --- 자동 치유 및 펄스 체감 연출 --- */
+.auto-heal-pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    border: 3px solid #34d399;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+    pointer-events: none;
+    animation: healPulseExpand 1s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+    z-index: 100;
+}
+
+@keyframes healPulseExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.9;
+        box-shadow: 0 0 10px #34d399;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.2);
+        opacity: 0;
+        box-shadow: 0 0 25px rgba(52, 211, 153, 0);
+    }
+}
+
+.floating-heal-text {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #34d399;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 10px rgba(52, 211, 153, 0.6);
+    animation: floatHealUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    z-index: 10000;
+}
+
+@keyframes floatHealUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.9);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-30px) scale(1.15);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-65px) scale(0.95);
+    }
+}
+
+.attended-badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.15);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-left: 6px;
+}
