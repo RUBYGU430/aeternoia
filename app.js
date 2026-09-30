@@ -673,6 +673,16 @@ const TRANSLATIONS = {
         ability_s6_tip_desc: "6호점 정령 치유 완료 시 45% 확률로 감사의 팁(+60% 정수 & 경험치)을 획득합니다.",
         ability_s6_resonance_name: "에테르 성소 에센스 공명",
         ability_s6_resonance_desc: "6호점에서 상호작용 및 손님 치유로 얻는 모든 정수가 영구적으로 +50% 증폭됩니다.",
+        review_bubbles: "물속에서 공기방울이 터지는 뽀글거림이 신기하네요.",
+        review_submarine: "잠수함의 낮게 깔리는 엔진 소음이 묘한 안정감을 줍니다.",
+        review_waterflow: "무겁게 흐르는 심해 해류 소리에 마음의 찌꺼기까지 다 씻겨 내려가는 기분입니다.",
+        review_glitch: "지직거리는 홀로그램 글리치 전자음이 귀를 간지럽히며 독특한 팅글을 줍니다.",
+        review_spaceship: "웅장한 우주선 엔진의 저주파 진동이 온몸을 포근하게 감싸줍니다.",
+        review_serverfan: "서버룸 쿨러의 부드럽고 규칙적인 바람 소리가 잡념을 날려버리는 최고의 백색소음이네요.",
+        review_servomotor: "징- 울리는 정밀한 로봇 관절 모터 소리가 묘한 중독성을 불러일으킵니다.",
+        review_datatransfer: "레트로 모뎀과 데이터 전송의 틱틱거리는 소리에 뇌가 자극받는 기분이에요.",
+        review_zerogpod: "무중력 캡슐 안에서 공명하는 진공관 사운드 덕분에 깊은 무아지경에 빠졌습니다.",
+        review_default_praise: "{room}의 소리에 마음이 정말 편안해졌어요. 최고의 힐링이었습니다!",
     },
     en: {
         start_button: "Enter Conservatory",
@@ -1127,6 +1137,16 @@ const TRANSLATIONS = {
         ability_s6_tip_desc: "45% chance for visitors in Branch 6 to leave a generous tip (+60% Essence & XP).",
         ability_s6_resonance_name: "Aether Sanctuary Resonance",
         ability_s6_resonance_desc: "All essence gained from interactions and healing in Branch 6 increases by +50%.",
+        review_bubbles: "Underwater bubble pops were surprisingly mesmerizing.",
+        review_submarine: "The low, humming drone of the submarine provided profound serenity.",
+        review_waterflow: "The deep, heavy oceanic currents washed all my mental clutter away.",
+        review_glitch: "The crackling holographic glitch tones tickled my ears with unique futuristic tingles.",
+        review_spaceship: "The majestic low-frequency hum of the spaceship engine warmly enveloped my entire body.",
+        review_serverfan: "The smooth, steady whirl of the server room cooler is the ultimate white noise for focus.",
+        review_servomotor: "The precise whirring and hum of robotic servomotors is delightfully satisfying and addictive.",
+        review_datatransfer: "The rhythmic digital blips and retro data clicks stimulated my senses wonderfully.",
+        review_zerogpod: "The resonant vacuum acoustics of the zero-gravity pod drifted me into deep tranquility.",
+        review_default_praise: "The sounds of {room} brought deep peace to my heart. Truly wonderful healing!",
     },
     ja: {
         start_button: "スタジオに入る",
@@ -1581,6 +1601,16 @@ const TRANSLATIONS = {
         ability_s6_tip_desc: "6号店精霊の治療完了時、45%の確率で感謝のチップ(+60% エッセンス＆経験値)を獲得します。",
         ability_s6_resonance_name: "エーテル聖所のエッセンス共鳴",
         ability_s6_resonance_desc: "6号店の相互作用と治療で獲得するすべてのエッセンスが恒久的に+50%増加します。",
+        review_bubbles: "水中で空気の泡がプチプチ弾ける音がとても不思議で癒やされます。",
+        review_submarine: "潜水艦の低く響くエンジン音が、不思議な安心感を与えてくれます。",
+        review_waterflow: "重厚に流れる深海海流の音に、心の澱みまで全て洗い流されるようでした。",
+        review_glitch: "チリチリと響くホログラムグリッチの電子音が、耳をくすぐるような独特のティングルをもたらします。",
+        review_spaceship: "宇宙船エンジンの重厚な低周波の振動が、全身を温かく包み込んでくれました。",
+        review_serverfan: "サーバールームのクーラーの滑らかで規則正しい風音が、雑念を吹き飛ばす最高のホワイトノイズです。",
+        review_servomotor: "精密に駆動するロボット関節モーターの低音が、心地よい中毒性を誘います。",
+        review_datatransfer: "レトロなモデムやデータ転送の軽快なチクタク音に、心地よい刺激を受けました。",
+        review_zerogpod: "無重力カプセルの中で共鳴する真空管サウンドのおかげで、深い瞑想状態に浸れました。",
+        review_default_praise: "{room}の音に心がとても安らぎました。最高の癒やしでした！",
     },
     zh: {
         start_button: "进入工作室",
@@ -2035,6 +2065,16 @@ const TRANSLATIONS = {
         ability_s6_tip_desc: "治愈第6分店精灵完成时，有45%几率获得感谢小费（+60% 精华与经验）。",
         ability_s6_resonance_name: "以太圣所精华共鸣",
         ability_s6_resonance_desc: "第6分店互动与治愈所获得的所有精华永久提升+50%。",
+        review_bubbles: "水下气泡缓缓破裂的咕噜声格外奇妙。",
+        review_submarine: "潜艇低沉平稳的引擎嗡鸣声带来了一种奇特的心安。",
+        review_waterflow: "深海沉稳厚重的水流回响，仿佛将内心所有的杂念与烦恼彻底冲刷一空。",
+        review_glitch: "全息故障闪烁的电子杂音轻抚耳膜，带来独一无二的未来感颅内触电。",
+        review_spaceship: "飞船引擎雄伟深沉的低频共鸣如温暖的羽翼般温柔包裹全身。",
+        review_serverfan: "服务器散热风扇平稳均匀的风流声是驱散杂念的顶级白噪音。",
+        review_servomotor: "机器人精密伺服关节运转时的轻微机械声令人着迷且格外治愈。",
+        review_datatransfer: "复古调制解调器与数据传输的清脆滴答声让大脑获得了极致的放松与专注。",
+        review_zerogpod: "在零重力胶囊中回荡的真空管道共鸣声，让我沉浸入忘却一切的极度宁静之中。",
+        review_default_praise: "{room}的声音让内心感到无比宁静与舒畅，真是一次绝妙的疗愈体验！",
     },
     fr: {
         start_button: "Entrer dans le Studio",
@@ -2489,6 +2529,16 @@ const TRANSLATIONS = {
         ability_s6_tip_desc: "45% de chances que les visiteurs de la succursale 6 laissent un pourboire (+60% Essence et XP).",
         ability_s6_resonance_name: "Résonance du Sanctuaire Éthéré",
         ability_s6_resonance_desc: "Toute l'essence obtenue dans la succursale 6 augmente de façon permanente de +50%.",
+        review_bubbles: "L'éclatement des bulles sous l'eau était étonnamment captivant.",
+        review_submarine: "Le vrombissement sourd du sous-marin m'a apporté une sérénité totale.",
+        review_waterflow: "Les courants océaniques profonds et denses ont emporté tous mes soucis.",
+        review_glitch: "Les crépitements électroniques du glitch holographique m'ont procuré des frissons ASMR uniques.",
+        review_spaceship: "Le grondement majestueux à basse fréquence du moteur de vaisseau spatial m'a enveloppé de réconfort.",
+        review_serverfan: "Le souffle doux et régulier des ventilateurs de serveurs est le bruit blanc idéal pour apaiser l'esprit.",
+        review_servomotor: "Le sifflement précis des servomoteurs robotiques procure une sensation délicieusement satisfaisante.",
+        review_datatransfer: "Les petits cliquetis numériques rétro du transfert de données ont magnifiquement stimulé mes sens.",
+        review_zerogpod: "La résonance sous vide de la capsule en apesanteur m'a plongé dans une profonde méditation.",
+        review_default_praise: "Les sons de {room} ont apporté une paix profonde à mon cœur. Une merveilleuse guérison !",
     },
 };
 
@@ -5646,12 +5696,25 @@ function renderReviewsPanel() {
         stageRooms.forEach(room => {
             const collected = state.collectedReviews.includes(room.id);
             if (collected) {
+                let reviewKey = 'review_' + room.id;
+                let reviewText = t(reviewKey);
+                if (reviewText === reviewKey) {
+                    // Try singular or fallback alias
+                    const singularKey = 'review_' + room.id.replace(/s$/, '');
+                    if (t(singularKey) !== singularKey) {
+                        reviewText = t(singularKey);
+                    } else if (t('review_sub') && room.id === 'submarine') {
+                        reviewText = t('review_sub');
+                    } else {
+                        reviewText = t('review_default_praise', { room: t('room_' + room.id + '_name') });
+                    }
+                }
                 html += `
                     <div class="review-card">
                         <div class="review-avatar">👤</div>
                         <div class="review-content">
                             <div class="review-author">${t('review_anonymous_visitor')}</div>
-                            <div class="review-text">"${t('review_' + room.id)}"</div>
+                            <div class="review-text">"${reviewText}"</div>
                         </div>
                         <div class="review-room-icon">${room.icon}</div>
                     </div>
