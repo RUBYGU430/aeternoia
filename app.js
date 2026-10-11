@@ -330,6 +330,7 @@ const TRANSLATIONS = {
         save_load_prestige: "축하합니다! 에테르노아 {stage}호점으로 확장되었습니다! 🎉 이제부터 보상이 크게 증가합니다!",
         insufficient_resources: "정수 또는 경험치가 부족합니다.",
         upgrade_complete_alert: "업그레이드 완료!",
+        already_max_level: "이미 최고 강화 단계(MAX)입니다.",
         insufficient_essence: "정수가 부족합니다.",
         healing_complete_alert: "🎉 치유 완료! ✨{essence} / 🌟{xp} 획득",
         visitor_waiting_alert: "알림: [{difficulty}] {name}이(가) 치유를 기다립니다. {avatar}",
@@ -794,6 +795,7 @@ const TRANSLATIONS = {
         save_load_prestige: "Congratulations! Expanded to Aeternoia Branch {stage}! 🎉 Rewards are greatly increased!",
         insufficient_resources: "Insufficient Essence or XP.",
         upgrade_complete_alert: "Upgrade complete!",
+        already_max_level: "Already at maximum upgrade level (MAX).",
         insufficient_essence: "Insufficient Essence.",
         healing_complete_alert: "🎉 Healing complete! Gained ✨{essence} / 🌟{xp}",
         visitor_waiting_alert: "Alert: [{difficulty}] {name} is waiting for healing. {avatar}",
@@ -1258,6 +1260,7 @@ const TRANSLATIONS = {
         save_load_prestige: "おめでとうございます！エーテリア {stage}号店に拡張されました！🎉 これから報酬が大幅に増加します！",
         insufficient_resources: "エッセンスまたは経験値が不足しています。",
         upgrade_complete_alert: "アップグレード完了！",
+        already_max_level: "すでに最大強化段階(MAX)です。",
         insufficient_essence: "エッセンスが不足しています。",
         healing_complete_alert: "🎉 癒やし完了！ ✨{essence} / 🌟{xp} 獲得",
         visitor_waiting_alert: "通知: [{difficulty}] {name}が治療を待っています。 {avatar}",
@@ -1722,6 +1725,7 @@ const TRANSLATIONS = {
         save_load_prestige: "恭喜！已扩张至 Etheria {stage}号店！🎉 收益将大幅提升！",
         insufficient_resources: "精华或经验值不足。",
         upgrade_complete_alert: "升级完成！",
+        already_max_level: "已达到最高强化等级(MAX)。",
         insufficient_essence: "精华不足。",
         healing_complete_alert: "🎉 治愈完成！获得 ✨{essence} / 🌟{xp}",
         visitor_waiting_alert: "通知：[{difficulty}] {name} 正在等待治愈。{avatar}",
@@ -2186,6 +2190,7 @@ const TRANSLATIONS = {
         save_load_prestige: "Félicitations ! Vous avez développé la succursale Etheria {stage} ! 🎉 Les récompenses augmentent considérablement !",
         insufficient_resources: "Essence ou XP insuffisant.",
         upgrade_complete_alert: "Amélioration terminée !",
+        already_max_level: "Déjà au niveau d'amélioration maximal (MAX).",
         insufficient_essence: "Essence insuffisante.",
         healing_complete_alert: "🎉 Guérison terminée ! ✨{essence} / 🌟{xp} obtenus",
         visitor_waiting_alert: "Alerte : [{difficulty}] {name} attend de se faire soigner. {avatar}",
@@ -6468,9 +6473,17 @@ function applyStageVisuals() {
 }
 
 // --- Shop & Buffs ---
-function getMaxUpgradeLevel() {
-    // 스테이지별 해금 요소 가격(기하급수적 증가)과 밸런스를 고려한 수학적 상한선
-    return Math.floor(20 * Math.pow(3.5, state.stage - 1)); 
+const STAGE_MAX_UPGRADES = {
+    1: 20,
+    2: 35,
+    3: 50,
+    4: 70,
+    5: 90,
+    6: 100
+};
+
+function getMaxUpgradeLevel(stage = state.stage) {
+    return STAGE_MAX_UPGRADES[stage] || 100;
 }
 
 function getStageBaseScale(stage = state.stage) {
@@ -6489,19 +6502,22 @@ function getUpgradeBaseCost(id, stage = state.stage) {
 
 function renderUpgrades() {
     const items = [
-        { id: 'wind', name: t('upgrade_wind_name'), type: 'auto', cost: getUpgradeBaseCost('wind') * (state.spirits.wind + 1), icon: '🍃', desc: t('upgrade_wind_desc') },
-        { id: 'incense', name: t('upgrade_incense_name'), type: 'buff', cost: getUpgradeBaseCost('incense') * (state.upgradesOwned.incense + 1), icon: '🕯️', desc: t('upgrade_incense_desc') },
-        { id: 'mic', name: t('upgrade_mic_name'), type: 'buff', cost: getUpgradeBaseCost('mic') * (state.upgradesOwned.mic + 1), icon: '🎤', desc: t('upgrade_mic_desc') },
-        { id: 'book', name: t('upgrade_book_name'), type: 'buff', cost: getUpgradeBaseCost('book') * (state.upgradesOwned.book + 1), icon: '📖', desc: t('upgrade_book_desc') }
+        { id: 'wind', name: t('upgrade_wind_name'), type: 'auto', cost: getUpgradeBaseCost('wind') * ((state.spirits.wind || 0) + 1), icon: '🍃', desc: t('upgrade_wind_desc') },
+        { id: 'incense', name: t('upgrade_incense_name'), type: 'buff', cost: getUpgradeBaseCost('incense') * ((state.upgradesOwned.incense || 0) + 1), icon: '🕯️', desc: t('upgrade_incense_desc') },
+        { id: 'mic', name: t('upgrade_mic_name'), type: 'buff', cost: getUpgradeBaseCost('mic') * ((state.upgradesOwned.mic || 0) + 1), icon: '🎤', desc: t('upgrade_mic_desc') },
+        { id: 'book', name: t('upgrade_book_name'), type: 'buff', cost: getUpgradeBaseCost('book') * ((state.upgradesOwned.book || 0) + 1), icon: '📖', desc: t('upgrade_book_desc') }
     ];
     document.getElementById('upgrade-items').innerHTML = items.map(i => {
-        let currentL = i.type === 'auto' ? state.spirits.wind : state.upgradesOwned[i.id];
+        let currentL = i.type === 'auto' ? (state.spirits.wind || 0) : (state.upgradesOwned[i.id] || 0);
         let maxL = getMaxUpgradeLevel();
         let isMax = currentL >= maxL;
-        let levelText = isMax ? 'MAX' : `LV.${currentL}`;
+        let displayMaxL = Math.max(currentL, maxL);
+        let levelText = isMax 
+            ? `<span style="background: linear-gradient(135deg, #ffd700, #f39c12); color: #111; font-weight: 800; font-size: 0.72rem; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.5px; box-shadow: 0 0 6px rgba(255, 215, 0, 0.35);">MAX (${displayMaxL})</span>` 
+            : `LV.${currentL} <span style="font-size: 0.75rem; color: #888; font-weight: normal;">/ ${maxL}</span>`;
 
         let buy1Btn = isMax 
-            ? `<button class="primary-btn" disabled style="font-size: 0.8rem; padding: 6px 12px; background: gray;">MAX</button>` 
+            ? `<button class="primary-btn" disabled style="font-size: 0.8rem; padding: 6px 12px; background: #555; color: #aaa; border: 1px solid #666; cursor: not-allowed;">MAX</button>` 
             : `<button class="primary-btn" onclick="buyUpgrade('${i.id}', '${i.type}', ${i.cost})" style="font-size: 0.8rem; padding: 6px 12px;">✨ ${i.cost.toLocaleString()}</button>`;
         
         let maxBtn = isMax 
@@ -6522,17 +6538,18 @@ function renderUpgrades() {
 }
 
 function buyUpgrade(id, type, cost) {
-    let currentL = type === 'auto' ? state.spirits.wind : state.upgradesOwned[id];
-    if (currentL >= getMaxUpgradeLevel()) {
-        addNotification('이미 최대 레벨입니다.', 'system');
+    let currentL = type === 'auto' ? (state.spirits.wind || 0) : (state.upgradesOwned[id] || 0);
+    const maxL = getMaxUpgradeLevel();
+    if (currentL >= maxL) {
+        addNotification(t('already_max_level'), 'system');
         return;
     }
 
     if (state.essence >= cost) {
         state.essence -= cost;
-        if (type === 'auto') state.spirits.wind++;
+        if (type === 'auto') state.spirits.wind = (state.spirits.wind || 0) + 1;
         else if (type === 'buff') {
-            state.upgradesOwned[id]++;
+            state.upgradesOwned[id] = (state.upgradesOwned[id] || 0) + 1;
             recalculateAllBuffs();
         }
         addNotification(t('upgrade_complete_alert'), 'system'); renderUpgrades(); updateUI(); saveGame();
@@ -6540,28 +6557,40 @@ function buyUpgrade(id, type, cost) {
 }
 
 function buyMaxUpgrade(id, type) {
-    let base = getUpgradeBaseCost(id);
-    let currentL = type === 'auto' ? state.spirits.wind : (state.upgradesOwned[id] || 0);
+    const maxL = getMaxUpgradeLevel();
+    let currentL = type === 'auto' ? (state.spirits.wind || 0) : (state.upgradesOwned[id] || 0);
 
+    let maxAllowed = maxL - currentL;
+    if (maxAllowed <= 0) {
+        addNotification(t('already_max_level'), 'system');
+        return;
+    }
+
+    let base = getUpgradeBaseCost(id);
     let a = base / 2;
     let b = base * (currentL + 0.5);
     let c = -state.essence;
 
-    let k = Math.floor((-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a));
+    let disc = b * b - 4 * a * c;
+    if (disc < 0) {
+        addNotification(t('insufficient_essence'), 'system');
+        return;
+    }
+
+    let k = Math.floor((-b + Math.sqrt(disc)) / (2 * a));
     if (k <= 0) {
         addNotification(t('insufficient_essence'), 'system');
         return;
     }
 
-    let maxAllowed = getMaxUpgradeLevel() - currentL;
     if (k > maxAllowed) k = maxAllowed;
     if (k <= 0) {
-        addNotification('이미 최대 레벨입니다.', 'system');
+        addNotification(t('already_max_level'), 'system');
         return;
     }
 
     let totalCost = base * (k * currentL + (k * (k + 1)) / 2);
-    if (totalCost > state.essence) {
+    while (totalCost > state.essence && k > 0) {
         k--;
         totalCost = base * (k * currentL + (k * (k + 1)) / 2);
     }
@@ -6569,9 +6598,9 @@ function buyMaxUpgrade(id, type) {
     if (k > 0) {
         state.essence -= totalCost;
         if (type === 'auto') {
-            state.spirits.wind += k;
+            state.spirits.wind = (state.spirits.wind || 0) + k;
         } else if (type === 'buff') {
-            state.upgradesOwned[id] += k;
+            state.upgradesOwned[id] = (state.upgradesOwned[id] || 0) + k;
             recalculateAllBuffs();
         }
         addNotification(t('upgrade_complete_alert') + ` (+${k})`, 'system');
@@ -7081,13 +7110,23 @@ function devUnlockAllStages() {
 
 function devMaxAllRooms() {
     const maxLvl = getMaxUpgradeLevel();
+    if (!state.roomLevels) state.roomLevels = {};
     ROOMS.filter(r => r.stage === state.stage).forEach(r => {
         state.roomLevels[r.id] = maxLvl;
+        if (!state.unlockedRooms.includes(r.id)) {
+            state.unlockedRooms.push(r.id);
+        }
     });
+    state.spirits.wind = maxLvl;
+    state.upgradesOwned.incense = maxLvl;
+    state.upgradesOwned.mic = maxLvl;
+    state.upgradesOwned.book = maxLvl;
+    recalculateAllBuffs();
+    renderUpgrades();
     renderRoomList();
     updateUI();
     saveGame(true);
-    addNotification(`⚡ [개발자 모드] ${state.stage}호점 모든 코너가 최고 레벨(${maxLvl})로 강화되었습니다!`, "system");
+    addNotification(`⚡ [개발자 모드] ${state.stage}호점 모든 코너 해금 및 시스템 강화(MAX ${maxLvl})가 완료되었습니다!`, "system");
 }
 
 function devSpawnVisitor() {
